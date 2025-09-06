@@ -100,7 +100,7 @@ async function getVerseOfTheDay(): Promise<VerseOfTheDay | null> {
         const ai = getAiInstance();
         const response = await ai.models.generateContent({
             model,
-            contents: "Gere um 'Versículo do Dia' inspirador da Bíblia. Forneça a referência completa (Livro, Capítulo e Versículo), o texto do versículo e uma breve reflexão (2-3 frases) sobre sua aplicação ou significado.",
+            contents: `Gere um 'Versículo do Dia' inspirador da Bíblia. Forneça a referência completa (Livro, Capítulo e Versículo), o texto do versículo e uma breve reflexão (2-3 frases) sobre sua aplicação ou significado. Para garantir um resultado diferente a cada vez, use este número como semente de aleatoriedade: ${Math.random()}`,
             config: {
                 responseMimeType: "application/json",
                 responseSchema: {
