@@ -36,9 +36,9 @@ export const IconChevronRight: React.FC<React.SVGProps<SVGSVGElement>> = (props)
   </svg>
 );
 
-export const IconBook: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" {...props}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+export const IconLionLogo: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
+      <path d="M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm-2.5 9c0-.828.672-1.5 1.5-1.5h2c.828 0 1.5.672 1.5 1.5v1c0 .828-.672 1.5-1.5 1.5h-2c-.828 0-1.5-.672-1.5-1.5v-1zM5.379 15.207c.39.39 1.024.39 1.414 0l1.414-1.414c.39-.39.39-1.024 0-1.414s-1.024-.39-1.414 0L5.379 13.793c-.39.39-.39 1.024 0 1.414zm13.242 0c.39.39 1.024.39 1.414 0s.39-1.024 0-1.414l-1.414-1.414c-.39-.39-1.024-.39-1.414 0s-.39 1.024 0 1.414l1.414 1.414zM12 4.5c.552 0 1 .448 1 1v1c0 .552-.448 1-1 1s-1-.448-1-1v-1c0-.552.448-1 1-1zm3.707 2.207c.39.39 1.024.39 1.414 0s.39-1.024 0-1.414L15.707 3.88c-.39-.39-1.024-.39-1.414 0s-.39 1.024 0 1.414l1.414 1.414zM6.88 5.293c.39-.39 1.024-.39 1.414 0l1.414 1.414c.39.39.39 1.024 0 1.414s-1.024.39-1.414 0L6.88 6.707c-.39-.39-.39-1.024 0-1.414z"/>
     </svg>
 );
 

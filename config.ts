@@ -17,5 +17,5 @@
  * =============================================================================
 */
 
-// >>> COLE SUA CHAVE DE API AQUI DENTRO DAS ASPAS <<<
+// >>> COLE SUA CHAVE DE API COMPLETA AQUI DENTRO DAS ASPAS <<<
 export const API_KEY = "AIzaSyAzlmtHUgGzj_SjBpipZg4GIWvQj68UCDM";

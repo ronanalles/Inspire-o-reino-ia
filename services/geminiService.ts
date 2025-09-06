@@ -1,39 +1,42 @@
 import { GoogleGenAI, Type } from "@google/genai";
-import { API_KEY } from '../config';
 import { ChatMessage, QuizQuestion, ThematicStudyResult, VerseOfTheDay } from '../types';
+import { API_KEY } from '../config';
 
+// Initialize the SDK only if a valid-looking API key is provided
 let ai: GoogleGenAI | null = null;
-let apiKeyError: string | null = null;
-
-if (!API_KEY || API_KEY === "COLE_SUA_CHAVE_DA_API_DO_GOOGLE_GEMINI_AQUI") {
-  apiKeyError = "A chave da API do Google Gemini não foi configurada em config.ts. As funcionalidades de IA estão desativadas.";
-  console.error(apiKeyError);
+if (API_KEY && API_KEY.startsWith('AIza')) {
+    try {
+        ai = new GoogleGenAI({ apiKey: API_KEY });
+    } catch (e) {
+        console.error("Falha ao inicializar o GoogleGenAI, verifique a chave de API:", e);
+    }
 } else {
-  ai = new GoogleGenAI({ apiKey: API_KEY });
+    console.warn("Chave da API do Google Gemini não encontrada ou é inválida/placeholder. As funcionalidades de IA estão desativadas.");
 }
 
-const model = 'gemini-2.5-flash';
-
-const checkAi = (): GoogleGenAI => {
+// Helper function to check if AI is available before each call. This throws an error that can be caught by the UI.
+function getAiInstance(): GoogleGenAI {
     if (!ai) {
-        throw new Error(apiKeyError || "Cliente de IA não inicializado.");
+        throw new Error("SDK do Google AI não inicializado. Verifique sua chave de API no arquivo config.ts.");
     }
     return ai;
 }
+
+const model = 'gemini-2.5-flash';
 
 async function* sendMessageToChat(
   message: string,
   context: { book: string; chapter: number },
   history: ChatMessage[]
 ) {
-  const aiClient = checkAi();
+  const ai = getAiInstance();
   const systemInstruction = `Você é um assistente de estudo da Bíblia, amigável e experiente. 
   Sua finalidade é ajudar os usuários a compreenderem melhor as Escrituras. 
   Atualmente, o usuário está lendo ${context.book}, capítulo ${context.chapter}. 
   Responda às perguntas dele com base nesse contexto, fornecendo explicações claras, insights teológicos e referências a outras partes da Bíblia quando for relevante. 
   Mantenha um tom respeitoso e encorajador. Formate suas respostas usando markdown para melhor legibilidade (ex: **negrito** para ênfase, listas para pontos-chave).`;
 
-  const chat = aiClient.chats.create({
+  const chat = ai.chats.create({
     model,
     config: {
       systemInstruction: systemInstruction,
@@ -53,8 +56,8 @@ async function* sendMessageToChat(
 
 async function generateQuizQuestion(): Promise<QuizQuestion | null> {
   try {
-    const aiClient = checkAi();
-    const response = await aiClient.models.generateContent({
+    const ai = getAiInstance();
+    const response = await ai.models.generateContent({
       model,
       contents: "Gere uma pergunta de múltipla escolha sobre a Bíblia com 3 opções de resposta. A pergunta deve ser de dificuldade média e abranger qualquer parte do Antigo ou Novo Testamento. Forneça a pergunta, um array com as 3 opções e o índice da resposta correta (0, 1 ou 2).",
       config: {
@@ -94,8 +97,8 @@ async function generateQuizQuestion(): Promise<QuizQuestion | null> {
 
 async function getVerseOfTheDay(): Promise<VerseOfTheDay | null> {
     try {
-        const aiClient = checkAi();
-        const response = await aiClient.models.generateContent({
+        const ai = getAiInstance();
+        const response = await ai.models.generateContent({
             model,
             contents: "Gere um 'Versículo do Dia' inspirador da Bíblia. Forneça a referência completa (Livro, Capítulo e Versículo), o texto do versículo e uma breve reflexão (2-3 frases) sobre sua aplicação ou significado.",
             config: {
@@ -120,8 +123,8 @@ async function getVerseOfTheDay(): Promise<VerseOfTheDay | null> {
 
 async function getThematicStudy(theme: string): Promise<ThematicStudyResult | null> {
     try {
-        const aiClient = checkAi();
-        const response = await aiClient.models.generateContent({
+        const ai = getAiInstance();
+        const response = await ai.models.generateContent({
             model,
             contents: `Realize um estudo temático conciso sobre "${theme}" na Bíblia. Forneça um parágrafo de resumo sobre o tema e uma lista de 5 a 7 versículos-chave relacionados. Para cada versículo, forneça a referência, o nome exato do livro (ex: 'Gênesis', 'Apocalipse') e o número do capítulo.`,
             config: {
