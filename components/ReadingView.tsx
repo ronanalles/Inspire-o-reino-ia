@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import { Book, VerseType, ChapterCrossReferences, CrossReferenceItem } from '../types';
 import { Verse } from './Verse';
@@ -17,9 +18,20 @@ interface ReadingViewProps {
   toggleBookmark: (book: string, chapter: number, verse: number, text: string) => void;
   isBookmarked: (book: string, chapter: number, verse: number) => boolean;
   onNavigateToVerse: (book: string, chapter: number) => void;
+  isCrossRefEnabled: boolean;
 }
 
-export const ReadingView: React.FC<ReadingViewProps> = ({ book, chapter, translation, onPrevChapter, onNextChapter, toggleBookmark, isBookmarked, onNavigateToVerse }) => {
+export const ReadingView: React.FC<ReadingViewProps> = ({ 
+  book, 
+  chapter, 
+  translation, 
+  onPrevChapter, 
+  onNextChapter, 
+  toggleBookmark, 
+  isBookmarked, 
+  onNavigateToVerse,
+  isCrossRefEnabled
+}) => {
   const [verses, setVerses] = useState<VerseType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -42,10 +54,14 @@ export const ReadingView: React.FC<ReadingViewProps> = ({ book, chapter, transla
       const data = await getChapterText(book.name, chapter, translation);
       if (data && data.verses) {
         setVerses(data.verses);
-        // After fetching verses, fetch cross-references
-        const chapterText = data.verses.map(v => v.text).join(' ');
-        const crData = await getCrossReferences(chapterText);
-        setCrossReferences(crData);
+        
+        if (isCrossRefEnabled) {
+          const chapterText = data.verses.map(v => v.text).join(' ');
+          const crData = await getCrossReferences(chapterText);
+          setCrossReferences(crData);
+        } else {
+          setCrossReferences(null); // Garante que as referências sejam limpas se desativado
+        }
 
       } else {
         setError("Não foi possível carregar o texto deste capítulo. Verifique sua conexão ou tente outra tradução.");
@@ -54,7 +70,7 @@ export const ReadingView: React.FC<ReadingViewProps> = ({ book, chapter, transla
     };
 
     fetchChapter();
-  }, [book, chapter, translation]);
+  }, [book, chapter, translation, isCrossRefEnabled]);
   
   const handleTermClick = (term: CrossReferenceItem) => {
     setSelectedCrossRef(term);

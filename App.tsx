@@ -70,7 +70,17 @@ export default function App() {
   const [isQuizOpen, setIsQuizOpen] = useState(false);
   const [isThematicStudyOpen, setIsThematicStudyOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  
+  const [isCrossRefEnabled, setIsCrossRefEnabled] = useLocalStorage<boolean>('bible_crossRefEnabled', false);
+  const [hasSeenCrossRefTooltip, setHasSeenCrossRefTooltip] = useLocalStorage<boolean>('bible_hasSeenCrossRefTooltip', false);
+
+  const handleToggleCrossRef = () => {
+    // When the user enables the feature for the first time, mark the tooltip as seen.
+    if (!isCrossRefEnabled && !hasSeenCrossRefTooltip) {
+      setHasSeenCrossRefTooltip(true);
+    }
+    setIsCrossRefEnabled(prev => !prev);
+  };
+
   const updateLastRead = (bookName: string, chapter: number) => {
     setLastRead({ bookName, chapter });
   };
@@ -178,6 +188,9 @@ export default function App() {
           chapter={selectedChapter}
           selectedTranslation={translation}
           onTranslationChange={setTranslation}
+          isCrossRefEnabled={isCrossRefEnabled}
+          onToggleCrossRef={handleToggleCrossRef}
+          showCrossRefTooltip={!isCrossRefEnabled && !hasSeenCrossRefTooltip}
         />
         <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 pb-20 md:pb-8">
             <ReadingView
@@ -189,6 +202,7 @@ export default function App() {
               toggleBookmark={toggleBookmark}
               isBookmarked={isBookmarked}
               onNavigateToVerse={handleSelectChapter}
+              isCrossRefEnabled={isCrossRefEnabled}
             />
         </main>
       </div>

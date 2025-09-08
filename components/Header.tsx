@@ -1,5 +1,6 @@
+
 import React, { useState, useRef, useEffect } from 'react';
-import { IconMenu, IconBookmark, IconHome, IconGlobe, IconSearch } from './IconComponents';
+import { IconMenu, IconBookmark, IconHome, IconGlobe, IconSearch, IconSparkles } from './IconComponents';
 import { Translation } from '../App';
 
 interface HeaderProps {
@@ -11,6 +12,9 @@ interface HeaderProps {
   chapter: number;
   selectedTranslation: Translation;
   onTranslationChange: (translation: Translation) => void;
+  isCrossRefEnabled: boolean;
+  onToggleCrossRef: () => void;
+  showCrossRefTooltip: boolean;
 }
 
 const translationMap: Record<Translation, string> = {
@@ -19,7 +23,19 @@ const translationMap: Record<Translation, string> = {
     kjv: 'King James Version',
 };
 
-export const Header: React.FC<HeaderProps> = ({ onToggleSidebar, onToggleBookmarks, onNavigateHome, onToggleSearch, bookName, chapter, selectedTranslation, onTranslationChange }) => {
+export const Header: React.FC<HeaderProps> = ({ 
+    onToggleSidebar, 
+    onToggleBookmarks, 
+    onNavigateHome, 
+    onToggleSearch, 
+    bookName, 
+    chapter, 
+    selectedTranslation, 
+    onTranslationChange,
+    isCrossRefEnabled,
+    onToggleCrossRef,
+    showCrossRefTooltip
+}) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -68,6 +84,21 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar, onToggleBookmar
                     </div>
                 </div>
             )}
+        </div>
+        <div className="relative">
+          <button 
+              onClick={onToggleCrossRef} 
+              className={`p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${isCrossRefEnabled ? 'text-blue-500' : 'text-gray-500'}`} 
+              aria-label="Ativar/Desativar Estudo Aprofundado"
+          >
+            <IconSparkles className="w-6 h-6" />
+          </button>
+          {showCrossRefTooltip && (
+              <div className="absolute top-full right-0 mt-2 w-max max-w-xs bg-blue-600 text-white text-sm rounded-lg shadow-lg p-3 z-30 animate-pulse">
+                  <p>Ative o 'Estudo Aprofundado' aqui!</p>
+                  <div className="absolute bottom-full right-4 w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-b-8 border-b-blue-600"></div>
+              </div>
+          )}
         </div>
         <button onClick={onToggleSearch} className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700" aria-label="Buscar versículos">
           <IconSearch className="w-6 h-6" />
