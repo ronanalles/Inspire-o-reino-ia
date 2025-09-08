@@ -1,8 +1,9 @@
-// Fix: Replaced vite/client types with a declaration for process.env.API_KEY.
-// This resolves a type definition error and aligns with the Gemini API guidelines
-// for accessing the API key.
+// Fix: The reference to vite/client was causing an error because the type definition file could not be found.
+// This has been replaced with a manual declaration for `process.env` to align with the @google/genai guidelines,
+// which mandate using `process.env.API_KEY`. This declaration prevents TypeScript errors.
 declare var process: {
-    env: {
-        readonly API_KEY: string;
-    }
+  env: {
+    API_KEY: string;
+    [key: string]: string | undefined;
+  };
 };
