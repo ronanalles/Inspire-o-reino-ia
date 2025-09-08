@@ -1,8 +1,10 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { ChatMessage, QuizQuestion, ThematicStudyResult, VerseOfTheDay, SearchResult, ChapterCrossReferences } from '../types';
 
-// Fix: Per coding guidelines, the API key must be retrieved from process.env.API_KEY.
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Fix for "Property 'env' does not exist on type 'ImportMeta'".
+// As per coding guidelines, the API key must be obtained from `process.env.API_KEY`.
+// The '!' non-null assertion is used because the key is assumed to be present.
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
 
 const model = 'gemini-2.5-flash';
 
