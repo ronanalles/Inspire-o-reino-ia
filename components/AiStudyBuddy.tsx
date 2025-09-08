@@ -78,7 +78,7 @@ export const AiStudyBuddy: React.FC<AiStudyBuddyProps> = ({ isOpen, onClose, con
   if (!isOpen) return null;
 
   return (
-    <div className="fixed bottom-24 right-6 w-11/12 max-w-md h-[70vh] max-h-[600px] bg-white dark:bg-gray-800 shadow-2xl rounded-lg flex flex-col z-40 border border-gray-200 dark:border-gray-700">
+    <div className="fixed bottom-[4.5rem] right-4 md:bottom-24 md:right-6 w-[calc(100%-2rem)] md:w-11/12 max-w-md h-[70vh] max-h-[600px] bg-white dark:bg-gray-800 shadow-2xl rounded-lg flex flex-col z-40 border border-gray-200 dark:border-gray-700">
       <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 rounded-t-lg">
         <div className="flex items-center space-x-2">
             <IconFeather className="w-6 h-6 text-blue-500" />

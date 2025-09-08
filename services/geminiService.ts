@@ -1,26 +1,9 @@
 import { GoogleGenAI, Type } from "@google/genai";
-import { ChatMessage, QuizQuestion, ThematicStudyResult, VerseOfTheDay } from '../types';
-import { API_KEY } from '../config';
+import { ChatMessage, QuizQuestion, ThematicStudyResult, VerseOfTheDay, SearchResult, ChapterCrossReferences } from '../types';
 
-// Initialize the SDK only if a valid-looking API key is provided
-let ai: GoogleGenAI | null = null;
-if (API_KEY && API_KEY.startsWith('AIza')) {
-    try {
-        ai = new GoogleGenAI({ apiKey: API_KEY });
-    } catch (e) {
-        console.error("Falha ao inicializar o GoogleGenAI, verifique a chave de API:", e);
-    }
-} else {
-    console.warn("Chave da API do Google Gemini não encontrada ou é inválida/placeholder. As funcionalidades de IA estão desativadas.");
-}
-
-// Helper function to check if AI is available before each call. This throws an error that can be caught by the UI.
-function getAiInstance(): GoogleGenAI {
-    if (!ai) {
-        throw new Error("SDK do Google AI não inicializado. Verifique sua chave de API no arquivo config.ts.");
-    }
-    return ai;
-}
+// A chave de API agora é obtida de forma segura a partir das variáveis de ambiente.
+// Garanta que `process.env.API_KEY` esteja configurado no seu ambiente de execução.
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 const model = 'gemini-2.5-flash';
 
@@ -29,7 +12,6 @@ async function* sendMessageToChat(
   context: { book: string; chapter: number },
   history: ChatMessage[]
 ) {
-  const ai = getAiInstance();
   const systemInstruction = `Você é um assistente de estudo da Bíblia, amigável e experiente. 
   Sua finalidade é ajudar os usuários a compreenderem melhor as Escrituras. 
   Atualmente, o usuário está lendo ${context.book}, capítulo ${context.chapter}. 
@@ -56,7 +38,6 @@ async function* sendMessageToChat(
 
 async function generateQuizQuestion(): Promise<QuizQuestion | null> {
   try {
-    const ai = getAiInstance();
     const response = await ai.models.generateContent({
       model,
       contents: "Gere uma pergunta de múltipla escolha sobre a Bíblia com 3 opções de resposta. A pergunta deve ser de dificuldade média e abranger qualquer parte do Antigo ou Novo Testamento. Forneça a pergunta, um array com as 3 opções e o índice da resposta correta (0, 1 ou 2).",
@@ -97,7 +78,6 @@ async function generateQuizQuestion(): Promise<QuizQuestion | null> {
 
 async function getVerseOfTheDay(): Promise<VerseOfTheDay | null> {
     try {
-        const ai = getAiInstance();
         const response = await ai.models.generateContent({
             model,
             contents: `Gere um 'Versículo do Dia' inspirador da Bíblia. Forneça a referência completa (Livro, Capítulo e Versículo), o texto do versículo e uma breve reflexão (2-3 frases) sobre sua aplicação ou significado. Para garantir um resultado diferente a cada vez, use este número como semente de aleatoriedade: ${Math.random()}`,
@@ -123,7 +103,6 @@ async function getVerseOfTheDay(): Promise<VerseOfTheDay | null> {
 
 async function getThematicStudy(theme: string): Promise<ThematicStudyResult | null> {
     try {
-        const ai = getAiInstance();
         const response = await ai.models.generateContent({
             model,
             contents: `Realize um estudo temático conciso sobre "${theme}" na Bíblia. Forneça um parágrafo de resumo sobre o tema e uma lista de 5 a 7 versículos-chave relacionados. Para cada versículo, forneça a referência, o nome exato do livro (ex: 'Gênesis', 'Apocalipse') e o número do capítulo.`,
@@ -157,4 +136,100 @@ async function getThematicStudy(theme: string): Promise<ThematicStudyResult | nu
     }
 }
 
-export { sendMessageToChat, generateQuizQuestion, getVerseOfTheDay, getThematicStudy };
+async function searchVerses(query: string): Promise<SearchResult[] | null> {
+    try {
+        const response = await ai.models.generateContent({
+            model,
+            contents: `Aja como um motor de busca bíblico. Encontre até 15 versículos relevantes para a busca: "${query}". A busca pode ser por palavra-chave, tema ou referência. Para cada versículo encontrado, forneça a referência, o nome exato do livro, o capítulo, o número do versículo e o texto completo.`,
+            config: {
+                responseMimeType: "application/json",
+                responseSchema: {
+                    type: Type.OBJECT,
+                    properties: {
+                        results: {
+                            type: Type.ARRAY,
+                            description: "Uma lista de versículos encontrados.",
+                            items: {
+                                type: Type.OBJECT,
+                                properties: {
+                                    reference: { type: Type.STRING, description: "A referência (ex: 'Gênesis 1:1')." },
+                                    book: { type: Type.STRING, description: "O nome completo do livro." },
+                                    chapter: { type: Type.INTEGER, description: "O número do capítulo." },
+                                    verse: { type: Type.INTEGER, description: "O número do versículo." },
+                                    text: { type: Type.STRING, description: "O texto do versículo." }
+                                },
+                                required: ["reference", "book", "chapter", "verse", "text"]
+                            }
+                        }
+                    },
+                    required: ["results"]
+                }
+            }
+        });
+        const parsed = JSON.parse(response.text.trim());
+        return parsed.results as SearchResult[];
+    } catch (error) {
+        console.error("Error searching verses:", error);
+        return null;
+    }
+}
+
+async function getCrossReferences(chapterText: string): Promise<ChapterCrossReferences | null> {
+    try {
+        const response = await ai.models.generateContent({
+            model,
+            contents: `Analise este texto bíblico e identifique até 10 nomes, lugares ou conceitos teológicos importantes para um estudo aprofundado. Para cada um, forneça o termo exato, uma breve explicação, uma lista de 3-5 referências cruzadas em outras partes da Bíblia e, se for um tópico complexo, um link de artigo opcional. O texto é: "${chapterText}"`,
+            config: {
+                responseMimeType: "application/json",
+                responseSchema: {
+                    type: Type.OBJECT,
+                    properties: {
+                        references: {
+                            type: Type.ARRAY,
+                            items: {
+                                type: Type.OBJECT,
+                                properties: {
+                                    term: { type: Type.STRING, description: "O termo exato encontrado no texto." },
+                                    explanation: { type: Type.STRING, description: "Uma breve explicação do termo." },
+                                    crossReferences: {
+                                        type: Type.ARRAY,
+                                        items: {
+                                            type: Type.OBJECT,
+                                            properties: {
+                                                reference: { type: Type.STRING, description: "A referência (ex: 'João 1:1')." },
+                                                book: { type: Type.STRING, description: "O nome completo do livro." },
+                                                chapter: { type: Type.INTEGER, description: "O número do capítulo." }
+                                            },
+                                            required: ["reference", "book", "chapter"]
+                                        }
+                                    },
+                                    articles: {
+                                        type: Type.ARRAY,
+                                        items: {
+                                            type: Type.OBJECT,
+                                            properties: {
+                                                title: { type: Type.STRING, description: "O título do artigo." },
+                                                url: { type: Type.STRING, description: "O URL completo do artigo." }
+                                            },
+                                            required: ["title", "url"]
+                                        }
+                                    }
+                                },
+                                required: ["term", "explanation", "crossReferences"]
+                            }
+                        }
+                    },
+                    required: ["references"]
+                }
+            }
+        });
+        const parsed = JSON.parse(response.text.trim());
+        return parsed.references as ChapterCrossReferences;
+    } catch (error) {
+        console.error("Error fetching cross references:", error);
+        return null;
+    }
+}
+
+
+export { sendMessageToChat, generateQuizQuestion, getVerseOfTheDay, getThematicStudy, searchVerses, getCrossReferences };

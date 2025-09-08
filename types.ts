@@ -59,3 +59,27 @@ export interface LastRead {
     bookName: string;
     chapter: number;
 }
+
+export interface SearchResult {
+  reference: string;
+  book: string;
+  chapter: number;
+  verse: number;
+  text: string;
+}
+
+export interface CrossReferenceItem {
+  term: string;
+  explanation: string;
+  crossReferences: {
+    reference: string;
+    book: string;
+    chapter: number;
+  }[];
+  articles?: {
+    title: string;
+    url: string;
+  }[];
+}
+
+export type ChapterCrossReferences = CrossReferenceItem[];

@@ -1,21 +1,17 @@
 /*
  * =============================================================================
- * AVISO DE SEGURANÇA MUITO IMPORTANTE
+ * ARQUIVO REMOVIDO POR MOTIVOS DE SEGURANÇA
  * =============================================================================
- * Este arquivo contém sua chave de API secreta do Google Gemini.
+ * 
+ * Este arquivo não é mais utilizado e deve ser excluído do seu projeto.
+ * 
+ * Manter chaves de API diretamente no código-fonte do frontend é uma falha
+ * de segurança grave que expõe sua chave a qualquer pessoa na internet.
  *
- * 1.  NÃO COMPARTILHE ESTE ARQUIVO COM NINGUÉM.
- * 2.  NÃO O COLOQUE EM UM REPOSITÓRIO PÚBLICO NO GITHUB SE OUTRAS PESSOAS
- *     PUDEREM VÊ-LO.
+ * A aplicação foi corrigida para usar a prática segura de carregar a chave 
+ * de API a partir das variáveis de ambiente do servidor (`process.env.API_KEY`).
  *
- * Este método de colocar a chave diretamente no código do frontend é
- * simples para fazer o deploy funcionar, mas NÃO É SEGURO para aplicações
- * públicas, pois sua chave fica visível para qualquer pessoa que inspecione
- * o código do site.
+ * Ação necessária: Exclua este arquivo (`config.ts`) do seu projeto.
  *
- * Para este projeto pessoal, o risco é baixo, mas esteja ciente.
  * =============================================================================
 */
-
-// >>> COLE SUA CHAVE DE API COMPLETA AQUI DENTRO DAS ASPAS <<<
-export const API_KEY = "AIzaSyAzlmtHUgGzj_SjBpipZg4GIWvQj68UCDM";

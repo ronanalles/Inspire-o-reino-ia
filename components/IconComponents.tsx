@@ -36,9 +36,17 @@ export const IconChevronRight: React.FC<React.SVGProps<SVGSVGElement>> = (props)
   </svg>
 );
 
-export const IconLionLogo: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
-      <path fillRule="evenodd" d="M12.29.962a1.23 1.23 0 00-1.132.883L9.33 6.95a.488.488 0 01-.48.42h-5.22a1.23 1.23 0 00-1.163 1.838l3.41 4.416a.488.488 0 01-.184.65l-4.52 2.61a1.23 1.23 0 00.183 2.228l5.584-1.353a.488.488 0 01.55.122l3.824 4.38a1.23 1.23 0 001.88-.002l3.823-4.38a.488.488 0 01.55-.122l5.584 1.353a1.23 1.23 0 00.184-2.228l-4.52-2.61a.488.488 0 01-.184-.65l3.41-4.416a1.23 1.23 0 00-1.163-1.838h-5.22a.488.488 0 01-.48-.42L12.842 1.845a1.23 1.23 0 00-.552-.883zM12 11.25a3 3 0 100 6 3 3 0 000-6z" clipRule="evenodd" />
+export const IconAppLogo: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+    <svg 
+      xmlns="http://www.w3.org/2000/svg" 
+      viewBox="0 0 24 24" 
+      fill="currentColor" 
+      aria-hidden="true"
+      {...props}
+    >
+        <path d="M12 2.05c-1.41 1.41-2.02 3.32-2.02 5.23 0 1.91.61 3.82 2.02 5.23l.02.02c1.41-1.41 2.02-3.32 2.02-5.25s-.61-3.84-2.04-5.23z" />
+        <path d="M6.54 6.04c-1.2 1.2-1.8 2.8-1.8 4.5s.6 3.3 1.8 4.5c2.4-2.4 2.4-6.61 0-9z" />
+        <path d="M17.46 6.04c1.2 1.2 1.8 2.8 1.8 4.5s-.6 3.3-1.8 4.5c-2.4-2.4-2.4-6.61 0-9z" />
     </svg>
 );
 
@@ -97,5 +105,17 @@ export const IconGlobe: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
 export const IconRefresh: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0011.664 0l3.181-3.183m-4.991-2.696L7.985 5.964m0 0a8.25 8.25 0 00-2.986 5.964m2.986-5.964L5.986 9.348" />
+    </svg>
+);
+
+export const IconSearch: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+    </svg>
+);
+
+export const IconLink: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
     </svg>
 );

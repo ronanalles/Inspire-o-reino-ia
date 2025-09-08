@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { IconMenu, IconBookmark, IconHome, IconGlobe } from './IconComponents';
+import { IconMenu, IconBookmark, IconHome, IconGlobe, IconSearch } from './IconComponents';
 import { Translation } from '../App';
 
 interface HeaderProps {
   onToggleSidebar: () => void;
   onToggleBookmarks: () => void;
   onNavigateHome: () => void;
+  onToggleSearch: () => void;
   bookName: string;
   chapter: number;
   selectedTranslation: Translation;
@@ -18,7 +19,7 @@ const translationMap: Record<Translation, string> = {
     kjv: 'King James Version',
 };
 
-export const Header: React.FC<HeaderProps> = ({ onToggleSidebar, onToggleBookmarks, onNavigateHome, bookName, chapter, selectedTranslation, onTranslationChange }) => {
+export const Header: React.FC<HeaderProps> = ({ onToggleSidebar, onToggleBookmarks, onNavigateHome, onToggleSearch, bookName, chapter, selectedTranslation, onTranslationChange }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -68,6 +69,9 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar, onToggleBookmar
                 </div>
             )}
         </div>
+        <button onClick={onToggleSearch} className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700" aria-label="Buscar versículos">
+          <IconSearch className="w-6 h-6" />
+        </button>
         <button onClick={onNavigateHome} className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700" aria-label="Ir para a tela inicial">
           <IconHome className="w-6 h-6" />
         </button>

@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useMemo } from 'react';
 import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
@@ -7,12 +8,50 @@ import { BookmarksPanel } from './components/BookmarksPanel';
 import { BibleQuiz } from './components/BibleQuiz';
 import { HomeScreen } from './components/HomeScreen';
 import { ThematicStudy } from './components/ThematicStudy';
+import { SearchModal } from './components/SearchModal';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { books } from './data/bibleData';
 import { Bookmark, LastRead } from './types';
 import { IconFeather, IconBrain, IconSparkles } from './components/IconComponents';
 
 export type Translation = 'acf' | 'nvi' | 'kjv';
+
+interface BottomNavigationProps {
+  onThematicStudyClick: () => void;
+  onQuizClick: () => void;
+  onAiBuddyClick: () => void;
+}
+
+const BottomNavigation: React.FC<BottomNavigationProps> = ({
+  onThematicStudyClick,
+  onQuizClick,
+  onAiBuddyClick,
+}) => {
+  const navItems = [
+    { label: 'Estudo', icon: IconSparkles, onClick: onThematicStudyClick },
+    { label: 'Quiz', icon: IconBrain, onClick: onQuizClick },
+    { label: 'Assistente', icon: IconFeather, onClick: onAiBuddyClick },
+  ];
+
+  return (
+    <div className="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border-t border-gray-200 dark:border-gray-700 z-30 md:hidden">
+      <nav className="flex justify-around items-center h-16">
+        {navItems.map((item) => (
+          <button
+            key={item.label}
+            onClick={item.onClick}
+            className="flex flex-col items-center justify-center text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors w-full h-full pt-1"
+            aria-label={item.label}
+          >
+            <item.icon className="w-6 h-6 mb-1" />
+            <span className="text-xs font-medium">{item.label}</span>
+          </button>
+        ))}
+      </nav>
+    </div>
+  );
+};
+
 
 export default function App() {
   const [view, setView] = useState<'home' | 'reading'>('home');
@@ -30,6 +69,7 @@ export default function App() {
   const [isAiBuddyOpen, setIsAiBuddyOpen] = useState(false);
   const [isQuizOpen, setIsQuizOpen] = useState(false);
   const [isThematicStudyOpen, setIsThematicStudyOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   
   const updateLastRead = (bookName: string, chapter: number) => {
     setLastRead({ bookName, chapter });
@@ -133,12 +173,13 @@ export default function App() {
           onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
           onToggleBookmarks={() => setIsBookmarksOpen(!isBookmarksOpen)}
           onNavigateHome={() => setView('home')}
+          onToggleSearch={() => setIsSearchOpen(!isSearchOpen)}
           bookName={selectedBook.name}
           chapter={selectedChapter}
           selectedTranslation={translation}
           onTranslationChange={setTranslation}
         />
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 pb-20 md:pb-8">
             <ReadingView
               book={selectedBook}
               chapter={selectedChapter}
@@ -147,11 +188,13 @@ export default function App() {
               onNextChapter={() => changeChapter(1)}
               toggleBookmark={toggleBookmark}
               isBookmarked={isBookmarked}
+              onNavigateToVerse={handleSelectChapter}
             />
         </main>
       </div>
-
-      <div className="fixed bottom-6 right-6 flex flex-col space-y-3 z-30">
+      
+      {/* Floating Action Buttons for Desktop */}
+      <div className="fixed bottom-6 right-6 flex-col space-y-3 z-30 hidden md:flex">
         <button
             onClick={() => setIsThematicStudyOpen(true)}
             className="bg-green-600 hover:bg-green-700 text-white rounded-full p-4 shadow-lg transition-transform transform hover:scale-110"
@@ -174,6 +217,19 @@ export default function App() {
             <IconFeather className="w-6 h-6" />
           </button>
       </div>
+
+      {/* Bottom Navigation for Mobile */}
+      <BottomNavigation
+        onThematicStudyClick={() => setIsThematicStudyOpen(true)}
+        onQuizClick={() => setIsQuizOpen(true)}
+        onAiBuddyClick={() => setIsAiBuddyOpen(true)}
+      />
+
+      <SearchModal 
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+        onNavigateToVerse={handleSelectChapter}
+      />
 
       <AiStudyBuddy
         isOpen={isAiBuddyOpen}

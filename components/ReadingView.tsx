@@ -1,8 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Book, VerseType } from '../types';
+import { Book, VerseType, ChapterCrossReferences, CrossReferenceItem } from '../types';
 import { Verse } from './Verse';
+import { CrossReferencePanel } from './CrossReferencePanel';
 import { IconChevronLeft, IconChevronRight, IconSpinner } from './IconComponents';
 import { getChapterText } from '../services/bibleService';
+import { getCrossReferences } from '../services/geminiService';
 import { books } from '../data/bibleData';
 import { Translation } from '../App';
 
@@ -14,12 +16,15 @@ interface ReadingViewProps {
   onNextChapter: () => void;
   toggleBookmark: (book: string, chapter: number, verse: number, text: string) => void;
   isBookmarked: (book: string, chapter: number, verse: number) => boolean;
+  onNavigateToVerse: (book: string, chapter: number) => void;
 }
 
-export const ReadingView: React.FC<ReadingViewProps> = ({ book, chapter, translation, onPrevChapter, onNextChapter, toggleBookmark, isBookmarked }) => {
+export const ReadingView: React.FC<ReadingViewProps> = ({ book, chapter, translation, onPrevChapter, onNextChapter, toggleBookmark, isBookmarked, onNavigateToVerse }) => {
   const [verses, setVerses] = useState<VerseType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [crossReferences, setCrossReferences] = useState<ChapterCrossReferences | null>(null);
+  const [selectedCrossRef, setSelectedCrossRef] = useState<CrossReferenceItem | null>(null);
   const viewRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -27,6 +32,9 @@ export const ReadingView: React.FC<ReadingViewProps> = ({ book, chapter, transla
       setIsLoading(true);
       setError(null);
       setVerses([]);
+      setCrossReferences(null);
+      setSelectedCrossRef(null);
+
       if (viewRef.current) {
           viewRef.current.parentElement?.scrollTo(0, 0);
       }
@@ -34,6 +42,11 @@ export const ReadingView: React.FC<ReadingViewProps> = ({ book, chapter, transla
       const data = await getChapterText(book.name, chapter, translation);
       if (data && data.verses) {
         setVerses(data.verses);
+        // After fetching verses, fetch cross-references
+        const chapterText = data.verses.map(v => v.text).join(' ');
+        const crData = await getCrossReferences(chapterText);
+        setCrossReferences(crData);
+
       } else {
         setError("Não foi possível carregar o texto deste capítulo. Verifique sua conexão ou tente outra tradução.");
       }
@@ -42,6 +55,10 @@ export const ReadingView: React.FC<ReadingViewProps> = ({ book, chapter, transla
 
     fetchChapter();
   }, [book, chapter, translation]);
+  
+  const handleTermClick = (term: CrossReferenceItem) => {
+    setSelectedCrossRef(term);
+  };
 
   return (
     <div ref={viewRef}>
@@ -64,6 +81,8 @@ export const ReadingView: React.FC<ReadingViewProps> = ({ book, chapter, transla
                 text={verseData.text}
                 isBookmarked={isBookmarked(book.name, chapter, verseData.verse)}
                 onToggleBookmark={() => toggleBookmark(book.name, chapter, verseData.verse, verseData.text)}
+                crossReferences={crossReferences}
+                onTermClick={handleTermClick}
               />
             ))}
             {verses.length === 0 && !isLoading && (
@@ -90,6 +109,11 @@ export const ReadingView: React.FC<ReadingViewProps> = ({ book, chapter, transla
           <IconChevronRight className="w-5 h-5 ml-2" />
         </button>
       </div>
+      <CrossReferencePanel 
+        item={selectedCrossRef}
+        onClose={() => setSelectedCrossRef(null)}
+        onNavigateToVerse={onNavigateToVerse}
+      />
     </div>
   );
 };
