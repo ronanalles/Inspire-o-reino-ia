@@ -11,7 +11,7 @@ import { ThematicStudy } from './components/ThematicStudy';
 import { SearchModal } from './components/SearchModal';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { books } from './data/bibleData';
-import { Bookmark, LastRead } from './types';
+import { Bookmark, LastRead, Highlight, HighlightColor } from './types';
 import { IconFeather, IconBrain, IconSparkles } from './components/IconComponents';
 
 export type Translation = 'acf' | 'nvi' | 'kjv';
@@ -64,6 +64,7 @@ export default function App() {
   const [selectedBook, setSelectedBook] = useState(initialBook);
   const [selectedChapter, setSelectedChapter] = useState(initialChapter);
   const [bookmarks, setBookmarks] = useLocalStorage<Bookmark[]>('bible_bookmarks', []);
+  const [highlights, setHighlights] = useLocalStorage<Highlight[]>('bible_highlights', []);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isBookmarksOpen, setIsBookmarksOpen] = useState(false);
   const [isAiBuddyOpen, setIsAiBuddyOpen] = useState(false);
@@ -148,6 +149,23 @@ export default function App() {
       ));
   }, [setBookmarks]);
 
+  const addHighlight = useCallback((book: string, chapter: number, verse: number, text: string, color: HighlightColor) => {
+    const newHighlight: Highlight = {
+      id: `${Date.now()}-${text.slice(0, 10)}`,
+      book,
+      chapter,
+      verse,
+      text,
+      color,
+    };
+    setHighlights(prev => [...prev, newHighlight]);
+  }, [setHighlights]);
+
+  const removeHighlight = useCallback((highlightId: string) => {
+    setHighlights(prev => prev.filter(h => h.id !== highlightId));
+  }, [setHighlights]);
+
+
   const isBookmarked = useMemo(() => {
     return (book: string, chapter: number, verse: number) => 
       bookmarks.some(bm => bm.book === book && bm.chapter === chapter && bm.verse === verse);
@@ -203,6 +221,8 @@ export default function App() {
               isBookmarked={isBookmarked}
               onNavigateToVerse={handleSelectChapter}
               isCrossRefEnabled={isCrossRefEnabled}
+              highlights={highlights}
+              onAddHighlight={addHighlight}
             />
         </main>
       </div>
@@ -255,8 +275,10 @@ export default function App() {
         isOpen={isBookmarksOpen}
         onClose={() => setIsBookmarksOpen(false)}
         bookmarks={bookmarks}
+        highlights={highlights}
         onJumpToVerse={(book, chapter) => handleSelectChapter(book, chapter)}
         onUpdateBookmarkNote={handleUpdateBookmarkNote}
+        onRemoveHighlight={removeHighlight}
       />
 
       <BibleQuiz 

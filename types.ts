@@ -29,6 +29,19 @@ export interface Bookmark {
   note?: string;
 }
 
+export type HighlightColor = 'yellow' | 'green' | 'blue' | 'pink';
+
+export interface Highlight {
+  id: string;
+  book: string;
+  chapter: number;
+  verse: number;
+  text: string;
+  color: HighlightColor;
+  // Note: For simplicity, this implementation re-highlights based on text search.
+  // A more robust solution for academic use might use character offsets.
+}
+
 export interface ChatMessage {
     sender: 'user' | 'ai';
     text: string;

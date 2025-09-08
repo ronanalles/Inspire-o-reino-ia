@@ -1,6 +1,6 @@
 
-import React, { useEffect, useRef, useState } from 'react';
-import { Book, VerseType, ChapterCrossReferences, CrossReferenceItem } from '../types';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
+import { Book, VerseType, ChapterCrossReferences, CrossReferenceItem, Highlight, HighlightColor } from '../types';
 import { Verse } from './Verse';
 import { CrossReferencePanel } from './CrossReferencePanel';
 import { IconChevronLeft, IconChevronRight, IconSpinner } from './IconComponents';
@@ -19,6 +19,8 @@ interface ReadingViewProps {
   isBookmarked: (book: string, chapter: number, verse: number) => boolean;
   onNavigateToVerse: (book: string, chapter: number) => void;
   isCrossRefEnabled: boolean;
+  highlights: Highlight[];
+  onAddHighlight: (book: string, chapter: number, verse: number, text: string, color: HighlightColor) => void;
 }
 
 export const ReadingView: React.FC<ReadingViewProps> = ({ 
@@ -30,7 +32,9 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
   toggleBookmark, 
   isBookmarked, 
   onNavigateToVerse,
-  isCrossRefEnabled
+  isCrossRefEnabled,
+  highlights,
+  onAddHighlight,
 }) => {
   const [verses, setVerses] = useState<VerseType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -75,6 +79,10 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
   const handleTermClick = (term: CrossReferenceItem) => {
     setSelectedCrossRef(term);
   };
+  
+  const chapterHighlights = useMemo(() => {
+    return highlights.filter(h => h.book === book.name && h.chapter === chapter);
+  }, [highlights, book.name, chapter]);
 
   return (
     <div ref={viewRef}>
@@ -99,6 +107,8 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
                 onToggleBookmark={() => toggleBookmark(book.name, chapter, verseData.verse, verseData.text)}
                 crossReferences={crossReferences}
                 onTermClick={handleTermClick}
+                highlights={chapterHighlights.filter(h => h.verse === verseData.verse)}
+                onAddHighlight={onAddHighlight}
               />
             ))}
             {verses.length === 0 && !isLoading && (
