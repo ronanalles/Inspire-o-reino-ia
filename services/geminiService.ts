@@ -1,7 +1,7 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { ChatMessage, QuizQuestion, ThematicStudyResult, VerseOfTheDay, SearchResult, ChapterCrossReferences } from '../types';
 
-// FIX: The API key must be obtained exclusively from `process.env.API_KEY` as per the guidelines.
+// Fix: Per coding guidelines, the API key must be retrieved from `process.env.API_KEY`.
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 const model = 'gemini-2.5-flash';

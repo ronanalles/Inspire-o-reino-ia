@@ -1,9 +1,4 @@
-// FIX: Removed reference to "vite/client" to resolve "Cannot find type definition file" error.
-// FIX: Removed unused VITE_API_KEY definition as the application now uses process.env.API_KEY.
-interface ImportMetaEnv {
-  // more env variables...
-}
-
-interface ImportMeta {
-  readonly env: ImportMetaEnv;
-}
+// This file is intentionally left empty.
+// The original line `/// <reference types="vite/client" />` was causing a type resolution error.
+// Since the application was updated to use `process.env.API_KEY` instead of `import.meta.env.VITE_API_KEY`,
+// the Vite client environment types are no longer strictly necessary for the provided files to compile.
