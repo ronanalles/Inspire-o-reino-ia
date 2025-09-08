@@ -3,6 +3,7 @@ import { getVerseOfTheDay } from '../services/geminiService';
 import { VerseOfTheDay as VerseOfTheDayType, StoredVerseOfTheDay } from '../types';
 import { IconSpinner, IconRefresh } from './IconComponents';
 import { useLocalStorage } from '../hooks/useLocalStorage';
+import { books } from '../data/bibleData';
 
 export const VerseOfTheDay: React.FC = () => {
   const [storedVerse, setStoredVerse] = useLocalStorage<StoredVerseOfTheDay | null>('verse_of_the_day', null);
@@ -20,7 +21,16 @@ export const VerseOfTheDay: React.FC = () => {
     }
     
     try {
-      const data = await getVerseOfTheDay();
+      // 1. Pick a random book from the list
+      const randomBookIndex = Math.floor(Math.random() * books.length);
+      const randomBook = books[randomBookIndex];
+      
+      // 2. Pick a random chapter from that book
+      const randomChapter = Math.floor(Math.random() * randomBook.chapters) + 1;
+
+      // 3. Call the AI service with the specific book and chapter
+      const data = await getVerseOfTheDay(randomBook.name, randomChapter);
+
       if (data) {
         setStoredVerse({ verse: data, date: today });
       } else {
@@ -41,6 +51,7 @@ export const VerseOfTheDay: React.FC = () => {
   }, [storedVerse, setStoredVerse]);
 
   useEffect(() => {
+    // On first load, check if a new verse is needed for the day.
     fetchVerse();
   }, []); // Run only once on mount to check for daily update
 

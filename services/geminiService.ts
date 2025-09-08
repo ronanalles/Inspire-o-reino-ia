@@ -1,8 +1,7 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { ChatMessage, QuizQuestion, ThematicStudyResult, VerseOfTheDay, SearchResult, ChapterCrossReferences } from '../types';
 
-// A chave de API agora é obtida de forma segura a partir das variáveis de ambiente.
-// Garanta que `process.env.API_KEY` esteja configurado no seu ambiente de execução.
+// Fix: Per coding guidelines, the API key must be obtained from process.env.API_KEY. This change also resolves the TypeScript error related to 'import.meta.env'.
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 const model = 'gemini-2.5-flash';
@@ -76,11 +75,11 @@ async function generateQuizQuestion(): Promise<QuizQuestion | null> {
   }
 }
 
-async function getVerseOfTheDay(): Promise<VerseOfTheDay | null> {
+async function getVerseOfTheDay(book: string, chapter: number): Promise<VerseOfTheDay | null> {
     try {
         const response = await ai.models.generateContent({
             model,
-            contents: `Gere um 'Versículo do Dia' inspirador da Bíblia. Forneça a referência completa (Livro, Capítulo e Versículo), o texto do versículo e uma breve reflexão (2-3 frases) sobre sua aplicação ou significado. Para garantir um resultado diferente a cada vez, use este número como semente de aleatoriedade: ${Math.random()}`,
+            contents: `Gere um 'Versículo do Dia' inspirador do livro de ${book}, capítulo ${chapter}. Forneça a referência completa (incluindo o versículo exato que você escolheu), o texto do versículo e uma breve reflexão (2-3 frases) sobre sua aplicação ou significado.`,
             config: {
                 responseMimeType: "application/json",
                 responseSchema: {
