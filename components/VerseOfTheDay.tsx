@@ -1,41 +1,57 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { getVerseOfTheDay } from '../services/geminiService';
-import { VerseOfTheDay as VerseOfTheDayType } from '../types';
+import { VerseOfTheDay as VerseOfTheDayType, StoredVerseOfTheDay } from '../types';
 import { IconSpinner, IconRefresh } from './IconComponents';
+import { useLocalStorage } from '../hooks/useLocalStorage';
 
 export const VerseOfTheDay: React.FC = () => {
-  const [verseData, setVerseData] = useState<VerseOfTheDayType | null>(null);
+  const [storedVerse, setStoredVerse] = useLocalStorage<StoredVerseOfTheDay | null>('verse_of_the_day', null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchVerse = useCallback(async () => {
+  const fetchVerse = useCallback(async (forceRefresh = false) => {
     setIsLoading(true);
     setError(null);
+    const today = new Date().toDateString();
+
+    if (!forceRefresh && storedVerse && storedVerse.date === today) {
+        setIsLoading(false);
+        return;
+    }
+    
     try {
       const data = await getVerseOfTheDay();
       if (data) {
-        setVerseData(data);
+        setStoredVerse({ verse: data, date: today });
       } else {
         setError('Não foi possível carregar o versículo do dia.');
+        if (!storedVerse) { // Clear stored verse if API fails and there's nothing to show
+          setStoredVerse(null);
+        }
       }
     } catch (e) {
       setError('Ocorreu um erro ao buscar o versículo. Tente novamente mais tarde.');
       console.error(e);
+      if (!storedVerse) {
+        setStoredVerse(null);
+      }
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [storedVerse, setStoredVerse]);
 
   useEffect(() => {
     fetchVerse();
-  }, [fetchVerse]);
+  }, []); // Run only once on mount to check for daily update
+
+  const verseData = storedVerse?.verse;
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-full border border-gray-200 dark:border-gray-700">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold text-gray-800 dark:text-gray-200">Versículo do Dia</h2>
         <button 
-          onClick={fetchVerse} 
+          onClick={() => fetchVerse(true)} 
           disabled={isLoading}
           className="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-wait"
           aria-label="Gerar novo versículo"

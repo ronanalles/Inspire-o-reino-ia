@@ -53,6 +53,11 @@ export interface QuizQuestion {
     correctAnswerIndex: number;
 }
 
+export type StoredVerseOfTheDay = {
+  verse: VerseOfTheDay;
+  date: string;
+}
+
 export interface VerseOfTheDay {
   reference: string;
   text: string;
@@ -96,3 +101,5 @@ export interface CrossReferenceItem {
 }
 
 export type ChapterCrossReferences = CrossReferenceItem[];
+
+export type Theme = 'light' | 'dark';

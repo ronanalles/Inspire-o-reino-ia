@@ -1,7 +1,7 @@
-
 import React, { useState, useRef, useEffect } from 'react';
-import { IconMenu, IconBookmark, IconHome, IconGlobe, IconSearch, IconSparkles } from './IconComponents';
+import { IconMenu, IconBookmark, IconHome, IconGlobe, IconSearch, IconSparkles, IconSun, IconMoon } from './IconComponents';
 import { Translation } from '../App';
+import { Theme } from '../types';
 
 interface HeaderProps {
   onToggleSidebar: () => void;
@@ -15,6 +15,8 @@ interface HeaderProps {
   isCrossRefEnabled: boolean;
   onToggleCrossRef: () => void;
   showCrossRefTooltip: boolean;
+  theme: Theme;
+  onToggleTheme: () => void;
 }
 
 const translationMap: Record<Translation, string> = {
@@ -34,7 +36,9 @@ export const Header: React.FC<HeaderProps> = ({
     onTranslationChange,
     isCrossRefEnabled,
     onToggleCrossRef,
-    showCrossRefTooltip
+    showCrossRefTooltip,
+    theme,
+    onToggleTheme
 }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -65,6 +69,13 @@ export const Header: React.FC<HeaderProps> = ({
         </h1>
       </div>
       <div className="flex items-center space-x-2">
+        <button 
+          onClick={onToggleTheme} 
+          className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
+          aria-label="Alternar tema"
+        >
+          {theme === 'dark' ? <IconSun className="w-6 h-6" /> : <IconMoon className="w-6 h-6" />}
+        </button>
         <div className="relative" ref={dropdownRef}>
             <button onClick={() => setIsDropdownOpen(!isDropdownOpen)} className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700" aria-label="Selecionar tradução">
                 <IconGlobe className="w-6 h-6" />

@@ -1,17 +1,29 @@
 import React from 'react';
 import { VerseOfTheDay } from './VerseOfTheDay';
-import { IconAppLogo, IconChevronRight } from './IconComponents';
-import { LastRead } from '../types';
+import { IconAppLogo, IconChevronRight, IconSun, IconMoon } from './IconComponents';
+import { LastRead, Theme } from '../types';
 
 interface HomeScreenProps {
   onContinueReading: () => void;
   onStartReading: () => void;
   lastRead: LastRead | null;
+  theme: Theme;
+  onToggleTheme: () => void;
 }
 
-export const HomeScreen: React.FC<HomeScreenProps> = ({ onContinueReading, onStartReading, lastRead }) => {
+export const HomeScreen: React.FC<HomeScreenProps> = ({ onContinueReading, onStartReading, lastRead, theme, onToggleTheme }) => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 p-4 font-sans">
+      <div className="fixed top-4 right-4 z-10">
+        <button 
+          onClick={onToggleTheme} 
+          className="p-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+          aria-label="Alternar tema"
+        >
+          {theme === 'dark' ? <IconSun className="w-6 h-6" /> : <IconMoon className="w-6 h-6" />}
+        </button>
+      </div>
+      
       <header className="text-center mb-8">
         <IconAppLogo className="w-20 h-20 mx-auto text-blue-500" />
         <h1 className="text-4xl font-bold mt-4">Inspire o Reino</h1>

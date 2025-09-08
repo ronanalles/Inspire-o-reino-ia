@@ -1,5 +1,4 @@
-
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
 import { ReadingView } from './components/ReadingView';
@@ -11,7 +10,7 @@ import { ThematicStudy } from './components/ThematicStudy';
 import { SearchModal } from './components/SearchModal';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { books } from './data/bibleData';
-import { Bookmark, LastRead, Highlight, HighlightColor } from './types';
+import { Bookmark, LastRead, Highlight, HighlightColor, Theme } from './types';
 import { IconFeather, IconBrain, IconSparkles } from './components/IconComponents';
 
 export type Translation = 'acf' | 'nvi' | 'kjv';
@@ -57,6 +56,9 @@ export default function App() {
   const [view, setView] = useState<'home' | 'reading'>('home');
   const [lastRead, setLastRead] = useLocalStorage<LastRead | null>('bible_last_read', null);
   const [translation, setTranslation] = useLocalStorage<Translation>('bible_translation', 'acf');
+  const [theme, setTheme] = useLocalStorage<Theme>('bible_theme', 
+    window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+  );
   
   const initialBook = books.find(b => b.name === lastRead?.bookName) || books[0];
   const initialChapter = lastRead?.chapter || 1;
@@ -73,6 +75,19 @@ export default function App() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isCrossRefEnabled, setIsCrossRefEnabled] = useLocalStorage<boolean>('bible_crossRefEnabled', false);
   const [hasSeenCrossRefTooltip, setHasSeenCrossRefTooltip] = useLocalStorage<boolean>('bible_hasSeenCrossRefTooltip', false);
+
+  useEffect(() => {
+    const root = window.document.documentElement;
+    if (theme === 'dark') {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
+  }, [theme]);
+
+  const handleToggleTheme = () => {
+    setTheme(prevTheme => (prevTheme === 'dark' ? 'light' : 'dark'));
+  };
 
   const handleToggleCrossRef = () => {
     // When the user enables the feature for the first time, mark the tooltip as seen.
@@ -184,7 +199,7 @@ export default function App() {
   }
 
   if (view === 'home') {
-    return <HomeScreen onContinueReading={handleContinueReading} onStartReading={handleStartReading} lastRead={lastRead} />;
+    return <HomeScreen onContinueReading={handleContinueReading} onStartReading={handleStartReading} lastRead={lastRead} theme={theme} onToggleTheme={handleToggleTheme} />;
   }
 
   return (
@@ -209,6 +224,8 @@ export default function App() {
           isCrossRefEnabled={isCrossRefEnabled}
           onToggleCrossRef={handleToggleCrossRef}
           showCrossRefTooltip={!isCrossRefEnabled && !hasSeenCrossRefTooltip}
+          theme={theme}
+          onToggleTheme={handleToggleTheme}
         />
         <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 pb-20 md:pb-8">
             <ReadingView
