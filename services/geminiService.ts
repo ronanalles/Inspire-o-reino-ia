@@ -1,15 +1,17 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { ChatMessage, QuizQuestion, ThematicStudyResult, VerseOfTheDay, SearchResult, ChapterCrossReferences } from '../types';
 
-// A chave de API é lida exclusivamente do ambiente de execução (ex: Vercel).
-const API_KEY = process.env.API_KEY;
+// CORRECT: For Vite projects, environment variables exposed to the client MUST start with VITE_
+// and be accessed via import.meta.env. This is the definitive fix for Vercel deployments.
+const API_KEY = import.meta.env.VITE_API_KEY;
 
-// Função para verificar se a chave de API está disponível.
+// Function to verify if the API key is available. This is used by App.tsx.
 export const isApiKeyAvailable = () => {
-  return !!API_KEY;
+  // It must check the same variable.
+  return !!import.meta.env.VITE_API_KEY;
 };
 
-// Se a chave não estiver definida, a UI da aplicação exibirá uma tela de erro.
+// If the key isn't set, the app will show an error screen with instructions.
 const ai = new GoogleGenAI({ apiKey: API_KEY });
 const model = 'gemini-2.5-flash';
 

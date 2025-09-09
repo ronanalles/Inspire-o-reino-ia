@@ -23,7 +23,7 @@ const ApiKeyErrorScreen = () => (
       <ol className="text-left list-decimal list-inside bg-red-100 text-red-800 p-4 rounded-md space-y-2">
         <li>Vá para o painel do seu projeto na Vercel.</li>
         <li>Clique em <strong>Settings</strong> &gt; <strong>Environment Variables</strong>.</li>
-        <li>Crie uma nova variável com o nome exatamente <code className="bg-red-200 px-1.5 py-0.5 rounded">API_KEY</code>.</li>
+        <li>Crie uma nova variável com o nome exatamente <code className="bg-red-200 px-1.5 py-0.5 rounded">VITE_API_KEY</code>.</li>
         <li>Cole sua chave de API do Google AI Studio no campo "Value".</li>
         <li>Salve e faça o <strong>Redeploy</strong> do seu projeto.</li>
       </ol>
