@@ -12,18 +12,21 @@ import { useLocalStorage } from './hooks/useLocalStorage';
 import { books } from './data/bibleData';
 import { Bookmark, LastRead, Highlight, HighlightColor, Theme } from './types';
 import { IconFeather, IconBrain, IconSparkles } from './components/IconComponents';
-import { isApiKeySet } from './services/geminiService';
+import { isApiKeyAvailable } from './services/geminiService';
 
 const ApiKeyErrorScreen = () => (
   <div className="flex flex-col items-center justify-center min-h-screen bg-red-50 text-red-900 p-4 font-sans">
     <div className="w-full max-w-2xl text-center bg-white p-8 rounded-lg shadow-lg border-2 border-red-200">
       <h1 className="text-3xl font-bold mb-4">Configuração Necessária</h1>
-      <p className="text-lg mb-2">A chave de API do Google AI não foi encontrada.</p>
-      <p className="mb-6">Para fazer o aplicativo funcionar, por favor, edite o seguinte arquivo no seu projeto:</p>
-      <code className="bg-red-100 text-red-800 p-3 rounded-md block text-left font-mono text-lg">
-        services/geminiService.ts
-      </code>
-      <p className="mt-6">Dentro deste arquivo, substitua o texto <code className="bg-red-100 text-red-800 px-2 py-1 rounded">"COLOQUE_SUA_CHAVE_API_AQUI"</code> pela sua chave de API real.</p>
+      <p className="text-lg mb-2">A chave de API do Google AI não foi encontrada no ambiente.</p>
+      <p className="mb-6">Para fazer o aplicativo funcionar na Vercel, siga estes passos:</p>
+      <ol className="text-left list-decimal list-inside bg-red-100 text-red-800 p-4 rounded-md space-y-2">
+        <li>Vá para o painel do seu projeto na Vercel.</li>
+        <li>Clique em <strong>Settings</strong> &gt; <strong>Environment Variables</strong>.</li>
+        <li>Crie uma nova variável com o nome exatamente <code className="bg-red-200 px-1.5 py-0.5 rounded">API_KEY</code>.</li>
+        <li>Cole sua chave de API do Google AI Studio no campo "Value".</li>
+        <li>Salve e faça o <strong>Redeploy</strong> do seu projeto.</li>
+      </ol>
       <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="mt-8 inline-block bg-red-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-red-700 transition-colors">
         Obter Chave de API
       </a>
@@ -71,7 +74,7 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({
 
 
 export default function App() {
-  if (!isApiKeySet()) {
+  if (!isApiKeyAvailable()) {
     return <ApiKeyErrorScreen />;
   }
   
