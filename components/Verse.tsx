@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { IconBookmark, IconBookmarkSolid } from './IconComponents';
 import { CrossReferenceItem, ChapterCrossReferences, Highlight, HighlightColor } from '../types';
@@ -17,7 +16,7 @@ interface VerseProps {
   onAddHighlight: (book: string, chapter: number, verse: number, text: string, color: HighlightColor) => void;
 }
 
-export const Verse: React.FC<VerseProps> = ({ 
+const VerseComponent: React.FC<VerseProps> = ({ 
   book,
   chapter,
   verseNumber, 
@@ -36,13 +35,12 @@ export const Verse: React.FC<VerseProps> = ({
     const selection = window.getSelection();
     if (selection && !selection.isCollapsed && selection.toString().trim() !== '') {
       const range = selection.getRangeAt(0);
-      // Check if the selection is within the current verse element
       if (verseRef.current && verseRef.current.contains(range.commonAncestorContainer)) {
         const rect = range.getBoundingClientRect();
         const containerRect = verseRef.current.parentElement!.getBoundingClientRect();
         
         setPopoverState({
-          top: rect.top - containerRect.top - 45, // Position above selection
+          top: rect.top - containerRect.top - 45,
           left: rect.left - containerRect.left + rect.width / 2,
           text: selection.toString(),
         });
@@ -54,7 +52,6 @@ export const Verse: React.FC<VerseProps> = ({
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      // Close popover if clicking outside of it
       if (popoverState && !(event.target as Element).closest('.highlight-popover')) {
         setPopoverState(null);
       }
@@ -69,17 +66,17 @@ export const Verse: React.FC<VerseProps> = ({
     if (popoverState) {
       onAddHighlight(book, chapter, verseNumber, popoverState.text, color);
       setPopoverState(null);
-      window.getSelection()?.removeAllRanges(); // Clear selection
+      window.getSelection()?.removeAllRanges();
     }
   };
 
   const renderVerseContent = () => {
     let content: (string | JSX.Element)[] = [text];
 
-    // Apply highlights first
     if (highlights.length > 0) {
       const highlightMap = new Map(highlights.map(h => [h.text, h.color]));
       const highlightTexts = highlights.map(h => h.text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+      if (highlightTexts.length === 0) return [text];
       const highlightRegex = new RegExp(`(${highlightTexts.join('|')})`, 'g');
 
       content = content.flatMap(part => {
@@ -98,7 +95,6 @@ export const Verse: React.FC<VerseProps> = ({
       });
     }
 
-    // Apply cross-references
     if (crossReferences && crossReferences.length > 0) {
       const terms = crossReferences.map(cr => cr.term);
       const crossRefRegex = new RegExp(`\\b(${terms.join('|')})\\b`, 'gi');
@@ -153,3 +149,5 @@ export const Verse: React.FC<VerseProps> = ({
     </div>
   );
 };
+
+export const Verse = React.memo(VerseComponent);

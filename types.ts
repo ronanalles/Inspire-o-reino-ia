@@ -1,3 +1,11 @@
+export type Translation = 'acf' | 'nvi' | 'kjv';
+
+export interface TranslationInfo {
+  id: Translation;
+  name: string;
+  apiId: 'almeida' | 'nvi' | 'kjv';
+}
+
 export interface Book {
   name: string;
   chapters: number;
@@ -38,8 +46,6 @@ export interface Highlight {
   verse: number;
   text: string;
   color: HighlightColor;
-  // Note: For simplicity, this implementation re-highlights based on text search.
-  // A more robust solution for academic use might use character offsets.
 }
 
 export interface ChatMessage {

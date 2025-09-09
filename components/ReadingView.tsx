@@ -1,13 +1,11 @@
-
 import React, { useEffect, useRef, useState, useMemo } from 'react';
-import { Book, VerseType, ChapterCrossReferences, CrossReferenceItem, Highlight, HighlightColor } from '../types';
+import { Book, VerseType, ChapterCrossReferences, CrossReferenceItem, Highlight, HighlightColor, Translation } from '../types';
 import { Verse } from './Verse';
 import { CrossReferencePanel } from './CrossReferencePanel';
 import { IconChevronLeft, IconChevronRight, IconSpinner } from './IconComponents';
 import { getChapterText } from '../services/bibleService';
 import { getCrossReferences } from '../services/geminiService';
 import { books } from '../data/bibleData';
-import { Translation } from '../App';
 
 interface ReadingViewProps {
   book: Book;
@@ -64,7 +62,7 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
           const crData = await getCrossReferences(chapterText);
           setCrossReferences(crData);
         } else {
-          setCrossReferences(null); // Garante que as referências sejam limpas se desativado
+          setCrossReferences(null);
         }
 
       } else {
@@ -95,7 +93,7 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
         ) : error ? (
           <p className="text-center text-red-500">{error}</p>
         ) : (
-          <div className="space-y-4 text-lg leading-relaxed text-gray-700 dark:text-gray-300">
+          <div className="space-y-4 text-xl leading-loose text-gray-700 dark:text-gray-300">
             {verses.map((verseData) => (
               <Verse
                 key={verseData.verse}

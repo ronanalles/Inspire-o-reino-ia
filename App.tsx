@@ -1,82 +1,33 @@
-import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import React, { useState, useCallback, useMemo, useEffect, Suspense } from 'react';
 import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
 import { ReadingView } from './components/ReadingView';
-import { AiStudyBuddy } from './components/AiStudyBuddy';
 import { BookmarksPanel } from './components/BookmarksPanel';
-import { BibleQuiz } from './components/BibleQuiz';
 import { HomeScreen } from './components/HomeScreen';
-import { ThematicStudy } from './components/ThematicStudy';
 import { SearchModal } from './components/SearchModal';
+import { FloatingActionButtons } from './components/FloatingActionButtons';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { books } from './data/bibleData';
-import { Bookmark, LastRead, Highlight, HighlightColor, Theme } from './types';
-import { IconFeather, IconBrain, IconSparkles } from './components/IconComponents';
-import { isApiKeyAvailable } from './services/geminiService';
+import { Bookmark, LastRead, Highlight, HighlightColor, Theme, Translation } from './types';
+import { IconSpinner } from './components/IconComponents';
+// FIX: Per @google/genai guidelines, the app must not check for or prompt for an API key. This is handled externally.
+// import { isApiKeyAvailable } from './services/geminiService';
 
-const ApiKeyErrorScreen = () => (
-  <div className="flex flex-col items-center justify-center min-h-screen bg-red-50 text-red-900 p-4 font-sans">
-    <div className="w-full max-w-2xl text-center bg-white p-8 rounded-lg shadow-lg border-2 border-red-200">
-      <h1 className="text-3xl font-bold mb-4">Configuração Necessária</h1>
-      <p className="text-lg mb-2">A chave de API do Google AI não foi encontrada no ambiente.</p>
-      <p className="mb-6">Para fazer o aplicativo funcionar na Vercel, siga estes passos:</p>
-      <ol className="text-left list-decimal list-inside bg-red-100 text-red-800 p-4 rounded-md space-y-2">
-        <li>Vá para o painel do seu projeto na Vercel.</li>
-        <li>Clique em <strong>Settings</strong> &gt; <strong>Environment Variables</strong>.</li>
-        <li>Crie uma nova variável com o nome exatamente <code className="bg-red-200 px-1.5 py-0.5 rounded">VITE_API_KEY</code>.</li>
-        <li>Cole sua chave de API do Google AI Studio no campo "Value".</li>
-        <li>Salve e faça o <strong>Redeploy</strong> do seu projeto.</li>
-      </ol>
-      <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="mt-8 inline-block bg-red-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-red-700 transition-colors">
-        Obter Chave de API
-      </a>
+const AiStudyBuddy = React.lazy(() => import('./components/AiStudyBuddy'));
+const BibleQuiz = React.lazy(() => import('./components/BibleQuiz'));
+const ThematicStudy = React.lazy(() => import('./components/ThematicStudy'));
+
+const LoadingSpinner = () => (
+    <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+        <IconSpinner className="w-12 h-12 animate-spin text-white" />
     </div>
-  </div>
 );
 
-export type Translation = 'acf' | 'nvi' | 'kjv';
-
-interface BottomNavigationProps {
-  onThematicStudyClick: () => void;
-  onQuizClick: () => void;
-  onAiBuddyClick: () => void;
-}
-
-const BottomNavigation: React.FC<BottomNavigationProps> = ({
-  onThematicStudyClick,
-  onQuizClick,
-  onAiBuddyClick,
-}) => {
-  const navItems = [
-    { label: 'Estudo', icon: IconSparkles, onClick: onThematicStudyClick },
-    { label: 'Quiz', icon: IconBrain, onClick: onQuizClick },
-    { label: 'Assistente', icon: IconFeather, onClick: onAiBuddyClick },
-  ];
-
-  return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border-t border-gray-200 dark:border-gray-700 z-30 md:hidden">
-      <nav className="flex justify-around items-center h-16">
-        {navItems.map((item) => (
-          <button
-            key={item.label}
-            onClick={item.onClick}
-            className="flex flex-col items-center justify-center text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors w-full h-full pt-1"
-            aria-label={item.label}
-          >
-            <item.icon className="w-6 h-6 mb-1" />
-            <span className="text-xs font-medium">{item.label}</span>
-          </button>
-        ))}
-      </nav>
-    </div>
-  );
-};
-
-
 export default function App() {
-  if (!isApiKeyAvailable()) {
-    return <ApiKeyErrorScreen />;
-  }
+  // FIX: Per @google/genai guidelines, the app must not check for or prompt for an API key. This is handled externally.
+  // if (!isApiKeyAvailable()) {
+  //   return <ApiKeyErrorScreen />;
+  // }
   
   const [view, setView] = useState<'home' | 'reading'>('home');
   const [lastRead, setLastRead] = useLocalStorage<LastRead | null>('bible_last_read', null);
@@ -115,7 +66,6 @@ export default function App() {
   };
 
   const handleToggleCrossRef = () => {
-    // When the user enables the feature for the first time, mark the tooltip as seen.
     if (!isCrossRefEnabled && !hasSeenCrossRefTooltip) {
       setHasSeenCrossRefTooltip(true);
     }
@@ -252,7 +202,7 @@ export default function App() {
           theme={theme}
           onToggleTheme={handleToggleTheme}
         />
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 pb-20 md:pb-8">
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
             <ReadingView
               book={selectedBook}
               chapter={selectedChapter}
@@ -269,33 +219,7 @@ export default function App() {
         </main>
       </div>
       
-      {/* Floating Action Buttons for Desktop */}
-      <div className="fixed bottom-6 right-6 flex-col space-y-3 z-30 hidden md:flex">
-        <button
-            onClick={() => setIsThematicStudyOpen(true)}
-            className="bg-green-600 hover:bg-green-700 text-white rounded-full p-4 shadow-lg transition-transform transform hover:scale-110"
-            aria-label="Estudo Temático com IA"
-          >
-            <IconSparkles className="w-6 h-6" />
-        </button>
-        <button
-            onClick={() => setIsQuizOpen(true)}
-            className="bg-purple-600 hover:bg-purple-700 text-white rounded-full p-4 shadow-lg transition-transform transform hover:scale-110"
-            aria-label="Quiz Bíblico"
-          >
-            <IconBrain className="w-6 h-6" />
-          </button>
-        <button
-            onClick={() => setIsAiBuddyOpen(!isAiBuddyOpen)}
-            className="bg-blue-600 hover:bg-blue-700 text-white rounded-full p-4 shadow-lg transition-transform transform hover:scale-110"
-            aria-label="Assistente de Estudo"
-          >
-            <IconFeather className="w-6 h-6" />
-          </button>
-      </div>
-
-      {/* Bottom Navigation for Mobile */}
-      <BottomNavigation
+      <FloatingActionButtons
         onThematicStudyClick={() => setIsThematicStudyOpen(true)}
         onQuizClick={() => setIsQuizOpen(true)}
         onAiBuddyClick={() => setIsAiBuddyOpen(true)}
@@ -305,12 +229,6 @@ export default function App() {
         isOpen={isSearchOpen}
         onClose={() => setIsSearchOpen(false)}
         onNavigateToVerse={handleSelectChapter}
-      />
-
-      <AiStudyBuddy
-        isOpen={isAiBuddyOpen}
-        onClose={() => setIsAiBuddyOpen(false)}
-        context={{ book: selectedBook.name, chapter: selectedChapter }}
       />
       
       <BookmarksPanel
@@ -322,17 +240,25 @@ export default function App() {
         onUpdateBookmarkNote={handleUpdateBookmarkNote}
         onRemoveHighlight={removeHighlight}
       />
+      
+      <Suspense fallback={<LoadingSpinner />}>
+        {isAiBuddyOpen && <AiStudyBuddy
+          isOpen={isAiBuddyOpen}
+          onClose={() => setIsAiBuddyOpen(false)}
+          context={{ book: selectedBook.name, chapter: selectedChapter }}
+        />}
+        
+        {isQuizOpen && <BibleQuiz 
+          isOpen={isQuizOpen}
+          onClose={() => setIsQuizOpen(false)}
+        />}
 
-      <BibleQuiz 
-        isOpen={isQuizOpen}
-        onClose={() => setIsQuizOpen(false)}
-      />
-
-      <ThematicStudy
-        isOpen={isThematicStudyOpen}
-        onClose={() => setIsThematicStudyOpen(false)}
-        onNavigateToVerse={handleSelectChapter}
-      />
+        {isThematicStudyOpen && <ThematicStudy
+          isOpen={isThematicStudyOpen}
+          onClose={() => setIsThematicStudyOpen(false)}
+          onNavigateToVerse={handleSelectChapter}
+        />}
+      </Suspense>
     </div>
   );
 }

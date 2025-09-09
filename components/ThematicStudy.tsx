@@ -9,7 +9,7 @@ interface ThematicStudyProps {
   onNavigateToVerse: (book: string, chapter: number) => void;
 }
 
-export const ThematicStudy: React.FC<ThematicStudyProps> = ({ isOpen, onClose, onNavigateToVerse }) => {
+const ThematicStudy: React.FC<ThematicStudyProps> = ({ isOpen, onClose, onNavigateToVerse }) => {
   const [theme, setTheme] = useState('');
   const [studyResult, setStudyResult] = useState<ThematicStudyResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -112,3 +112,5 @@ export const ThematicStudy: React.FC<ThematicStudyProps> = ({ isOpen, onClose, o
     </div>
   );
 };
+
+export default ThematicStudy;

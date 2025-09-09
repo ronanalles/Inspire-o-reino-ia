@@ -1,18 +1,18 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { ChatMessage, QuizQuestion, ThematicStudyResult, VerseOfTheDay, SearchResult, ChapterCrossReferences } from '../types';
 
-// CORRECT: For Vite projects, environment variables exposed to the client MUST start with VITE_
-// and be accessed via import.meta.env. This is the definitive fix for Vercel deployments.
-const API_KEY = import.meta.env.VITE_API_KEY;
+// FIX: Per @google/genai guidelines, API key must be obtained exclusively from process.env.API_KEY.
+const API_KEY = process.env.API_KEY;
 
-// Function to verify if the API key is available. This is used by App.tsx.
+// FIX: This function and its usage in App.tsx violate the guideline of not checking for the key in the UI.
+// It is updated for consistency but its usage has been removed from App.tsx.
 export const isApiKeyAvailable = () => {
-  // It must check the same variable.
-  return !!import.meta.env.VITE_API_KEY;
+  return !!process.env.API_KEY;
 };
 
-// If the key isn't set, the app will show an error screen with instructions.
-const ai = new GoogleGenAI({ apiKey: API_KEY });
+// FIX: Per guidelines, apiKey is assumed to be set in the environment.
+// Using a non-null assertion to satisfy TypeScript types, as the key is a hard requirement.
+const ai = new GoogleGenAI({ apiKey: API_KEY! });
 const model = 'gemini-2.5-flash';
 
 async function* sendMessageToChat(
@@ -20,7 +20,7 @@ async function* sendMessageToChat(
   context: { book: string; chapter: number },
   history: ChatMessage[]
 ) {
-  if (!isApiKeyAvailable()) return;
+  // FIX: Per guideline, API key is a hard requirement. No availability check needed.
   const systemInstruction = `Você é um assistente de estudo da Bíblia, amigável e experiente. 
   Sua finalidade é ajudar os usuários a compreenderem melhor as Escrituras. 
   Atualmente, o usuário está lendo ${context.book}, capítulo ${context.chapter}. 
@@ -46,7 +46,7 @@ async function* sendMessageToChat(
 }
 
 async function generateQuizQuestion(): Promise<QuizQuestion | null> {
-  if (!isApiKeyAvailable()) return null;
+  // FIX: Per guideline, API key is a hard requirement. No availability check needed.
   try {
     const response = await ai.models.generateContent({
       model,
@@ -87,7 +87,7 @@ async function generateQuizQuestion(): Promise<QuizQuestion | null> {
 }
 
 async function getVerseOfTheDay(book: string, chapter: number): Promise<VerseOfTheDay | null> {
-    if (!isApiKeyAvailable()) return null;
+    // FIX: Per guideline, API key is a hard requirement. No availability check needed.
     try {
         const response = await ai.models.generateContent({
             model,
@@ -113,7 +113,7 @@ async function getVerseOfTheDay(book: string, chapter: number): Promise<VerseOfT
 }
 
 async function getThematicStudy(theme: string): Promise<ThematicStudyResult | null> {
-    if (!isApiKeyAvailable()) return null;
+    // FIX: Per guideline, API key is a hard requirement. No availability check needed.
     try {
         const response = await ai.models.generateContent({
             model,
@@ -149,7 +149,7 @@ async function getThematicStudy(theme: string): Promise<ThematicStudyResult | nu
 }
 
 async function searchVerses(query: string): Promise<SearchResult[] | null> {
-    if (!isApiKeyAvailable()) return null;
+    // FIX: Per guideline, API key is a hard requirement. No availability check needed.
     try {
         const response = await ai.models.generateContent({
             model,
@@ -188,7 +188,7 @@ async function searchVerses(query: string): Promise<SearchResult[] | null> {
 }
 
 async function getCrossReferences(chapterText: string): Promise<ChapterCrossReferences | null> {
-    if (!isApiKeyAvailable()) return null;
+    // FIX: Per guideline, API key is a hard requirement. No availability check needed.
     try {
         const response = await ai.models.generateContent({
             model,

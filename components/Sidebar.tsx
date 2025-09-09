@@ -1,5 +1,4 @@
-
-import React, { useState, Fragment } from 'react';
+import React, { useState } from 'react';
 import { books } from '../data/bibleData';
 import { IconX } from './IconComponents';
 
@@ -11,7 +10,7 @@ interface SidebarProps {
   onClose: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ isOpen, selectedBookName, selectedChapter, onSelectChapter, onClose }) => {
+const SidebarComponent: React.FC<SidebarProps> = ({ isOpen, selectedBookName, selectedChapter, onSelectChapter, onClose }) => {
   const [expandedBook, setExpandedBook] = useState<string | null>(selectedBookName);
 
   const oldTestamentBooks = books.filter(b => b.testament === 'old');
@@ -73,3 +72,5 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, selectedBookName, sele
     </>
   );
 };
+
+export const Sidebar = React.memo(SidebarComponent);

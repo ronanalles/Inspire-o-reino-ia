@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { IconMenu, IconBookmark, IconHome, IconGlobe, IconSearch, IconSparkles, IconSun, IconMoon } from './IconComponents';
-import { Translation } from '../App';
-import { Theme } from '../types';
+import { IconMenu, IconBookmark, IconSearch, IconSparkles, IconGlobe, IconDotsVertical, IconHome, IconSun, IconMoon } from './IconComponents';
+import { Translation, Theme } from '../types';
+import { translations } from '../data/translations';
 
 interface HeaderProps {
   onToggleSidebar: () => void;
@@ -19,12 +19,6 @@ interface HeaderProps {
   onToggleTheme: () => void;
 }
 
-const translationMap: Record<Translation, string> = {
-    acf: 'Almeida Corrigida Fiel',
-    nvi: 'Nova Versão Internacional',
-    kjv: 'King James Version',
-};
-
 export const Header: React.FC<HeaderProps> = ({ 
     onToggleSidebar, 
     onToggleBookmarks, 
@@ -40,13 +34,18 @@ export const Header: React.FC<HeaderProps> = ({
     theme,
     onToggleTheme
 }) => {
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [isTranslationDropdownOpen, setIsTranslationDropdownOpen] = useState(false);
+  const [isMoreOptionsDropdownOpen, setIsMoreOptionsDropdownOpen] = useState(false);
+  const translationRef = useRef<HTMLDivElement>(null);
+  const moreOptionsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsDropdownOpen(false);
+      if (translationRef.current && !translationRef.current.contains(event.target as Node)) {
+        setIsTranslationDropdownOpen(false);
+      }
+      if (moreOptionsRef.current && !moreOptionsRef.current.contains(event.target as Node)) {
+        setIsMoreOptionsDropdownOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -55,7 +54,7 @@ export const Header: React.FC<HeaderProps> = ({
 
   const handleSelectTranslation = (translation: Translation) => {
     onTranslationChange(translation);
-    setIsDropdownOpen(false);
+    setIsTranslationDropdownOpen(false);
   }
 
   return (
@@ -68,28 +67,21 @@ export const Header: React.FC<HeaderProps> = ({
           {bookName} <span className="font-normal">{chapter}</span>
         </h1>
       </div>
-      <div className="flex items-center space-x-2">
-        <button 
-          onClick={onToggleTheme} 
-          className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
-          aria-label="Alternar tema"
-        >
-          {theme === 'dark' ? <IconSun className="w-6 h-6" /> : <IconMoon className="w-6 h-6" />}
-        </button>
-        <div className="relative" ref={dropdownRef}>
-            <button onClick={() => setIsDropdownOpen(!isDropdownOpen)} className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700" aria-label="Selecionar tradução">
+      <div className="flex items-center space-x-1 sm:space-x-2">
+        <div className="relative" ref={translationRef}>
+            <button onClick={() => setIsTranslationDropdownOpen(!isTranslationDropdownOpen)} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700" aria-label="Selecionar tradução">
                 <IconGlobe className="w-6 h-6" />
             </button>
-            {isDropdownOpen && (
+            {isTranslationDropdownOpen && (
                 <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-700 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-30">
                     <div className="py-1">
-                        {(Object.keys(translationMap) as Translation[]).map((trans) => (
+                        {translations.map((trans) => (
                              <button
-                                key={trans}
-                                onClick={() => handleSelectTranslation(trans)}
-                                className={`w-full text-left px-4 py-2 text-sm ${selectedTranslation === trans ? 'font-bold text-blue-600 dark:text-blue-400' : 'text-gray-700 dark:text-gray-200'} hover:bg-gray-100 dark:hover:bg-gray-600`}
+                                key={trans.id}
+                                onClick={() => handleSelectTranslation(trans.id)}
+                                className={`w-full text-left px-4 py-2 text-sm ${selectedTranslation === trans.id ? 'font-bold text-blue-600 dark:text-blue-400' : 'text-gray-700 dark:text-gray-200'} hover:bg-gray-100 dark:hover:bg-gray-600`}
                              >
-                                {translationMap[trans]}
+                                {trans.name}
                              </button>
                         ))}
                     </div>
@@ -99,7 +91,7 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="relative">
           <button 
               onClick={onToggleCrossRef} 
-              className={`p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${isCrossRefEnabled ? 'text-blue-500' : 'text-gray-500'}`} 
+              className={`p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${isCrossRefEnabled ? 'text-blue-500' : 'text-gray-500'}`} 
               aria-label="Ativar/Desativar Estudo Aprofundado"
           >
             <IconSparkles className="w-6 h-6" />
@@ -111,15 +103,31 @@ export const Header: React.FC<HeaderProps> = ({
               </div>
           )}
         </div>
-        <button onClick={onToggleSearch} className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700" aria-label="Buscar versículos">
+        <button onClick={onToggleSearch} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700" aria-label="Buscar versículos">
           <IconSearch className="w-6 h-6" />
         </button>
-        <button onClick={onNavigateHome} className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700" aria-label="Ir para a tela inicial">
-          <IconHome className="w-6 h-6" />
-        </button>
-        <button onClick={onToggleBookmarks} className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700" aria-label="Ver versículos salvos">
+        <button onClick={onToggleBookmarks} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700" aria-label="Ver versículos salvos">
           <IconBookmark className="w-6 h-6" />
         </button>
+        <div className="relative" ref={moreOptionsRef}>
+            <button onClick={() => setIsMoreOptionsDropdownOpen(!isMoreOptionsDropdownOpen)} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700" aria-label="Mais opções">
+                <IconDotsVertical className="w-6 h-6" />
+            </button>
+            {isMoreOptionsDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-700 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-30">
+                    <div className="py-1">
+                        <button onClick={() => { onNavigateHome(); setIsMoreOptionsDropdownOpen(false); }} className="w-full text-left flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600">
+                            <IconHome className="w-5 h-5 mr-3" />
+                            Tela Inicial
+                        </button>
+                        <button onClick={() => { onToggleTheme(); setIsMoreOptionsDropdownOpen(false); }} className="w-full text-left flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600">
+                            {theme === 'dark' ? <IconSun className="w-5 h-5 mr-3" /> : <IconMoon className="w-5 h-5 mr-3" />}
+                            Alternar para Tema {theme === 'dark' ? 'Claro' : 'Escuro'}
+                        </button>
+                    </div>
+                </div>
+            )}
+        </div>
       </div>
     </header>
   );

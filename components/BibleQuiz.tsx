@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { QuizQuestion } from '../types';
 import { generateQuizQuestion } from '../services/geminiService';
@@ -9,7 +8,7 @@ interface BibleQuizProps {
   onClose: () => void;
 }
 
-export const BibleQuiz: React.FC<BibleQuizProps> = ({ isOpen, onClose }) => {
+const BibleQuiz: React.FC<BibleQuizProps> = ({ isOpen, onClose }) => {
   const [question, setQuestion] = useState<QuizQuestion | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
@@ -114,3 +113,5 @@ export const BibleQuiz: React.FC<BibleQuizProps> = ({ isOpen, onClose }) => {
     </div>
   );
 };
+
+export default BibleQuiz;
