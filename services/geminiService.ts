@@ -1,10 +1,20 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { ChatMessage, QuizQuestion, ThematicStudyResult, VerseOfTheDay, SearchResult, ChapterCrossReferences } from '../types';
 
-// FIX: Per coding guidelines, API key must be obtained exclusively from process.env.API_KEY.
-// This also resolves the TypeScript error on `import.meta.env`.
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// INSTRUÇÃO: Cole sua Chave de API do Google AI Studio aqui.
+// Obtenha sua chave em: https://aistudio.google.com/app/apikey
+const API_KEY = "AIzaSyAzlmtHUgGzj_SjBpipZg4GIWvQj68UCDM";
 
+// Função para verificar se a chave foi inserida.
+export const isApiKeySet = () => {
+  return API_KEY && API_KEY !== "AIzaSyAzlmtHUgGzj_SjBpipZg4GIWvQj68UCDM";
+};
+
+if (!isApiKeySet()) {
+  console.error("ERRO: A chave de API não foi configurada. Por favor, edite o arquivo 'services/geminiService.ts' e insira sua chave de API.");
+}
+
+const ai = new GoogleGenAI({ apiKey: API_KEY });
 const model = 'gemini-2.5-flash';
 
 async function* sendMessageToChat(
@@ -37,6 +47,7 @@ async function* sendMessageToChat(
 }
 
 async function generateQuizQuestion(): Promise<QuizQuestion | null> {
+  if (!isApiKeySet()) return null;
   try {
     const response = await ai.models.generateContent({
       model,
@@ -77,6 +88,7 @@ async function generateQuizQuestion(): Promise<QuizQuestion | null> {
 }
 
 async function getVerseOfTheDay(book: string, chapter: number): Promise<VerseOfTheDay | null> {
+    if (!isApiKeySet()) return null;
     try {
         const response = await ai.models.generateContent({
             model,
@@ -102,6 +114,7 @@ async function getVerseOfTheDay(book: string, chapter: number): Promise<VerseOfT
 }
 
 async function getThematicStudy(theme: string): Promise<ThematicStudyResult | null> {
+    if (!isApiKeySet()) return null;
     try {
         const response = await ai.models.generateContent({
             model,
@@ -137,6 +150,7 @@ async function getThematicStudy(theme: string): Promise<ThematicStudyResult | nu
 }
 
 async function searchVerses(query: string): Promise<SearchResult[] | null> {
+    if (!isApiKeySet()) return null;
     try {
         const response = await ai.models.generateContent({
             model,
@@ -175,6 +189,7 @@ async function searchVerses(query: string): Promise<SearchResult[] | null> {
 }
 
 async function getCrossReferences(chapterText: string): Promise<ChapterCrossReferences | null> {
+    if (!isApiKeySet()) return null;
     try {
         const response = await ai.models.generateContent({
             model,

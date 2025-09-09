@@ -12,6 +12,24 @@ import { useLocalStorage } from './hooks/useLocalStorage';
 import { books } from './data/bibleData';
 import { Bookmark, LastRead, Highlight, HighlightColor, Theme } from './types';
 import { IconFeather, IconBrain, IconSparkles } from './components/IconComponents';
+import { isApiKeySet } from './services/geminiService';
+
+const ApiKeyErrorScreen = () => (
+  <div className="flex flex-col items-center justify-center min-h-screen bg-red-50 text-red-900 p-4 font-sans">
+    <div className="w-full max-w-2xl text-center bg-white p-8 rounded-lg shadow-lg border-2 border-red-200">
+      <h1 className="text-3xl font-bold mb-4">Configuração Necessária</h1>
+      <p className="text-lg mb-2">A chave de API do Google AI não foi encontrada.</p>
+      <p className="mb-6">Para fazer o aplicativo funcionar, por favor, edite o seguinte arquivo no seu projeto:</p>
+      <code className="bg-red-100 text-red-800 p-3 rounded-md block text-left font-mono text-lg">
+        services/geminiService.ts
+      </code>
+      <p className="mt-6">Dentro deste arquivo, substitua o texto <code className="bg-red-100 text-red-800 px-2 py-1 rounded">"COLOQUE_SUA_CHAVE_API_AQUI"</code> pela sua chave de API real.</p>
+      <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="mt-8 inline-block bg-red-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-red-700 transition-colors">
+        Obter Chave de API
+      </a>
+    </div>
+  </div>
+);
 
 export type Translation = 'acf' | 'nvi' | 'kjv';
 
@@ -53,6 +71,10 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({
 
 
 export default function App() {
+  if (!isApiKeySet()) {
+    return <ApiKeyErrorScreen />;
+  }
+  
   const [view, setView] = useState<'home' | 'reading'>('home');
   const [lastRead, setLastRead] = useLocalStorage<LastRead | null>('bible_last_read', null);
   const [translation, setTranslation] = useLocalStorage<Translation>('bible_translation', 'acf');
