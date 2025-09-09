@@ -1,7 +1,7 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { ChatMessage, QuizQuestion, ThematicStudyResult, VerseOfTheDay, SearchResult, ChapterCrossReferences } from '../types';
 
-// A chave de API agora é lida exclusivamente do ambiente de execução (ex: Vercel).
+// A chave de API é lida exclusivamente do ambiente de execução (ex: Vercel).
 const API_KEY = process.env.API_KEY;
 
 // Função para verificar se a chave de API está disponível.
@@ -9,8 +9,7 @@ export const isApiKeyAvailable = () => {
   return !!API_KEY;
 };
 
-// Se a chave não estiver definida, a aplicação irá mostrar uma tela de erro.
-// Não é necessário mais um console.error aqui, pois a UI irá lidar com isso.
+// Se a chave não estiver definida, a UI da aplicação exibirá uma tela de erro.
 const ai = new GoogleGenAI({ apiKey: API_KEY });
 const model = 'gemini-2.5-flash';
 
