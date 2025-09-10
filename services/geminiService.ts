@@ -1,8 +1,17 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { ChatMessage, QuizQuestion, ThematicStudyResult, VerseOfTheDay, SearchResult, ChapterCrossReferences } from '../types';
 
-// FIX: Per @google/genai guidelines, the API key must be obtained from process.env.API_KEY.
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+let ai: GoogleGenAI;
+
+// Lazily initialize the GoogleGenAI instance to prevent app crash on load
+const getAi = () => {
+  if (!ai) {
+    // FIX: Per @google/genai guidelines, the API key must be obtained from process.env.API_KEY.
+    ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  }
+  return ai;
+};
+
 const model = 'gemini-2.5-flash';
 
 async function* sendMessageToChat(
@@ -16,7 +25,7 @@ async function* sendMessageToChat(
   Responda às perguntas dele com base nesse contexto, fornecendo explicações claras, insights teológicos e referências a outras partes da Bíblia quando for relevante. 
   Mantenha um tom respeitoso e encorajador. Formate suas respostas usando markdown para melhor legibilidade (ex: **negrito** para ênfase, listas para pontos-chave).`;
 
-  const chat = ai.chats.create({
+  const chat = getAi().chats.create({
     model,
     config: {
       systemInstruction: systemInstruction,
@@ -36,7 +45,7 @@ async function* sendMessageToChat(
 
 async function generateQuizQuestion(): Promise<QuizQuestion | null> {
   try {
-    const response = await ai.models.generateContent({
+    const response = await getAi().models.generateContent({
       model,
       contents: "Gere uma pergunta de múltipla escolha sobre a Bíblia com 3 opções de resposta. A pergunta deve ser de dificuldade média e abranger qualquer parte do Antigo ou Novo Testamento. Forneça a pergunta, um array com as 3 opções e o índice da resposta correta (0, 1 ou 2).",
       config: {
@@ -76,7 +85,7 @@ async function generateQuizQuestion(): Promise<QuizQuestion | null> {
 
 async function getVerseOfTheDay(book: string, chapter: number): Promise<VerseOfTheDay | null> {
     try {
-        const response = await ai.models.generateContent({
+        const response = await getAi().models.generateContent({
             model,
             contents: `Gere um 'Versículo do Dia' inspirador do livro de ${book}, capítulo ${chapter}. Forneça a referência completa (incluindo o versículo exato que você escolheu), o texto do versículo e uma breve reflexão (2-3 frases) sobre sua aplicação ou significado.`,
             config: {
@@ -101,7 +110,7 @@ async function getVerseOfTheDay(book: string, chapter: number): Promise<VerseOfT
 
 async function getThematicStudy(theme: string): Promise<ThematicStudyResult | null> {
     try {
-        const response = await ai.models.generateContent({
+        const response = await getAi().models.generateContent({
             model,
             contents: `Realize um estudo temático conciso sobre "${theme}" na Bíblia. Forneça um parágrafo de resumo sobre o tema e uma lista de 5 a 7 versículos-chave relacionados. Para cada versículo, forneça a referência, o nome exato do livro (ex: 'Gênesis', 'Apocalipse') e o número do capítulo.`,
             config: {
@@ -136,7 +145,7 @@ async function getThematicStudy(theme: string): Promise<ThematicStudyResult | nu
 
 async function searchVerses(query: string): Promise<SearchResult[] | null> {
     try {
-        const response = await ai.models.generateContent({
+        const response = await getAi().models.generateContent({
             model,
             contents: `Aja como um motor de busca bíblico. Encontre até 15 versículos relevantes para a busca: "${query}". A busca pode ser por palavra-chave, tema ou referência. Para cada versículo encontrado, forneça a referência, o nome exato do livro, o capítulo, o número do versículo e o texto completo.`,
             config: {
@@ -174,7 +183,7 @@ async function searchVerses(query: string): Promise<SearchResult[] | null> {
 
 async function getCrossReferences(chapterText: string): Promise<ChapterCrossReferences | null> {
     try {
-        const response = await ai.models.generateContent({
+        const response = await getAi().models.generateContent({
             model,
             contents: `Analise este texto bíblico e identifique até 10 nomes, lugares ou conceitos teológicos importantes para um estudo aprofundado. Para cada um, forneça o termo exato, uma breve explicação, uma lista de 3-5 referências cruzadas em outras partes da Bíblia e, se for um tópico complexo, um link de artigo opcional. O texto é: "${chapterText}"`,
             config: {
