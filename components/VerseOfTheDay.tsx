@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { getVerseOfTheDay } from '../services/geminiService';
+import { getVerseOfTheDay, ApiKeyError } from '../services/geminiService';
 import { VerseOfTheDay as VerseOfTheDayType, StoredVerseOfTheDay } from '../types';
 import { IconSpinner, IconRefresh } from './IconComponents';
 import { useLocalStorage } from '../hooks/useLocalStorage';
@@ -40,7 +40,11 @@ export const VerseOfTheDay: React.FC = () => {
         }
       }
     } catch (e) {
-      setError('Ocorreu um erro ao buscar o versículo. Tente novamente mais tarde.');
+      if (e instanceof ApiKeyError) {
+        setError('Erro de Configuração: A chave da API para o versículo do dia não foi encontrada.');
+      } else {
+        setError('Ocorreu um erro ao buscar o versículo. Tente novamente mais tarde.');
+      }
       console.error(e);
       if (!storedVerse) {
         setStoredVerse(null);
@@ -76,7 +80,7 @@ export const VerseOfTheDay: React.FC = () => {
           <IconSpinner className="w-8 h-8 animate-spin text-blue-500" />
         </div>
       ) : error ? (
-        <p className="text-center text-red-500">{error}</p>
+        <p className="text-center text-red-500 p-4">{error}</p>
       ) : verseData ? (
         <div className="space-y-4">
           <div>

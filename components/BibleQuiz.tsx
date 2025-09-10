@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { QuizQuestion } from '../types';
-import { generateQuizQuestion } from '../services/geminiService';
+import { generateQuizQuestion, ApiKeyError } from '../services/geminiService';
 import { IconX, IconSpinner, IconBrain } from './IconComponents';
 
 interface BibleQuizProps {
@@ -14,14 +14,31 @@ const BibleQuiz: React.FC<BibleQuizProps> = ({ isOpen, onClose }) => {
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [score, setScore] = useState(0);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchQuestion = useCallback(async () => {
     setIsLoading(true);
     setSelectedAnswer(null);
     setIsCorrect(null);
-    const q = await generateQuizQuestion();
-    setQuestion(q);
-    setIsLoading(false);
+    setQuestion(null);
+    setError(null);
+    try {
+      const q = await generateQuizQuestion();
+      if (q) {
+        setQuestion(q);
+      } else {
+        setError("Não foi possível carregar a pergunta. Tente novamente.");
+      }
+    } catch (e) {
+      if (e instanceof ApiKeyError) {
+        setError("Erro de Configuração: A chave da API do Gemini não foi encontrada. O administrador precisa configurar a variável de ambiente para que o Quiz funcione.");
+      } else {
+        setError("Ocorreu um erro ao carregar o Quiz. Tente novamente mais tarde.");
+        console.error(e);
+      }
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -75,6 +92,8 @@ const BibleQuiz: React.FC<BibleQuizProps> = ({ isOpen, onClose }) => {
             <div className="flex justify-center items-center h-64">
                 <IconSpinner className="w-12 h-12 animate-spin text-blue-500" />
             </div>
+          ) : error ? (
+            <p className="text-center text-red-500 p-4">{error}</p>
           ) : question ? (
             <div>
               <p className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-6 text-center">{question.question}</p>
@@ -91,9 +110,7 @@ const BibleQuiz: React.FC<BibleQuizProps> = ({ isOpen, onClose }) => {
                 ))}
               </div>
             </div>
-          ) : (
-            <p className="text-center text-red-500">Não foi possível carregar a pergunta. Tente novamente.</p>
-          )}
+          ) : null }
         </div>
         
         <div className="p-4 bg-white dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700 rounded-b-xl flex items-center justify-between">

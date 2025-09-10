@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { sendMessageToChat } from '../services/geminiService';
+import { sendMessageToChat, ApiKeyError } from '../services/geminiService';
 import { ChatMessage } from '../types';
 import { IconFeather, IconSend, IconX, IconSpinner } from './IconComponents';
 
@@ -68,7 +68,10 @@ const AiStudyBuddy: React.FC<AiStudyBuddyProps> = ({ isOpen, onClose, context })
 
     } catch (error) {
       console.error('Error sending message to AI:', error);
-      setMessages(prev => [...prev, { sender: 'ai', text: 'Desculpe, ocorreu um erro. Tente novamente.' }]);
+      const errorMessage = error instanceof ApiKeyError
+        ? "<b>Erro de Configuração:</b> A chave da API não foi encontrada. O assistente de estudo está indisponível."
+        : "Desculpe, ocorreu um erro. Tente novamente.";
+      setMessages(prev => [...prev, { sender: 'ai', text: errorMessage }]);
     } finally {
       setIsLoading(false);
     }

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { searchVerses } from '../services/geminiService';
+import { searchVerses, ApiKeyError } from '../services/geminiService';
 import { SearchResult } from '../types';
 import { IconX, IconSpinner, IconSearch } from './IconComponents';
 
@@ -23,13 +23,23 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onNav
     setResults([]);
     setHasSearched(true);
 
-    const searchResults = await searchVerses(query);
-    if (searchResults) {
-      setResults(searchResults);
-    } else {
-      setError('Não foi possível realizar a busca. Tente novamente.');
+    try {
+      const searchResults = await searchVerses(query);
+      if (searchResults) {
+        setResults(searchResults);
+      } else {
+        setError('Não foi possível realizar a busca. Tente novamente.');
+      }
+    } catch (e) {
+      if (e instanceof ApiKeyError) {
+        setError("Erro de Configuração: A chave da API do Gemini não foi encontrada. A busca não pode ser realizada.");
+      } else {
+        setError('Ocorreu um erro inesperado. Tente novamente mais tarde.');
+      }
+      console.error(e);
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   const handleResultClick = (result: SearchResult) => {

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { getThematicStudy } from '../services/geminiService';
+import { getThematicStudy, ApiKeyError } from '../services/geminiService';
 import { ThematicStudyResult } from '../types';
 import { IconX, IconSpinner, IconSparkles } from './IconComponents';
 
@@ -21,13 +21,23 @@ const ThematicStudy: React.FC<ThematicStudyProps> = ({ isOpen, onClose, onNaviga
     setError(null);
     setStudyResult(null);
 
-    const result = await getThematicStudy(theme);
-    if (result) {
-      setStudyResult(result);
-    } else {
-      setError('Não foi possível gerar o estudo. Tente um tema diferente ou verifique sua conexão.');
+    try {
+      const result = await getThematicStudy(theme);
+      if (result) {
+        setStudyResult(result);
+      } else {
+        setError('Não foi possível gerar o estudo. Tente um tema diferente ou verifique sua conexão.');
+      }
+    } catch (e) {
+      if (e instanceof ApiKeyError) {
+        setError("Erro de Configuração: A chave da API do Gemini não foi encontrada. O administrador precisa configurar a variável de ambiente.");
+      } else {
+        setError('Ocorreu um erro inesperado ao gerar o estudo. Tente novamente mais tarde.');
+      }
+      console.error(e);
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
   
   const handleClose = () => {
