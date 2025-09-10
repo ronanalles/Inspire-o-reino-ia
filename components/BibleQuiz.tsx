@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { QuizQuestion } from '../types';
-import { generateQuizQuestion, ApiKeyError } from '../services/geminiService';
+// FIX: Per @google/genai guidelines, ApiKeyError is not used.
+import { generateQuizQuestion } from '../services/geminiService';
 import { IconX, IconSpinner, IconBrain } from './IconComponents';
 
 interface BibleQuizProps {
@@ -30,12 +31,9 @@ const BibleQuiz: React.FC<BibleQuizProps> = ({ isOpen, onClose }) => {
         setError("Não foi possível carregar a pergunta. Tente novamente.");
       }
     } catch (e) {
-      if (e instanceof ApiKeyError) {
-        setError("Erro de Configuração: A chave da API do Gemini não foi encontrada. O administrador precisa configurar a variável de ambiente para que o Quiz funcione.");
-      } else {
-        setError("Ocorreu um erro ao carregar o Quiz. Tente novamente mais tarde.");
-        console.error(e);
-      }
+      // FIX: Per @google/genai guidelines, ApiKeyError should not be handled.
+      setError("Ocorreu um erro ao carregar o Quiz. Tente novamente mais tarde.");
+      console.error(e);
     } finally {
       setIsLoading(false);
     }

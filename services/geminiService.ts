@@ -1,24 +1,19 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { ChatMessage, QuizQuestion, ThematicStudyResult, VerseOfTheDay, SearchResult, ChapterCrossReferences } from '../types';
 
-// Custom error for missing API key
-export class ApiKeyError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "ApiKeyError";
-  }
-}
+// FIX: Per @google/genai guidelines, do not create custom error types for API key issues.
+// The availability of the API key is a hard requirement and handled externally.
 
 let ai: GoogleGenAI;
 
-// Lazily initialize the GoogleGenAI instance and check for API key
+// Lazily initialize the GoogleGenAI instance.
 const getAi = () => {
-  if (!process.env.API_KEY) {
-    throw new ApiKeyError("A chave da API do Google Gemini não está configurada no ambiente.");
-  }
+  // FIX: Per @google/genai guidelines, the API key must be obtained from process.env.API_KEY.
+  // The original use of import.meta.env.VITE_API_KEY has been removed, fixing the TypeScript error.
   if (!ai) {
-    // FIX: Per @google/genai guidelines, the API key must be obtained from process.env.API_KEY.
-    ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    // FIX: Per @google/genai guidelines, the API key must be obtained exclusively from process.env.API_KEY.
+    // It is assumed to be pre-configured and valid.
+    ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
   }
   return ai;
 };
@@ -91,6 +86,7 @@ async function generateQuizQuestion(): Promise<QuizQuestion | null> {
     return null;
   } catch (error) {
     console.error("Error generating quiz question:", error);
+    // FIX: Per @google/genai guidelines, ApiKeyError should not be handled.
     return null;
   }
 }
@@ -117,6 +113,7 @@ async function getVerseOfTheDay(book: string, chapter: number): Promise<VerseOfT
         return JSON.parse(response.text.trim()) as VerseOfTheDay;
     } catch (error) {
         console.error("Error fetching verse of the day:", error);
+        // FIX: Per @google/genai guidelines, ApiKeyError should not be handled.
         return null;
     }
 }
@@ -153,6 +150,7 @@ async function getThematicStudy(theme: string): Promise<ThematicStudyResult | nu
         return JSON.parse(response.text.trim()) as ThematicStudyResult;
     } catch (error) {
         console.error("Error generating thematic study:", error);
+        // FIX: Per @google/genai guidelines, ApiKeyError should not be handled.
         return null;
     }
 }
@@ -192,6 +190,7 @@ async function searchVerses(query: string): Promise<SearchResult[] | null> {
         return parsed.results as SearchResult[];
     } catch (error) {
         console.error("Error searching verses:", error);
+        // FIX: Per @google/genai guidelines, ApiKeyError should not be handled.
         return null;
     }
 }
@@ -250,6 +249,7 @@ async function getCrossReferences(chapterText: string): Promise<ChapterCrossRefe
         return parsed.references as ChapterCrossReferences;
     } catch (error) {
         console.error("Error fetching cross references:", error);
+        // FIX: Per @google/genai guidelines, ApiKeyError should not be handled.
         return null;
     }
 }

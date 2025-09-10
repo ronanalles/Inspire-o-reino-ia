@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { getVerseOfTheDay, ApiKeyError } from '../services/geminiService';
+// FIX: Per @google/genai guidelines, ApiKeyError is not used.
+import { getVerseOfTheDay } from '../services/geminiService';
 import { VerseOfTheDay as VerseOfTheDayType, StoredVerseOfTheDay } from '../types';
 import { IconSpinner, IconRefresh } from './IconComponents';
 import { useLocalStorage } from '../hooks/useLocalStorage';
@@ -40,11 +41,8 @@ export const VerseOfTheDay: React.FC = () => {
         }
       }
     } catch (e) {
-      if (e instanceof ApiKeyError) {
-        setError('Erro de Configuração: A chave da API para o versículo do dia não foi encontrada.');
-      } else {
-        setError('Ocorreu um erro ao buscar o versículo. Tente novamente mais tarde.');
-      }
+      // FIX: Per @google/genai guidelines, ApiKeyError should not be handled.
+      setError('Ocorreu um erro ao buscar o versículo. Tente novamente mais tarde.');
       console.error(e);
       if (!storedVerse) {
         setStoredVerse(null);

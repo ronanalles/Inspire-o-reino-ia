@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { searchVerses, ApiKeyError } from '../services/geminiService';
+// FIX: Per @google/genai guidelines, ApiKeyError is not used.
+import { searchVerses } from '../services/geminiService';
 import { SearchResult } from '../types';
 import { IconX, IconSpinner, IconSearch } from './IconComponents';
 
@@ -31,11 +32,8 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onNav
         setError('Não foi possível realizar a busca. Tente novamente.');
       }
     } catch (e) {
-      if (e instanceof ApiKeyError) {
-        setError("Erro de Configuração: A chave da API do Gemini não foi encontrada. A busca não pode ser realizada.");
-      } else {
-        setError('Ocorreu um erro inesperado. Tente novamente mais tarde.');
-      }
+      // FIX: Per @google/genai guidelines, ApiKeyError should not be handled.
+      setError('Ocorreu um erro inesperado. Tente novamente mais tarde.');
       console.error(e);
     } finally {
       setIsLoading(false);
