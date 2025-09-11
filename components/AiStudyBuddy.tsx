@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-// FIX: Per @google/genai guidelines, ApiKeyError is not used.
-import { sendMessageToChat } from '../services/geminiService';
+import { sendMessageToChat, MissingApiKeyError } from '../services/geminiService';
 import { ChatMessage } from '../types';
 import { IconFeather, IconSend, IconX, IconSpinner } from './IconComponents';
 
@@ -69,8 +68,10 @@ const AiStudyBuddy: React.FC<AiStudyBuddyProps> = ({ isOpen, onClose, context })
 
     } catch (error) {
       console.error('Error sending message to AI:', error);
-      // FIX: Per @google/genai guidelines, ApiKeyError should not be handled.
-      const errorMessage = "Desculpe, ocorreu um erro. Tente novamente.";
+      let errorMessage = "Desculpe, ocorreu um erro. Tente novamente.";
+      if (error instanceof MissingApiKeyError) {
+        errorMessage = "Chave de API não configurada. Por favor, configure a variável de ambiente API_KEY em suas configurações de implantação.";
+      }
       setMessages(prev => [...prev, { sender: 'ai', text: errorMessage }]);
     } finally {
       setIsLoading(false);

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-// FIX: Per @google/genai guidelines, ApiKeyError is not used.
-import { getThematicStudy } from '../services/geminiService';
+import { getThematicStudy, MissingApiKeyError } from '../services/geminiService';
 import { ThematicStudyResult } from '../types';
 import { IconX, IconSpinner, IconSparkles } from './IconComponents';
 
@@ -30,8 +29,11 @@ const ThematicStudy: React.FC<ThematicStudyProps> = ({ isOpen, onClose, onNaviga
         setError('Não foi possível gerar o estudo. Tente um tema diferente ou verifique sua conexão.');
       }
     } catch (e) {
-      // FIX: Per @google/genai guidelines, ApiKeyError should not be handled.
-      setError('Ocorreu um erro inesperado ao gerar o estudo. Tente novamente mais tarde.');
+      if (e instanceof MissingApiKeyError) {
+        setError("Chave de API não configurada. Por favor, configure a variável de ambiente API_KEY em suas configurações de implantação.");
+      } else {
+        setError('Ocorreu um erro inesperado ao gerar o estudo. Tente novamente mais tarde.');
+      }
       console.error(e);
     } finally {
       setIsLoading(false);

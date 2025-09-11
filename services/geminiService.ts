@@ -1,19 +1,24 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { ChatMessage, QuizQuestion, ThematicStudyResult, VerseOfTheDay, SearchResult, ChapterCrossReferences } from '../types';
 
-// FIX: Per @google/genai guidelines, do not create custom error types for API key issues.
-// The availability of the API key is a hard requirement and handled externally.
+// A specific error for when the API key is not configured.
+export class MissingApiKeyError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "MissingApiKeyError";
+  }
+}
 
 let ai: GoogleGenAI;
 
-// Lazily initialize the GoogleGenAI instance.
 const getAi = () => {
-  // FIX: Per @google/genai guidelines, the API key must be obtained from process.env.API_KEY.
-  // The original use of import.meta.env.VITE_API_KEY has been removed, fixing the TypeScript error.
   if (!ai) {
-    // FIX: Per @google/genai guidelines, the API key must be obtained exclusively from process.env.API_KEY.
-    // It is assumed to be pre-configured and valid.
-    ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
+    const apiKey = process.env.API_KEY;
+    if (!apiKey) {
+      // This error will be caught by the calling functions and handled in the UI.
+      throw new MissingApiKeyError("A chave da API do Google AI não foi encontrada. Defina a variável de ambiente API_KEY.");
+    }
+    ai = new GoogleGenAI({ apiKey });
   }
   return ai;
 };
@@ -25,33 +30,38 @@ async function* sendMessageToChat(
   context: { book: string; chapter: number },
   history: ChatMessage[]
 ) {
-  const systemInstruction = `Você é um assistente de estudo da Bíblia, amigável e experiente. 
-  Sua finalidade é ajudar os usuários a compreenderem melhor as Escrituras. 
-  Atualmente, o usuário está lendo ${context.book}, capítulo ${context.chapter}. 
-  Responda às perguntas dele com base nesse contexto, fornecendo explicações claras, insights teológicos e referências a outras partes da Bíblia quando for relevante. 
-  Mantenha um tom respeitoso e encorajador. Formate suas respostas usando markdown para melhor legibilidade (ex: **negrito** para ênfase, listas para pontos-chave).`;
+  try {
+    const systemInstruction = `Você é um assistente de estudo da Bíblia, amigável e experiente. 
+    Sua finalidade é ajudar os usuários a compreenderem melhor as Escrituras. 
+    Atualmente, o usuário está lendo ${context.book}, capítulo ${context.chapter}. 
+    Responda às perguntas dele com base nesse contexto, fornecendo explicações claras, insights teológicos e referências a outras partes da Bíblia quando for relevante. 
+    Mantenha um tom respeitoso e encorajador. Formate suas respostas usando markdown para melhor legibilidade (ex: **negrito** para ênfase, listas para pontos-chave).`;
 
-  const chat = getAi().chats.create({
-    model,
-    config: {
-      systemInstruction: systemInstruction,
-    },
-    history: history.map(msg => ({
-        role: msg.sender === 'user' ? 'user' : 'model',
-        parts: [{ text: msg.text }]
-    }))
-  });
+    const chat = getAi().chats.create({
+      model,
+      config: {
+        systemInstruction: systemInstruction,
+      },
+      history: history.map(msg => ({
+          role: msg.sender === 'user' ? 'user' : 'model',
+          parts: [{ text: msg.text }]
+      }))
+    });
 
-  const result = await chat.sendMessageStream({ message });
-  
-  for await (const chunk of result) {
-    yield chunk.text;
+    const result = await chat.sendMessageStream({ message });
+    
+    for await (const chunk of result) {
+      yield chunk.text;
+    }
+  } catch (error) {
+    // Propagate the error to be handled by the component's catch block.
+    throw error;
   }
 }
 
 async function generateQuizQuestion(): Promise<QuizQuestion | null> {
-  const aiInstance = getAi();
   try {
+    const aiInstance = getAi();
     const response = await aiInstance.models.generateContent({
       model,
       contents: "Gere uma pergunta de múltipla escolha sobre a Bíblia com 3 opções de resposta. A pergunta deve ser de dificuldade média e abranger qualquer parte do Antigo ou Novo Testamento. Forneça a pergunta, um array com as 3 opções e o índice da resposta correta (0, 1 ou 2).",
@@ -85,15 +95,17 @@ async function generateQuizQuestion(): Promise<QuizQuestion | null> {
     }
     return null;
   } catch (error) {
+    if (error instanceof MissingApiKeyError) {
+      throw error;
+    }
     console.error("Error generating quiz question:", error);
-    // FIX: Per @google/genai guidelines, ApiKeyError should not be handled.
     return null;
   }
 }
 
 async function getVerseOfTheDay(book: string, chapter: number): Promise<VerseOfTheDay | null> {
-    const aiInstance = getAi();
     try {
+        const aiInstance = getAi();
         const response = await aiInstance.models.generateContent({
             model,
             contents: `Gere um 'Versículo do Dia' inspirador do livro de ${book}, capítulo ${chapter}. Forneça a referência completa (incluindo o versículo exato que você escolheu), o texto do versículo e uma breve reflexão (2-3 frases) sobre sua aplicação ou significado.`,
@@ -112,15 +124,17 @@ async function getVerseOfTheDay(book: string, chapter: number): Promise<VerseOfT
         });
         return JSON.parse(response.text.trim()) as VerseOfTheDay;
     } catch (error) {
+        if (error instanceof MissingApiKeyError) {
+          throw error;
+        }
         console.error("Error fetching verse of the day:", error);
-        // FIX: Per @google/genai guidelines, ApiKeyError should not be handled.
         return null;
     }
 }
 
 async function getThematicStudy(theme: string): Promise<ThematicStudyResult | null> {
-    const aiInstance = getAi();
     try {
+        const aiInstance = getAi();
         const response = await aiInstance.models.generateContent({
             model,
             contents: `Realize um estudo temático conciso sobre "${theme}" na Bíblia. Forneça um parágrafo de resumo sobre o tema e uma lista de 5 a 7 versículos-chave relacionados. Para cada versículo, forneça a referência, o nome exato do livro (ex: 'Gênesis', 'Apocalipse') e o número do capítulo.`,
@@ -149,15 +163,17 @@ async function getThematicStudy(theme: string): Promise<ThematicStudyResult | nu
         });
         return JSON.parse(response.text.trim()) as ThematicStudyResult;
     } catch (error) {
+        if (error instanceof MissingApiKeyError) {
+          throw error;
+        }
         console.error("Error generating thematic study:", error);
-        // FIX: Per @google/genai guidelines, ApiKeyError should not be handled.
         return null;
     }
 }
 
 async function searchVerses(query: string): Promise<SearchResult[] | null> {
-    const aiInstance = getAi();
     try {
+        const aiInstance = getAi();
         const response = await aiInstance.models.generateContent({
             model,
             contents: `Aja como um motor de busca bíblico. Encontre até 15 versículos relevantes para a busca: "${query}". A busca pode ser por palavra-chave, tema ou referência. Para cada versículo encontrado, forneça a referência, o nome exato do livro, o capítulo, o número do versículo e o texto completo.`,
@@ -189,15 +205,17 @@ async function searchVerses(query: string): Promise<SearchResult[] | null> {
         const parsed = JSON.parse(response.text.trim());
         return parsed.results as SearchResult[];
     } catch (error) {
+        if (error instanceof MissingApiKeyError) {
+          throw error;
+        }
         console.error("Error searching verses:", error);
-        // FIX: Per @google/genai guidelines, ApiKeyError should not be handled.
         return null;
     }
 }
 
 async function getCrossReferences(chapterText: string): Promise<ChapterCrossReferences | null> {
-    const aiInstance = getAi();
     try {
+        const aiInstance = getAi();
         const response = await aiInstance.models.generateContent({
             model,
             contents: `Analise este texto bíblico e identifique até 10 nomes, lugares ou conceitos teológicos importantes para um estudo aprofundado. Para cada um, forneça o termo exato, uma breve explicação, uma lista de 3-5 referências cruzadas em outras partes da Bíblia e, se for um tópico complexo, um link de artigo opcional. O texto é: "${chapterText}"`,
@@ -248,8 +266,10 @@ async function getCrossReferences(chapterText: string): Promise<ChapterCrossRefe
         const parsed = JSON.parse(response.text.trim());
         return parsed.references as ChapterCrossReferences;
     } catch (error) {
+        if (error instanceof MissingApiKeyError) {
+          throw error;
+        }
         console.error("Error fetching cross references:", error);
-        // FIX: Per @google/genai guidelines, ApiKeyError should not be handled.
         return null;
     }
 }

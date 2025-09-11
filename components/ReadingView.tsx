@@ -53,22 +53,34 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
           viewRef.current.parentElement?.scrollTo(0, 0);
       }
 
-      const data = await getChapterText(book.name, chapter, translation);
-      if (data && data.verses) {
-        setVerses(data.verses);
-        
-        if (isCrossRefEnabled) {
-          const chapterText = data.verses.map(v => v.text).join(' ');
-          const crData = await getCrossReferences(chapterText);
-          setCrossReferences(crData);
-        } else {
-          setCrossReferences(null);
-        }
+      try {
+        const data = await getChapterText(book.name, chapter, translation);
+        if (data && data.verses) {
+          setVerses(data.verses);
+          
+          if (isCrossRefEnabled) {
+            try {
+              const chapterText = data.verses.map(v => v.text).join(' ');
+              const crData = await getCrossReferences(chapterText);
+              setCrossReferences(crData);
+            } catch (crError) {
+              console.error("Failed to load cross-references:", crError);
+              // Silently fail is fine for this non-critical feature.
+              setCrossReferences(null);
+            }
+          } else {
+            setCrossReferences(null);
+          }
 
-      } else {
-        setError("Não foi possível carregar o texto deste capítulo. Verifique sua conexão ou tente outra tradução.");
+        } else {
+          setError("Não foi possível carregar o texto deste capítulo. Verifique sua conexão ou tente outra tradução.");
+        }
+      } catch (e) {
+        console.error("Failed to fetch chapter:", e);
+        setError("Ocorreu um erro inesperado ao carregar o capítulo.");
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     };
 
     fetchChapter();
