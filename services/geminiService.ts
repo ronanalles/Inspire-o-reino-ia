@@ -13,12 +13,11 @@ let ai: GoogleGenAI;
 
 const getAi = () => {
   if (!ai) {
-    // FIX: Per coding guidelines, the API key must be obtained exclusively from `process.env.API_KEY`.
+    // FIX: The API key must be obtained from process.env.API_KEY as per the guidelines.
     const apiKey = process.env.API_KEY;
 
     if (!apiKey) {
       // This error will be caught and displayed in the UI.
-      // FIX: Updated error message to refer to API_KEY instead of VITE_API_KEY.
       throw new MissingApiKeyError("A chave da API do Google AI não foi encontrada. Defina a variável de ambiente API_KEY no seu provedor de hospedagem (Netlify, Vercel).");
     }
     ai = new GoogleGenAI({ apiKey });
