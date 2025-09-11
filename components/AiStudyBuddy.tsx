@@ -21,6 +21,16 @@ const AiStudyBuddy: React.FC<AiStudyBuddyProps> = ({ isOpen, onClose, context })
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [isFirstMessage, setIsFirstMessage] = useState(true);
   const [isApiKeyError, setIsApiKeyError] = useState(false);
+  const [animationClass, setAnimationClass] = useState('opacity-0 scale-95');
+
+  useEffect(() => {
+    if (isOpen) {
+      const timer = setTimeout(() => setAnimationClass('opacity-100 scale-100'), 10);
+      return () => clearTimeout(timer);
+    } else {
+      setAnimationClass('opacity-0 scale-95');
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     if (chatContainerRef.current) {
@@ -86,7 +96,7 @@ const AiStudyBuddy: React.FC<AiStudyBuddyProps> = ({ isOpen, onClose, context })
   if (!isOpen) return null;
 
   return (
-    <div className="fixed bottom-24 right-4 md:bottom-24 md:right-6 w-[calc(100%-2rem)] md:w-11/12 max-w-md h-[70vh] max-h-[600px] bg-white dark:bg-gray-800 shadow-2xl rounded-lg flex flex-col z-40 border border-gray-200 dark:border-gray-700">
+    <div className={`fixed bottom-24 right-4 md:bottom-24 md:right-6 w-[calc(100%-2rem)] md:w-11/12 max-w-md h-[70vh] max-h-[600px] bg-white dark:bg-gray-800 shadow-2xl rounded-lg flex flex-col z-40 border border-gray-200 dark:border-gray-700 transform origin-bottom-right transition-all duration-300 ease-in-out ${animationClass}`}>
       <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 rounded-t-lg">
         <div className="flex items-center space-x-2">
             <IconFeather className="w-6 h-6 text-blue-500" />

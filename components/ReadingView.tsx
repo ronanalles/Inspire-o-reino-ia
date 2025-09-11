@@ -114,7 +114,7 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
         ) : error ? (
           <p className="text-center text-red-500">{error}</p>
         ) : (
-          <div className="space-y-4 text-xl leading-loose text-gray-700 dark:text-gray-300">
+          <div className="space-y-4 font-serif text-xl leading-loose text-gray-700 dark:text-gray-300">
             {verses.map((verseData) => (
               <Verse
                 key={verseData.verse}

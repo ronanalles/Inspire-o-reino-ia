@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { getThematicStudy, MissingApiKeyError } from '../services/geminiService';
 import { ThematicStudyResult } from '../types';
 import { IconX, IconSpinner, IconSparkles } from './IconComponents';
@@ -17,6 +17,18 @@ const ThematicStudy: React.FC<ThematicStudyProps> = ({ isOpen, onClose, onNaviga
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isApiKeyError, setIsApiKeyError] = useState(false);
+  const [animationClass, setAnimationClass] = useState({ backdrop: 'opacity-0', modal: 'opacity-0 scale-95' });
+
+  useEffect(() => {
+    if (isOpen) {
+      const timer = setTimeout(() => {
+        setAnimationClass({ backdrop: 'opacity-100', modal: 'opacity-100 scale-100' });
+      }, 10);
+      return () => clearTimeout(timer);
+    } else {
+      setAnimationClass({ backdrop: 'opacity-0', modal: 'opacity-0 scale-95' });
+    }
+  }, [isOpen]);
 
   const handleSearch = async () => {
     if (!theme.trim()) return;
@@ -55,8 +67,8 @@ const ThematicStudy: React.FC<ThematicStudyProps> = ({ isOpen, onClose, onNaviga
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
-      <div className="bg-gray-50 dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-2xl flex flex-col max-h-[90vh]">
+    <div className={`fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4 transition-opacity duration-300 ease-in-out ${animationClass.backdrop}`}>
+      <div className={`bg-gray-50 dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-2xl flex flex-col max-h-[90vh] transform transition-all duration-300 ease-in-out ${animationClass.modal}`}>
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <h2 className="text-xl font-bold flex items-center text-gray-800 dark:text-gray-100">
             <IconSparkles className="mr-2 text-green-500" />

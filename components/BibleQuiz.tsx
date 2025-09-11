@@ -18,6 +18,18 @@ const BibleQuiz: React.FC<BibleQuizProps> = ({ isOpen, onClose }) => {
   const [score, setScore] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [isApiKeyError, setIsApiKeyError] = useState(false);
+  const [animationClass, setAnimationClass] = useState({ backdrop: 'opacity-0', modal: 'opacity-0 scale-95' });
+
+  useEffect(() => {
+    if (isOpen) {
+      const timer = setTimeout(() => {
+        setAnimationClass({ backdrop: 'opacity-100', modal: 'opacity-100 scale-100' });
+      }, 10);
+      return () => clearTimeout(timer);
+    } else {
+      setAnimationClass({ backdrop: 'opacity-0', modal: 'opacity-0 scale-95' });
+    }
+  }, [isOpen]);
 
   const fetchQuestion = useCallback(async () => {
     setIsLoading(true);
@@ -79,8 +91,8 @@ const BibleQuiz: React.FC<BibleQuizProps> = ({ isOpen, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
-      <div className="bg-gray-50 dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-lg flex flex-col max-h-[90vh]">
+    <div className={`fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4 transition-opacity duration-300 ease-in-out ${animationClass.backdrop}`}>
+      <div className={`bg-gray-50 dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-lg flex flex-col max-h-[90vh] transform transition-all duration-300 ease-in-out ${animationClass.modal}`}>
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <h2 className="text-xl font-bold flex items-center text-gray-800 dark:text-gray-100">
             <IconBrain className="mr-2 text-blue-500" />

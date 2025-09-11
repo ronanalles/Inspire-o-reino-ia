@@ -69,11 +69,15 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onNav
     );
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
-      <div className="bg-gray-50 dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-2xl flex flex-col h-[90vh]">
+    <div 
+      className={`fixed inset-0 bg-black z-50 flex items-center justify-center p-4 transition-opacity duration-300 ease-in-out ${isOpen ? 'bg-opacity-60' : 'bg-opacity-0 pointer-events-none'}`} 
+      onClick={onClose}
+    >
+      <div 
+        className={`bg-gray-50 dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-2xl flex flex-col h-[90vh] transform transition-all duration-300 ease-in-out ${isOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`} 
+        onClick={e => e.stopPropagation()}
+      >
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <h2 className="text-xl font-bold flex items-center text-gray-800 dark:text-gray-100">
             <IconSearch className="mr-2" />

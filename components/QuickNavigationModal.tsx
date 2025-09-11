@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Book } from '../types';
 import { books } from '../data/bibleData';
@@ -20,7 +21,6 @@ export const QuickNavigationModal: React.FC<QuickNavigationModalProps> = ({ isOp
     if (isOpen) {
         const currentBook = books.find(b => b.name === currentBookName) || books[0];
         setSelectedBook(currentBook);
-        // Scroll the selected book into view when the modal opens
         setTimeout(() => {
             activeBookRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' });
         }, 100);
@@ -31,8 +31,6 @@ export const QuickNavigationModal: React.FC<QuickNavigationModalProps> = ({ isOp
     return books.filter(book => book.name.toLowerCase().includes(searchTerm.toLowerCase()));
   }, [searchTerm]);
 
-  if (!isOpen) return null;
-
   const handleSelectBook = (book: Book) => {
     setSelectedBook(book);
   };
@@ -42,8 +40,14 @@ export const QuickNavigationModal: React.FC<QuickNavigationModalProps> = ({ isOp
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-2xl flex flex-col h-[80vh] max-h-[700px]" onClick={e => e.stopPropagation()}>
+    <div 
+      className={`fixed inset-0 bg-black z-50 flex items-center justify-center p-4 transition-opacity duration-300 ease-in-out ${isOpen ? 'bg-opacity-60' : 'bg-opacity-0 pointer-events-none'}`} 
+      onClick={onClose}
+    >
+      <div 
+        className={`bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-2xl flex flex-col h-[80vh] max-h-[700px] transform transition-all duration-300 ease-in-out ${isOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`} 
+        onClick={e => e.stopPropagation()}
+      >
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">
             Navegação Rápida
@@ -53,7 +57,6 @@ export const QuickNavigationModal: React.FC<QuickNavigationModalProps> = ({ isOp
           </button>
         </div>
         <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
-            {/* Books Panel */}
             <div className="w-full md:w-1/2 border-b md:border-b-0 md:border-r border-gray-200 dark:border-gray-700 flex flex-col">
                 <div className="p-2">
                     <div className="relative">
@@ -80,7 +83,6 @@ export const QuickNavigationModal: React.FC<QuickNavigationModalProps> = ({ isOp
                     ))}
                 </div>
             </div>
-            {/* Chapters Panel */}
             <div className="w-full md:w-1/2 p-3 flex-1 overflow-y-auto">
                 <div className="grid grid-cols-5 sm:grid-cols-6 gap-2">
                     {Array.from({ length: selectedBook.chapters }, (_, i) => i + 1).map(chapter => (

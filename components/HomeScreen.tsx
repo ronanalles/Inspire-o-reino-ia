@@ -13,8 +13,8 @@ interface HomeScreenProps {
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({ onContinueReading, onStartReading, lastRead, theme, onToggleTheme }) => {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100 p-4 font-sans">
-       <div className="absolute inset-0 -z-10 h-full w-full bg-white bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] bg-[size:6rem_4rem] dark:bg-gray-900 dark:bg-[linear-gradient(to_right,#1f2937_1px,transparent_1px),linear-gradient(to_bottom,#1f2937_1px,transparent_1px)]"></div>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 p-4 font-sans">
+       <div className="absolute inset-0 -z-10 h-full w-full bg-white dark:bg-gray-900 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] dark:bg-[radial-gradient(#374151_1px,transparent_1px)] [background-size:16px_16px]"></div>
       
       <div className="fixed top-4 right-4 z-10">
         <button 
@@ -39,7 +39,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onContinueReading, onSta
             <button 
                 onClick={onContinueReading}
                 disabled={!lastRead}
-                className="group flex items-center justify-between w-full p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none border border-gray-200 dark:border-gray-700"
+                className="group flex items-center justify-between w-full p-6 bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-xl hover:scale-[1.02] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none border border-gray-200 dark:border-gray-700"
             >
                 <div>
                     <h2 className="font-bold text-lg text-left text-blue-600 dark:text-blue-400">Continuar Leitura</h2>
@@ -51,7 +51,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onContinueReading, onSta
             </button>
             <button 
                 onClick={onStartReading}
-                className="group flex items-center justify-between w-full p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all border border-gray-200 dark:border-gray-700"
+                className="group flex items-center justify-between w-full p-6 bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-xl hover:scale-[1.02] transition-all border border-gray-200 dark:border-gray-700"
             >
                 <div>
                     <h2 className="font-bold text-lg text-left text-green-600 dark:text-green-400">Explorar a Bíblia</h2>

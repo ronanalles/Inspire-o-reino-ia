@@ -194,7 +194,7 @@ export default function App() {
         );
       case 'reading':
         return (
-          <div className="flex h-full font-sans bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100">
+          <div className="flex h-full bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100">
             <Sidebar
               isOpen={isSidebarOpen}
               selectedBookName={selectedBook.name}
@@ -243,7 +243,7 @@ export default function App() {
   }
 
   return (
-    <div className="h-screen flex flex-col">
+    <div className="h-screen flex flex-col font-sans">
       <div className="flex-1 overflow-auto">
         {renderContent()}
       </div>
