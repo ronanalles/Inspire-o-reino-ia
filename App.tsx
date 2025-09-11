@@ -6,15 +6,17 @@ import { BookmarksPanel } from './components/BookmarksPanel';
 import { HomeScreen } from './components/HomeScreen';
 import { SearchModal } from './components/SearchModal';
 import { QuickNavigationModal } from './components/QuickNavigationModal';
-import { FloatingActionButtons } from './components/FloatingActionButtons';
+import { BottomNavBar } from './components/BottomNavBar';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { books } from './data/bibleData';
+import { translations } from './data/translations';
 import { Bookmark, LastRead, Highlight, HighlightColor, Theme, Translation } from './types';
 import { IconSpinner } from './components/IconComponents';
 
 const AiStudyBuddy = React.lazy(() => import('./components/AiStudyBuddy'));
 const BibleQuiz = React.lazy(() => import('./components/BibleQuiz'));
 const ThematicStudy = React.lazy(() => import('./components/ThematicStudy'));
+const ToolsScreen = React.lazy(() => import('./components/ToolsScreen'));
 
 const LoadingSpinner = () => (
     <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
@@ -23,7 +25,7 @@ const LoadingSpinner = () => (
 );
 
 export default function App() {
-  const [view, setView] = useState<'home' | 'reading'>('home');
+  const [view, setView] = useState<'home' | 'reading' | 'tools'>('home');
   const [lastRead, setLastRead] = useLocalStorage<LastRead | null>('bible_last_read', null);
   const [translation, setTranslation] = useLocalStorage<Translation>('bible_translation', 'acf');
   const [theme, setTheme] = useLocalStorage<Theme>('bible_theme', 
@@ -55,6 +57,13 @@ export default function App() {
       root.classList.remove('dark');
     }
   }, [theme]);
+
+  useEffect(() => {
+    const validTranslationIds = translations.map(t => t.id);
+    if (!validTranslationIds.includes(translation)) {
+      setTranslation('acf');
+    }
+  }, [translation, setTranslation]);
 
   const handleToggleTheme = () => {
     setTheme(prevTheme => (prevTheme === 'dark' ? 'light' : 'dark'));
@@ -151,7 +160,6 @@ export default function App() {
     setHighlights(prev => prev.filter(h => h.id !== highlightId));
   }, [setHighlights]);
 
-
   const isBookmarked = useMemo(() => {
     return (book: string, chapter: number, verse: number) => 
       bookmarks.some(bm => bm.book === book && bm.chapter === chapter && bm.verse === verse);
@@ -167,61 +175,81 @@ export default function App() {
 
   const handleStartReading = () => {
       setView('reading');
+      handleSelectChapter(books[0].name, 1);
   }
 
-  if (view === 'home') {
-    return <HomeScreen onContinueReading={handleContinueReading} onStartReading={handleStartReading} lastRead={lastRead} theme={theme} onToggleTheme={handleToggleTheme} />;
+  const renderContent = () => {
+    switch(view) {
+      case 'home':
+        return <HomeScreen onContinueReading={handleContinueReading} onStartReading={handleStartReading} lastRead={lastRead} theme={theme} onToggleTheme={handleToggleTheme} />;
+      case 'tools':
+        return (
+          <Suspense fallback={<div className="flex w-full h-full items-center justify-center"><IconSpinner className="w-12 h-12 animate-spin text-blue-500" /></div>}>
+            <ToolsScreen 
+              onThematicStudyClick={() => setIsThematicStudyOpen(true)}
+              onQuizClick={() => setIsQuizOpen(true)}
+              onAiBuddyClick={() => setIsAiBuddyOpen(true)}
+            />
+          </Suspense>
+        );
+      case 'reading':
+        return (
+          <div className="flex h-full font-sans bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100">
+            <Sidebar
+              isOpen={isSidebarOpen}
+              selectedBookName={selectedBook.name}
+              selectedChapter={selectedChapter}
+              onSelectChapter={handleSelectChapter}
+              onClose={() => setIsSidebarOpen(false)}
+              theme={theme}
+              onToggleTheme={handleToggleTheme}
+            />
+            <div className="flex-1 flex flex-col overflow-hidden">
+              <Header
+                onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+                onToggleBookmarks={() => setIsBookmarksOpen(!isBookmarksOpen)}
+                onNavigateHome={() => setView('home')}
+                onToggleSearch={() => setIsSearchOpen(!isSearchOpen)}
+                onToggleNavModal={() => setIsNavModalOpen(!isNavModalOpen)}
+                bookName={selectedBook.name}
+                chapter={selectedChapter}
+                selectedTranslation={translation}
+                onTranslationChange={setTranslation}
+                isCrossRefEnabled={isCrossRefEnabled}
+                onToggleCrossRef={handleToggleCrossRef}
+                showCrossRefTooltip={!isCrossRefEnabled && !hasSeenCrossRefTooltip}
+              />
+              <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+                  <ReadingView
+                    book={selectedBook}
+                    chapter={selectedChapter}
+                    translation={translation}
+                    onPrevChapter={() => changeChapter(-1)}
+                    onNextChapter={() => changeChapter(1)}
+                    toggleBookmark={toggleBookmark}
+                    isBookmarked={isBookmarked}
+                    onNavigateToVerse={handleSelectChapter}
+                    isCrossRefEnabled={isCrossRefEnabled}
+                    highlights={highlights}
+                    onAddHighlight={addHighlight}
+                  />
+              </main>
+            </div>
+          </div>
+        )
+      default:
+        return null;
+    }
   }
 
   return (
-    <div className="flex h-screen font-sans bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100">
-      <Sidebar
-        isOpen={isSidebarOpen}
-        selectedBookName={selectedBook.name}
-        selectedChapter={selectedChapter}
-        onSelectChapter={handleSelectChapter}
-        onClose={() => setIsSidebarOpen(false)}
-      />
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <Header
-          onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
-          onToggleBookmarks={() => setIsBookmarksOpen(!isBookmarksOpen)}
-          onNavigateHome={() => setView('home')}
-          onToggleSearch={() => setIsSearchOpen(!isSearchOpen)}
-          onToggleNavModal={() => setIsNavModalOpen(!isNavModalOpen)}
-          bookName={selectedBook.name}
-          chapter={selectedChapter}
-          selectedTranslation={translation}
-          onTranslationChange={setTranslation}
-          isCrossRefEnabled={isCrossRefEnabled}
-          onToggleCrossRef={handleToggleCrossRef}
-          showCrossRefTooltip={!isCrossRefEnabled && !hasSeenCrossRefTooltip}
-          theme={theme}
-          onToggleTheme={handleToggleTheme}
-        />
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
-            <ReadingView
-              book={selectedBook}
-              chapter={selectedChapter}
-              translation={translation}
-              onPrevChapter={() => changeChapter(-1)}
-              onNextChapter={() => changeChapter(1)}
-              toggleBookmark={toggleBookmark}
-              isBookmarked={isBookmarked}
-              onNavigateToVerse={handleSelectChapter}
-              isCrossRefEnabled={isCrossRefEnabled}
-              highlights={highlights}
-              onAddHighlight={addHighlight}
-            />
-        </main>
+    <div className="h-screen flex flex-col">
+      <div className="flex-1 overflow-auto">
+        {renderContent()}
       </div>
       
-      <FloatingActionButtons
-        onThematicStudyClick={() => setIsThematicStudyOpen(true)}
-        onQuizClick={() => setIsQuizOpen(true)}
-        onAiBuddyClick={() => setIsAiBuddyOpen(true)}
-      />
-
+      <BottomNavBar activeView={view} onNavigate={setView} />
+      
       <QuickNavigationModal
         isOpen={isNavModalOpen}
         onClose={() => setIsNavModalOpen(false)}

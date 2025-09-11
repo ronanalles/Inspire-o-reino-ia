@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { books } from '../data/bibleData';
-import { IconX } from './IconComponents';
+import { IconX, IconSun, IconMoon } from './IconComponents';
+import { Theme } from '../types';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -8,9 +9,11 @@ interface SidebarProps {
   selectedChapter: number;
   onSelectChapter: (book: string, chapter: number) => void;
   onClose: () => void;
+  theme: Theme;
+  onToggleTheme: () => void;
 }
 
-const SidebarComponent: React.FC<SidebarProps> = ({ isOpen, selectedBookName, selectedChapter, onSelectChapter, onClose }) => {
+const SidebarComponent: React.FC<SidebarProps> = ({ isOpen, selectedBookName, selectedChapter, onSelectChapter, onClose, theme, onToggleTheme }) => {
   const [expandedBook, setExpandedBook] = useState<string | null>(selectedBookName);
 
   const oldTestamentBooks = books.filter(b => b.testament === 'old');
@@ -57,7 +60,7 @@ const SidebarComponent: React.FC<SidebarProps> = ({ isOpen, selectedBookName, se
                     <IconX className="w-6 h-6"/>
                 </button>
             </div>
-            <div className="overflow-y-auto">
+            <div className="flex-1 overflow-y-auto">
                 <div>
                     <h3 className="p-3 text-lg font-bold bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">Antigo Testamento</h3>
                     {oldTestamentBooks.map(renderBook)}
@@ -66,6 +69,12 @@ const SidebarComponent: React.FC<SidebarProps> = ({ isOpen, selectedBookName, se
                     <h3 className="p-3 text-lg font-bold bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">Novo Testamento</h3>
                     {newTestamentBooks.map(renderBook)}
                 </div>
+            </div>
+             <div className="p-2 border-t border-gray-200 dark:border-gray-700">
+                <button onClick={onToggleTheme} className="w-full flex items-center justify-center p-3 text-sm rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                    {theme === 'dark' ? <IconSun className="w-5 h-5 mr-3" /> : <IconMoon className="w-5 h-5 mr-3" />}
+                    Mudar para tema {theme === 'dark' ? 'Claro' : 'Escuro'}
+                </button>
             </div>
         </aside>
         {isOpen && <div onClick={onClose} className="fixed inset-0 bg-black bg-opacity-50 z-10 md:hidden"></div>}

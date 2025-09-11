@@ -1,9 +1,9 @@
-export type Translation = 'acf' | 'nvi' | 'kjv';
+export type Translation = 'acf' | 'kjv';
 
 export interface TranslationInfo {
   id: Translation;
   name: string;
-  apiId: 'almeida' | 'nvi' | 'kjv';
+  apiId: 'almeida' | 'kjv';
 }
 
 export interface Book {

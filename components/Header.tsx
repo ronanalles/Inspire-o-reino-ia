@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { IconMenu, IconBookmark, IconSearch, IconSparkles, IconGlobe, IconDotsVertical, IconHome, IconSun, IconMoon, IconChevronDown } from './IconComponents';
-import { Translation, Theme } from '../types';
+import { IconMenu, IconBookmark, IconSearch, IconSparkles, IconGlobe, IconHome, IconChevronDown } from './IconComponents';
+import { Translation } from '../types';
 import { translations } from '../data/translations';
 
 interface HeaderProps {
@@ -16,8 +16,6 @@ interface HeaderProps {
   isCrossRefEnabled: boolean;
   onToggleCrossRef: () => void;
   showCrossRefTooltip: boolean;
-  theme: Theme;
-  onToggleTheme: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({ 
@@ -33,21 +31,14 @@ export const Header: React.FC<HeaderProps> = ({
     isCrossRefEnabled,
     onToggleCrossRef,
     showCrossRefTooltip,
-    theme,
-    onToggleTheme
 }) => {
   const [isTranslationDropdownOpen, setIsTranslationDropdownOpen] = useState(false);
-  const [isMoreOptionsDropdownOpen, setIsMoreOptionsDropdownOpen] = useState(false);
   const translationRef = useRef<HTMLDivElement>(null);
-  const moreOptionsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (translationRef.current && !translationRef.current.contains(event.target as Node)) {
         setIsTranslationDropdownOpen(false);
-      }
-      if (moreOptionsRef.current && !moreOptionsRef.current.contains(event.target as Node)) {
-        setIsMoreOptionsDropdownOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -114,25 +105,9 @@ export const Header: React.FC<HeaderProps> = ({
         <button onClick={onToggleBookmarks} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700" aria-label="Ver versículos salvos">
           <IconBookmark className="w-6 h-6" />
         </button>
-        <div className="relative" ref={moreOptionsRef}>
-            <button onClick={() => setIsMoreOptionsDropdownOpen(!isMoreOptionsDropdownOpen)} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700" aria-label="Mais opções">
-                <IconDotsVertical className="w-6 h-6" />
-            </button>
-            {isMoreOptionsDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-700 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-30">
-                    <div className="py-1">
-                        <button onClick={() => { onNavigateHome(); setIsMoreOptionsDropdownOpen(false); }} className="w-full text-left flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600">
-                            <IconHome className="w-5 h-5 mr-3" />
-                            Tela Inicial
-                        </button>
-                        <button onClick={() => { onToggleTheme(); setIsMoreOptionsDropdownOpen(false); }} className="w-full text-left flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600">
-                            {theme === 'dark' ? <IconSun className="w-5 h-5 mr-3" /> : <IconMoon className="w-5 h-5 mr-3" />}
-                            Alternar para Tema {theme === 'dark' ? 'Claro' : 'Escuro'}
-                        </button>
-                    </div>
-                </div>
-            )}
-        </div>
+        <button onClick={onNavigateHome} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 hidden md:block" aria-label="Tela Inicial">
+            <IconHome className="w-6 h-6" />
+        </button>
       </div>
     </header>
   );
