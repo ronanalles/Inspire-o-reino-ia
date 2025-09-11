@@ -13,6 +13,7 @@ let ai: GoogleGenAI;
 
 const getAi = () => {
   if (!ai) {
+    // FIX: Use `process.env.API_KEY` as per the coding guidelines.
     const apiKey = process.env.API_KEY;
     if (!apiKey) {
       // This error will be caught by the calling functions and handled in the UI.
