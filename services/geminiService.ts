@@ -13,12 +13,14 @@ let ai: GoogleGenAI;
 
 const getAi = () => {
   if (!ai) {
-    // FIX: The API key must be obtained from process.env.API_KEY as per the guidelines.
-    const apiKey = process.env.API_KEY;
+    // Correctly handle environment variables for both Vite (production) and AI Studio (development).
+    // Vite exposes env variables through `import.meta.env` and they must be prefixed with VITE_.
+    // AI Studio uses `process.env`.
+    const apiKey = import.meta.env.VITE_API_KEY || process.env.API_KEY;
 
     if (!apiKey) {
       // This error will be caught and displayed in the UI.
-      throw new MissingApiKeyError("A chave da API do Google AI não foi encontrada. Defina a variável de ambiente API_KEY no seu provedor de hospedagem (Netlify, Vercel).");
+      throw new MissingApiKeyError("A chave da API do Google AI não foi encontrada. Defina a variável de ambiente VITE_API_KEY no seu provedor de hospedagem (Netlify, Vercel).");
     }
     ai = new GoogleGenAI({ apiKey });
   }
