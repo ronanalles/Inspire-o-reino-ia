@@ -17,7 +17,8 @@ export const ApiKeyErrorDisplay: React.FC<ApiKeyErrorDisplayProps> = ({ context 
         </h3>
         <div className="mt-2 text-sm text-red-700 dark:text-red-400">
           <p>
-            O recurso '{context}' está desativado. Para ativá-lo, por favor configure a variável de ambiente <code>VITE_API_KEY</code> em suas configurações de implantação (Vercel, Netlify, etc.).
+            {/* FIX: Updated error message to only reference API_KEY. */}
+            O recurso '{context}' está desativado. Para ativá-lo, por favor configure a variável de ambiente <code>API_KEY</code> em suas configurações de implantação (Vercel, Netlify, etc.).
           </p>
         </div>
       </div>
