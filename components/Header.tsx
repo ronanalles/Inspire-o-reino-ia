@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { IconMenu, IconBookmark, IconSearch, IconSparkles, IconGlobe, IconDotsVertical, IconHome, IconSun, IconMoon } from './IconComponents';
+import { IconMenu, IconBookmark, IconSearch, IconSparkles, IconGlobe, IconDotsVertical, IconHome, IconSun, IconMoon, IconChevronDown } from './IconComponents';
 import { Translation, Theme } from '../types';
 import { translations } from '../data/translations';
 
@@ -8,6 +8,7 @@ interface HeaderProps {
   onToggleBookmarks: () => void;
   onNavigateHome: () => void;
   onToggleSearch: () => void;
+  onToggleNavModal: () => void;
   bookName: string;
   chapter: number;
   selectedTranslation: Translation;
@@ -23,7 +24,8 @@ export const Header: React.FC<HeaderProps> = ({
     onToggleSidebar, 
     onToggleBookmarks, 
     onNavigateHome, 
-    onToggleSearch, 
+    onToggleSearch,
+    onToggleNavModal,
     bookName, 
     chapter, 
     selectedTranslation, 
@@ -63,9 +65,12 @@ export const Header: React.FC<HeaderProps> = ({
         <button onClick={onToggleSidebar} className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 md:hidden mr-2">
           <IconMenu className="w-6 h-6" />
         </button>
-        <h1 className="text-xl md:text-2xl font-bold truncate">
-          {bookName} <span className="font-normal">{chapter}</span>
-        </h1>
+        <button onClick={onToggleNavModal} className="flex items-center space-x-2 p-2 -ml-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+            <h1 className="text-xl md:text-2xl font-bold truncate">
+                {bookName} <span className="font-normal">{chapter}</span>
+            </h1>
+            <IconChevronDown className="w-5 h-5 text-gray-500" />
+        </button>
       </div>
       <div className="flex items-center space-x-1 sm:space-x-2">
         <div className="relative" ref={translationRef}>

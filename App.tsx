@@ -5,13 +5,12 @@ import { ReadingView } from './components/ReadingView';
 import { BookmarksPanel } from './components/BookmarksPanel';
 import { HomeScreen } from './components/HomeScreen';
 import { SearchModal } from './components/SearchModal';
+import { QuickNavigationModal } from './components/QuickNavigationModal';
 import { FloatingActionButtons } from './components/FloatingActionButtons';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { books } from './data/bibleData';
 import { Bookmark, LastRead, Highlight, HighlightColor, Theme, Translation } from './types';
 import { IconSpinner } from './components/IconComponents';
-// FIX: Per @google/genai guidelines, the app must not check for or prompt for an API key. This is handled externally.
-// import { isApiKeyAvailable } from './services/geminiService';
 
 const AiStudyBuddy = React.lazy(() => import('./components/AiStudyBuddy'));
 const BibleQuiz = React.lazy(() => import('./components/BibleQuiz'));
@@ -24,11 +23,6 @@ const LoadingSpinner = () => (
 );
 
 export default function App() {
-  // FIX: Per @google/genai guidelines, the app must not check for or prompt for an API key. This is handled externally.
-  // if (!isApiKeyAvailable()) {
-  //   return <ApiKeyErrorScreen />;
-  // }
-  
   const [view, setView] = useState<'home' | 'reading'>('home');
   const [lastRead, setLastRead] = useLocalStorage<LastRead | null>('bible_last_read', null);
   const [translation, setTranslation] = useLocalStorage<Translation>('bible_translation', 'acf');
@@ -49,6 +43,7 @@ export default function App() {
   const [isQuizOpen, setIsQuizOpen] = useState(false);
   const [isThematicStudyOpen, setIsThematicStudyOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isNavModalOpen, setIsNavModalOpen] = useState(false);
   const [isCrossRefEnabled, setIsCrossRefEnabled] = useLocalStorage<boolean>('bible_crossRefEnabled', false);
   const [hasSeenCrossRefTooltip, setHasSeenCrossRefTooltip] = useLocalStorage<boolean>('bible_hasSeenCrossRefTooltip', false);
 
@@ -86,6 +81,7 @@ export default function App() {
       if (window.innerWidth < 768) {
         setIsSidebarOpen(false);
       }
+      setIsNavModalOpen(false);
     }
   }, []);
 
@@ -192,6 +188,7 @@ export default function App() {
           onToggleBookmarks={() => setIsBookmarksOpen(!isBookmarksOpen)}
           onNavigateHome={() => setView('home')}
           onToggleSearch={() => setIsSearchOpen(!isSearchOpen)}
+          onToggleNavModal={() => setIsNavModalOpen(!isNavModalOpen)}
           bookName={selectedBook.name}
           chapter={selectedChapter}
           selectedTranslation={translation}
@@ -223,6 +220,14 @@ export default function App() {
         onThematicStudyClick={() => setIsThematicStudyOpen(true)}
         onQuizClick={() => setIsQuizOpen(true)}
         onAiBuddyClick={() => setIsAiBuddyOpen(true)}
+      />
+
+      <QuickNavigationModal
+        isOpen={isNavModalOpen}
+        onClose={() => setIsNavModalOpen(false)}
+        onNavigate={handleSelectChapter}
+        currentBookName={selectedBook.name}
+        currentChapter={selectedChapter}
       />
 
       <SearchModal 
