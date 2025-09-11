@@ -13,11 +13,12 @@ let ai: GoogleGenAI;
 
 const getAi = () => {
   if (!ai) {
-    // FIX: Use `process.env.API_KEY` as per the coding guidelines.
-    const apiKey = process.env.API_KEY;
+    // In a Vite project, environment variables exposed to the client must be prefixed
+    // with VITE_ and are accessed via `import.meta.env`.
+    const apiKey = import.meta.env.VITE_API_KEY;
     if (!apiKey) {
-      // This error will be caught by the calling functions and handled in the UI.
-      throw new MissingApiKeyError("A chave da API do Google AI não foi encontrada. Defina a variável de ambiente API_KEY.");
+      // This error will be caught and displayed in the UI.
+      throw new MissingApiKeyError("A chave da API do Google AI não foi encontrada. Defina a variável de ambiente VITE_API_KEY.");
     }
     ai = new GoogleGenAI({ apiKey });
   }
