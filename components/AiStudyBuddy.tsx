@@ -1,7 +1,9 @@
+
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { sendMessageToChat, MissingApiKeyError } from '../services/geminiService';
 import { ChatMessage } from '../types';
 import { IconFeather, IconSend, IconX, IconSpinner } from './IconComponents';
+import { ApiKeyErrorDisplay } from './ApiKeyErrorDisplay';
 
 interface AiStudyBuddyProps {
   isOpen: boolean;
@@ -18,6 +20,7 @@ const AiStudyBuddy: React.FC<AiStudyBuddyProps> = ({ isOpen, onClose, context })
   const [isLoading, setIsLoading] = useState(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [isFirstMessage, setIsFirstMessage] = useState(true);
+  const [isApiKeyError, setIsApiKeyError] = useState(false);
 
   useEffect(() => {
     if (chatContainerRef.current) {
@@ -33,6 +36,7 @@ const AiStudyBuddy: React.FC<AiStudyBuddyProps> = ({ isOpen, onClose, context })
         }
     ]);
     setIsFirstMessage(true);
+    setIsApiKeyError(false);
   }, [context]);
 
   useEffect(() => {
@@ -49,6 +53,7 @@ const AiStudyBuddy: React.FC<AiStudyBuddyProps> = ({ isOpen, onClose, context })
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
+    setIsApiKeyError(false);
 
     try {
       const chatHistory = isFirstMessage ? [] : messages;
@@ -68,11 +73,11 @@ const AiStudyBuddy: React.FC<AiStudyBuddyProps> = ({ isOpen, onClose, context })
 
     } catch (error) {
       console.error('Error sending message to AI:', error);
-      let errorMessage = "Desculpe, ocorreu um erro. Tente novamente.";
       if (error instanceof MissingApiKeyError) {
-        errorMessage = "Chave de API não configurada. Por favor, configure a variável de ambiente API_KEY em suas configurações de implantação.";
+        setIsApiKeyError(true);
+      } else {
+        setMessages(prev => [...prev, { sender: 'ai', text: "Desculpe, ocorreu um erro. Tente novamente." }]);
       }
-      setMessages(prev => [...prev, { sender: 'ai', text: errorMessage }]);
     } finally {
       setIsLoading(false);
     }
@@ -107,6 +112,7 @@ const AiStudyBuddy: React.FC<AiStudyBuddyProps> = ({ isOpen, onClose, context })
                  </div>
             </div>
         )}
+        {isApiKeyError && <ApiKeyErrorDisplay context="Assistente de Estudo" />}
       </div>
 
       <div className="p-4 border-t border-gray-200 dark:border-gray-700">
@@ -118,9 +124,9 @@ const AiStudyBuddy: React.FC<AiStudyBuddyProps> = ({ isOpen, onClose, context })
             onKeyPress={(e) => e.key === 'Enter' && handleSend()}
             placeholder="Pergunte algo..."
             className="flex-1 p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-            disabled={isLoading}
+            disabled={isLoading || isApiKeyError}
           />
-          <button onClick={handleSend} disabled={isLoading || !input.trim()} className="bg-blue-500 text-white p-2 rounded-lg disabled:bg-blue-300 dark:disabled:bg-blue-800 disabled:cursor-not-allowed">
+          <button onClick={handleSend} disabled={isLoading || !input.trim() || isApiKeyError} className="bg-blue-500 text-white p-2 rounded-lg disabled:bg-blue-300 dark:disabled:bg-blue-800 disabled:cursor-not-allowed">
             <IconSend className="w-6 h-6" />
           </button>
         </div>

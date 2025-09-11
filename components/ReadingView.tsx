@@ -1,10 +1,12 @@
+
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { Book, VerseType, ChapterCrossReferences, CrossReferenceItem, Highlight, HighlightColor, Translation } from '../types';
 import { Verse } from './Verse';
 import { CrossReferencePanel } from './CrossReferencePanel';
 import { IconChevronLeft, IconChevronRight, IconSpinner } from './IconComponents';
+import { ApiKeyErrorDisplay } from './ApiKeyErrorDisplay';
 import { getChapterText } from '../services/bibleService';
-import { getCrossReferences } from '../services/geminiService';
+import { getCrossReferences, MissingApiKeyError } from '../services/geminiService';
 import { books } from '../data/bibleData';
 
 interface ReadingViewProps {
@@ -39,6 +41,7 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [crossReferences, setCrossReferences] = useState<ChapterCrossReferences | null>(null);
   const [selectedCrossRef, setSelectedCrossRef] = useState<CrossReferenceItem | null>(null);
+  const [isApiKeyErrorForCrossRef, setIsApiKeyErrorForCrossRef] = useState(false);
   const viewRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -48,6 +51,7 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
       setVerses([]);
       setCrossReferences(null);
       setSelectedCrossRef(null);
+      setIsApiKeyErrorForCrossRef(false);
 
       if (viewRef.current) {
           viewRef.current.parentElement?.scrollTo(0, 0);
@@ -64,8 +68,10 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
               const crData = await getCrossReferences(chapterText);
               setCrossReferences(crData);
             } catch (crError) {
+              if (crError instanceof MissingApiKeyError) {
+                setIsApiKeyErrorForCrossRef(true);
+              }
               console.error("Failed to load cross-references:", crError);
-              // Silently fail is fine for this non-critical feature.
               setCrossReferences(null);
             }
           } else {
@@ -96,6 +102,9 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
 
   return (
     <div ref={viewRef}>
+      <div className="max-w-4xl mx-auto">
+        {isApiKeyErrorForCrossRef && <ApiKeyErrorDisplay context="Estudo Aprofundado" />}
+      </div>
       <div className="max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 md:p-8 min-h-[60vh]">
         <h2 className="text-3xl font-bold mb-6 text-center text-gray-800 dark:text-gray-100">{book.name} {chapter}</h2>
         {isLoading ? (

@@ -1,7 +1,9 @@
+
 import React, { useState } from 'react';
 import { getThematicStudy, MissingApiKeyError } from '../services/geminiService';
 import { ThematicStudyResult } from '../types';
 import { IconX, IconSpinner, IconSparkles } from './IconComponents';
+import { ApiKeyErrorDisplay } from './ApiKeyErrorDisplay';
 
 interface ThematicStudyProps {
   isOpen: boolean;
@@ -14,11 +16,13 @@ const ThematicStudy: React.FC<ThematicStudyProps> = ({ isOpen, onClose, onNaviga
   const [studyResult, setStudyResult] = useState<ThematicStudyResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isApiKeyError, setIsApiKeyError] = useState(false);
 
   const handleSearch = async () => {
     if (!theme.trim()) return;
     setIsLoading(true);
     setError(null);
+    setIsApiKeyError(false);
     setStudyResult(null);
 
     try {
@@ -30,7 +34,7 @@ const ThematicStudy: React.FC<ThematicStudyProps> = ({ isOpen, onClose, onNaviga
       }
     } catch (e) {
       if (e instanceof MissingApiKeyError) {
-        setError("Chave de API não configurada. Por favor, configure a variável de ambiente API_KEY em suas configurações de implantação.");
+        setIsApiKeyError(true);
       } else {
         setError('Ocorreu um erro inesperado ao gerar o estudo. Tente novamente mais tarde.');
       }
@@ -44,6 +48,7 @@ const ThematicStudy: React.FC<ThematicStudyProps> = ({ isOpen, onClose, onNaviga
       setTheme('');
       setStudyResult(null);
       setError(null);
+      setIsApiKeyError(false);
       onClose();
   }
 
@@ -80,11 +85,13 @@ const ThematicStudy: React.FC<ThematicStudyProps> = ({ isOpen, onClose, onNaviga
         </div>
 
         <div className="flex-1 p-6 overflow-y-auto">
-          {!studyResult && !isLoading && !error && (
+          {isApiKeyError ? (
+            <ApiKeyErrorDisplay context="Estudo Temático" />
+          ) : !studyResult && !isLoading && !error ? (
             <div className="text-center text-gray-500 dark:text-gray-400">
                 <p>Insira um tema para começar seu estudo bíblico personalizado.</p>
             </div>
-          )}
+          ) : null}
           {isLoading && (
             <div className="flex justify-center items-center h-full">
                 <IconSpinner className="w-12 h-12 animate-spin text-green-500" />

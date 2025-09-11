@@ -1,7 +1,9 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { QuizQuestion } from '../types';
 import { generateQuizQuestion, MissingApiKeyError } from '../services/geminiService';
 import { IconX, IconSpinner, IconBrain } from './IconComponents';
+import { ApiKeyErrorDisplay } from './ApiKeyErrorDisplay';
 
 interface BibleQuizProps {
   isOpen: boolean;
@@ -15,6 +17,7 @@ const BibleQuiz: React.FC<BibleQuizProps> = ({ isOpen, onClose }) => {
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [score, setScore] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [isApiKeyError, setIsApiKeyError] = useState(false);
 
   const fetchQuestion = useCallback(async () => {
     setIsLoading(true);
@@ -22,6 +25,7 @@ const BibleQuiz: React.FC<BibleQuizProps> = ({ isOpen, onClose }) => {
     setIsCorrect(null);
     setQuestion(null);
     setError(null);
+    setIsApiKeyError(false);
     try {
       const q = await generateQuizQuestion();
       if (q) {
@@ -31,7 +35,7 @@ const BibleQuiz: React.FC<BibleQuizProps> = ({ isOpen, onClose }) => {
       }
     } catch (e) {
       if (e instanceof MissingApiKeyError) {
-        setError("Chave de API não configurada. Por favor, configure a variável de ambiente API_KEY em suas configurações de implantação.");
+        setIsApiKeyError(true);
       } else {
         setError("Ocorreu um erro ao carregar o Quiz. Tente novamente mais tarde.");
       }
@@ -92,6 +96,8 @@ const BibleQuiz: React.FC<BibleQuizProps> = ({ isOpen, onClose }) => {
             <div className="flex justify-center items-center h-64">
                 <IconSpinner className="w-12 h-12 animate-spin text-blue-500" />
             </div>
+          ) : isApiKeyError ? (
+            <ApiKeyErrorDisplay context="Quiz Bíblico" />
           ) : error ? (
             <p className="text-center text-red-500 p-4">{error}</p>
           ) : question ? (

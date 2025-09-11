@@ -1,18 +1,22 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { getVerseOfTheDay, MissingApiKeyError } from '../services/geminiService';
 import { VerseOfTheDay as VerseOfTheDayType, StoredVerseOfTheDay } from '../types';
 import { IconSpinner, IconRefresh } from './IconComponents';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { books } from '../data/bibleData';
+import { ApiKeyErrorDisplay } from './ApiKeyErrorDisplay';
 
 export const VerseOfTheDay: React.FC = () => {
   const [storedVerse, setStoredVerse] = useLocalStorage<StoredVerseOfTheDay | null>('verse_of_the_day', null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isApiKeyError, setIsApiKeyError] = useState(false);
 
   const fetchVerse = useCallback(async (forceRefresh = false) => {
     setIsLoading(true);
     setError(null);
+    setIsApiKeyError(false);
     const today = new Date().toDateString();
 
     if (!forceRefresh && storedVerse && storedVerse.date === today) {
@@ -21,27 +25,22 @@ export const VerseOfTheDay: React.FC = () => {
     }
     
     try {
-      // 1. Pick a random book from the list
       const randomBookIndex = Math.floor(Math.random() * books.length);
       const randomBook = books[randomBookIndex];
-      
-      // 2. Pick a random chapter from that book
       const randomChapter = Math.floor(Math.random() * randomBook.chapters) + 1;
-
-      // 3. Call the AI service with the specific book and chapter
       const data = await getVerseOfTheDay(randomBook.name, randomChapter);
 
       if (data) {
         setStoredVerse({ verse: data, date: today });
       } else {
         setError('Não foi possível carregar o versículo do dia.');
-        if (!storedVerse) { // Clear stored verse if API fails and there's nothing to show
+        if (!storedVerse) {
           setStoredVerse(null);
         }
       }
     } catch (e) {
       if (e instanceof MissingApiKeyError) {
-        setError("Chave de API não configurada. Por favor, configure a variável de ambiente API_KEY em suas configurações de implantação.");
+        setIsApiKeyError(true);
       } else {
         setError('Ocorreu um erro ao buscar o versículo. Tente novamente mais tarde.');
       }
@@ -55,9 +54,8 @@ export const VerseOfTheDay: React.FC = () => {
   }, [storedVerse, setStoredVerse]);
 
   useEffect(() => {
-    // On first load, check if a new verse is needed for the day.
     fetchVerse();
-  }, []); // Run only once on mount to check for daily update
+  }, []);
 
   const verseData = storedVerse?.verse;
 
@@ -79,6 +77,8 @@ export const VerseOfTheDay: React.FC = () => {
         <div className="flex justify-center items-center h-32">
           <IconSpinner className="w-8 h-8 animate-spin text-blue-500" />
         </div>
+      ) : isApiKeyError ? (
+        <ApiKeyErrorDisplay context="Versículo do Dia" />
       ) : error ? (
         <p className="text-center text-red-500 p-4">{error}</p>
       ) : verseData ? (

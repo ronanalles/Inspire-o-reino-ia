@@ -1,7 +1,9 @@
+
 import React, { useState } from 'react';
 import { searchVerses, MissingApiKeyError } from '../services/geminiService';
 import { SearchResult } from '../types';
 import { IconX, IconSpinner, IconSearch } from './IconComponents';
+import { ApiKeyErrorDisplay } from './ApiKeyErrorDisplay';
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -15,11 +17,13 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onNav
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
+  const [isApiKeyError, setIsApiKeyError] = useState(false);
 
   const handleSearch = async () => {
     if (!query.trim()) return;
     setIsLoading(true);
     setError(null);
+    setIsApiKeyError(false);
     setResults([]);
     setHasSearched(true);
 
@@ -32,7 +36,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onNav
       }
     } catch (e) {
       if (e instanceof MissingApiKeyError) {
-        setError("Chave de API não configurada. Por favor, configure a variável de ambiente API_KEY em suas configurações de implantação.");
+        setIsApiKeyError(true);
       } else {
         setError('Ocorreu um erro inesperado. Tente novamente mais tarde.');
       }
@@ -102,18 +106,22 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onNav
         </div>
 
         <div className="flex-1 p-6 overflow-y-auto">
-          {isLoading && (
+          {isLoading ? (
             <div className="flex justify-center items-center h-full">
               <IconSpinner className="w-12 h-12 animate-spin text-blue-500" />
             </div>
-          )}
-          {error && <p className="text-center text-red-500">{error}</p>}
-          {!isLoading && hasSearched && results.length === 0 && !error && (
+          ) : isApiKeyError ? (
+            <ApiKeyErrorDisplay context="Busca na Bíblia" />
+          ) : error ? (
+            <p className="text-center text-red-500">{error}</p>
+          ) : null}
+
+          {!isLoading && !isApiKeyError && hasSearched && results.length === 0 && !error && (
              <div className="text-center text-gray-500 dark:text-gray-400">
                 <p>Nenhum resultado encontrado para "{query}".</p>
              </div>
           )}
-           {!isLoading && !hasSearched && (
+           {!isLoading && !isApiKeyError && !hasSearched && (
              <div className="text-center text-gray-500 dark:text-gray-400">
                 <p>Pesquise por palavras-chave, temas ou referências bíblicas.</p>
              </div>
