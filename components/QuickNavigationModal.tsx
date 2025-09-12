@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo, useEffect } from 'react';
 import { Book } from '../types';
 import { books } from '../data/bibleData';
@@ -51,23 +50,23 @@ export const QuickNavigationModal: React.FC<QuickNavigationModalProps> = ({ isOp
       onClick={onClose}
     >
       <div 
-        className={`bg-white dark:bg-gray-800 rounded-none md:rounded-xl shadow-2xl w-full h-full md:w-full md:max-w-3xl md:h-[80vh] md:max-h-[700px] flex flex-col transform transition-all duration-300 ease-in-out ${isOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`} 
+        className={`bg-card text-card-foreground rounded-none md:rounded-xl shadow-2xl w-full h-full md:w-full md:max-w-3xl md:h-[80vh] md:max-h-[700px] flex flex-col transform transition-all duration-300 ease-in-out border border-border ${isOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`} 
         onClick={e => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+        <div className="flex items-center justify-between p-4 border-b border-border flex-shrink-0">
            <div className="w-10">
               {view === 'chapter' && (
-                <button onClick={() => setView('book')} className="p-2 -ml-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
+                <button onClick={() => setView('book')} className="p-2 -ml-2 rounded-full hover:bg-accent text-muted-foreground">
                   <IconChevronLeft className="w-6 h-6" />
                 </button>
               )}
            </div>
-          <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 text-center truncate px-2">
+          <h2 className="text-xl font-bold text-center truncate px-2">
             {view === 'book' ? 'Navegação Rápida' : selectedBook?.name}
           </h2>
           <div className="w-10 flex justify-end">
-            <button onClick={onClose} className="p-2 -mr-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
-              <IconX className="w-6 h-6 text-gray-600 dark:text-gray-300" />
+            <button onClick={onClose} className="p-2 -mr-2 rounded-full hover:bg-accent text-muted-foreground">
+              <IconX className="w-6 h-6" />
             </button>
           </div>
         </div>
@@ -83,9 +82,9 @@ export const QuickNavigationModal: React.FC<QuickNavigationModalProps> = ({ isOp
                     placeholder="Buscar livro..."
                     value={searchTerm}
                     onChange={e => setSearchTerm(e.target.value)}
-                    className="w-full p-2 pl-10 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none bg-gray-50 dark:bg-gray-700"
+                    className="w-full p-2 pl-10 border-input rounded-lg focus:ring-2 focus:ring-ring focus:outline-none bg-background"
                   />
-                  <IconSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <IconSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 </div>
               </div>
               <div className="overflow-y-auto flex-1">
@@ -93,7 +92,7 @@ export const QuickNavigationModal: React.FC<QuickNavigationModalProps> = ({ isOp
                   <button
                     key={book.name}
                     onClick={() => handleSelectBook(book)}
-                    className={`w-full text-left px-4 py-3 text-lg transition-colors ${selectedBook?.name === book.name ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 font-semibold' : 'hover:bg-gray-100 dark:hover:bg-gray-700/50'}`}
+                    className={`w-full text-left px-4 py-3 text-lg transition-colors ${selectedBook?.name === book.name ? 'bg-accent text-accent-foreground font-semibold' : 'hover:bg-accent'}`}
                   >
                     {book.name}
                   </button>
@@ -111,8 +110,8 @@ export const QuickNavigationModal: React.FC<QuickNavigationModalProps> = ({ isOp
                       onClick={() => handleSelectChapter(chapter)}
                       className={`flex items-center justify-center w-12 h-12 rounded-full transition-colors font-medium text-lg ${
                         selectedBook.name === currentBookName && chapter === currentChapter
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted hover:bg-accent'
                       }`}
                     >
                       {chapter}

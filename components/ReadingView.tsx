@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { Book, VerseType, ChapterCrossReferences, CrossReferenceItem, Highlight, HighlightColor, Translation } from '../types';
 import { Verse } from './Verse';
@@ -105,16 +104,16 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
       <div className="max-w-4xl mx-auto">
         {isApiKeyErrorForCrossRef && <ApiKeyErrorDisplay context="Estudo Aprofundado" />}
       </div>
-      <div className="max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 md:p-8 min-h-[60vh]">
-        <h2 className="text-3xl font-bold mb-6 text-center text-gray-800 dark:text-gray-100">{book.name} {chapter}</h2>
+      <div className="max-w-4xl mx-auto bg-card rounded-lg shadow-md p-6 md:p-8 min-h-[60vh]">
+        <h2 className="text-3xl font-bold mb-6 text-center text-foreground">{book.name} {chapter}</h2>
         {isLoading ? (
           <div className="flex justify-center items-center h-48">
-            <IconSpinner className="w-12 h-12 animate-spin text-blue-500" />
+            <IconSpinner className="w-12 h-12 animate-spin text-primary" />
           </div>
         ) : error ? (
-          <p className="text-center text-red-500">{error}</p>
+          <p className="text-center text-destructive">{error}</p>
         ) : (
-          <div className="space-y-4 font-serif text-xl leading-loose text-gray-700 dark:text-gray-300">
+          <div className="space-y-4 font-serif text-xl leading-loose text-foreground/90">
             {verses.map((verseData) => (
               <Verse
                 key={verseData.verse}
@@ -131,7 +130,7 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
               />
             ))}
             {verses.length === 0 && !isLoading && (
-              <p className="text-center text-gray-500">Texto não disponível para este capítulo.</p>
+              <p className="text-center text-muted-foreground">Texto não disponível para este capítulo.</p>
             )}
           </div>
         )}
@@ -139,7 +138,7 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
       <div className="flex justify-between items-center mt-8 max-w-4xl mx-auto">
         <button
           onClick={onPrevChapter}
-          className="flex items-center px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors disabled:opacity-50"
+          className="flex items-center px-4 py-2 bg-card border border-border rounded-lg shadow-sm hover:bg-accent transition-colors disabled:opacity-50 text-foreground"
           disabled={book.name === books[0].name && chapter === 1}
         >
           <IconChevronLeft className="w-5 h-5 mr-2" />
@@ -147,7 +146,7 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
         </button>
         <button
           onClick={onNextChapter}
-          className="flex items-center px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors disabled:opacity-50"
+          className="flex items-center px-4 py-2 bg-card border border-border rounded-lg shadow-sm hover:bg-accent transition-colors disabled:opacity-50 text-foreground"
           disabled={book.name === books[books.length - 1].name && chapter === book.chapters}
        >
           Próximo

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { QuizQuestion } from '../types';
 import { generateQuizQuestion, MissingApiKeyError } from '../services/geminiService';
@@ -43,7 +42,7 @@ const BibleQuiz: React.FC<BibleQuizProps> = ({ isOpen, onClose }) => {
       if (q) {
         setQuestion(q);
       } else {
-        setError("Não foi possível carregar a pergunta. Tente novamente.");
+        setError("Não foi possível carregar la pergunta. Tente novamente.");
       }
     } catch (e) {
       if (e instanceof MissingApiKeyError) {
@@ -79,49 +78,49 @@ const BibleQuiz: React.FC<BibleQuizProps> = ({ isOpen, onClose }) => {
 
   const getButtonClass = (index: number) => {
       if (selectedAnswer === null) {
-          return 'bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600';
+          return 'bg-card hover:bg-accent';
       }
       if (index === question?.correctAnswerIndex) {
           return 'bg-green-500 text-white';
       }
       if (index === selectedAnswer && !isCorrect) {
-          return 'bg-red-500 text-white';
+          return 'bg-destructive text-destructive-foreground';
       }
-      return 'bg-white dark:bg-gray-700 opacity-60';
+      return 'bg-card opacity-60';
   };
 
   return (
     <div className={`fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4 transition-opacity duration-300 ease-in-out ${animationClass.backdrop}`}>
-      <div className={`bg-gray-50 dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-lg flex flex-col max-h-[90vh] transform transition-all duration-300 ease-in-out ${animationClass.modal}`}>
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-xl font-bold flex items-center text-gray-800 dark:text-gray-100">
-            <IconBrain className="mr-2 text-blue-500" />
+      <div className={`bg-card text-card-foreground rounded-xl shadow-2xl w-full max-w-lg flex flex-col max-h-[90vh] transform transition-all duration-300 ease-in-out border border-border ${animationClass.modal}`}>
+        <div className="flex items-center justify-between p-4 border-b border-border">
+          <h2 className="text-xl font-bold flex items-center">
+            <IconBrain className="mr-2 text-primary" />
             Quiz Bíblico
           </h2>
-          <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
-            <IconX className="w-6 h-6 text-gray-600 dark:text-gray-300" />
+          <button onClick={onClose} className="p-2 rounded-full hover:bg-accent text-muted-foreground">
+            <IconX className="w-6 h-6" />
           </button>
         </div>
 
         <div className="flex-1 p-6 overflow-y-auto">
           {isLoading ? (
             <div className="flex justify-center items-center h-64">
-                <IconSpinner className="w-12 h-12 animate-spin text-blue-500" />
+                <IconSpinner className="w-12 h-12 animate-spin text-primary" />
             </div>
           ) : isApiKeyError ? (
             <ApiKeyErrorDisplay context="Quiz Bíblico" />
           ) : error ? (
-            <p className="text-center text-red-500 p-4">{error}</p>
+            <p className="text-center text-destructive p-4">{error}</p>
           ) : question ? (
             <div>
-              <p className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-6 text-center">{question.question}</p>
+              <p className="text-lg font-semibold text-center mb-6">{question.question}</p>
               <div className="space-y-3">
                 {question.options.map((option, index) => (
                   <button
                     key={index}
                     onClick={() => handleAnswer(index)}
                     disabled={selectedAnswer !== null}
-                    className={`w-full text-left p-4 rounded-lg border border-gray-300 dark:border-gray-600 transition-all duration-300 ${getButtonClass(index)}`}
+                    className={`w-full text-left p-4 rounded-lg border border-border transition-all duration-300 ${getButtonClass(index)}`}
                   >
                     <span className="font-medium">{option}</span>
                   </button>
@@ -131,14 +130,14 @@ const BibleQuiz: React.FC<BibleQuizProps> = ({ isOpen, onClose }) => {
           ) : null }
         </div>
         
-        <div className="p-4 bg-white dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700 rounded-b-xl flex items-center justify-between">
-            <div className="font-bold text-lg text-gray-700 dark:text-gray-200">
-                Pontuação: <span className="text-blue-600 dark:text-blue-400">{score}</span>
+        <div className="p-4 bg-muted/50 border-t border-border rounded-b-xl flex items-center justify-between">
+            <div className="font-bold text-lg">
+                Pontuação: <span className="text-primary">{score}</span>
             </div>
             {selectedAnswer !== null && (
                 <button
                     onClick={fetchQuestion}
-                    className="px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+                    className="px-6 py-2 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 transition-colors"
                 >
                     Próxima Pergunta
                 </button>

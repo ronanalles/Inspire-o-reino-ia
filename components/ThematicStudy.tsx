@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { getThematicStudy, MissingApiKeyError } from '../services/geminiService';
 import { ThematicStudyResult } from '../types';
@@ -68,18 +67,18 @@ const ThematicStudy: React.FC<ThematicStudyProps> = ({ isOpen, onClose, onNaviga
 
   return (
     <div className={`fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4 transition-opacity duration-300 ease-in-out ${animationClass.backdrop}`}>
-      <div className={`bg-gray-50 dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-2xl flex flex-col max-h-[90vh] transform transition-all duration-300 ease-in-out ${animationClass.modal}`}>
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-xl font-bold flex items-center text-gray-800 dark:text-gray-100">
-            <IconSparkles className="mr-2 text-green-500" />
+      <div className={`bg-card text-card-foreground rounded-xl shadow-2xl w-full max-w-2xl flex flex-col max-h-[90vh] transform transition-all duration-300 ease-in-out border border-border ${animationClass.modal}`}>
+        <div className="flex items-center justify-between p-4 border-b border-border">
+          <h2 className="text-xl font-bold flex items-center">
+            <IconSparkles className="mr-2 text-emerald-500" />
             Estudo Temático com IA
           </h2>
-          <button onClick={handleClose} className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
-            <IconX className="w-6 h-6 text-gray-600 dark:text-gray-300" />
+          <button onClick={handleClose} className="p-2 rounded-full hover:bg-accent text-muted-foreground">
+            <IconX className="w-6 h-6" />
           </button>
         </div>
 
-        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="p-4 border-b border-border">
             <div className="flex items-center space-x-2">
                 <input
                     type="text"
@@ -87,10 +86,10 @@ const ThematicStudy: React.FC<ThematicStudyProps> = ({ isOpen, onClose, onNaviga
                     onChange={(e) => setTheme(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                     placeholder="Digite um tema (ex: Fé, Perdão, Esperança)"
-                    className="flex-1 p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                    className="flex-1 p-2 border border-input rounded-lg focus:ring-2 focus:ring-ring focus:outline-none bg-background"
                     disabled={isLoading}
                 />
-                <button onClick={handleSearch} disabled={isLoading || !theme.trim()} className="px-4 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors disabled:bg-green-300 dark:disabled:bg-green-800 disabled:cursor-not-allowed">
+                <button onClick={handleSearch} disabled={isLoading || !theme.trim()} className="px-4 py-2 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                     {isLoading ? <IconSpinner className="w-5 h-5 animate-spin" /> : 'Gerar'}
                 </button>
             </div>
@@ -100,33 +99,33 @@ const ThematicStudy: React.FC<ThematicStudyProps> = ({ isOpen, onClose, onNaviga
           {isApiKeyError ? (
             <ApiKeyErrorDisplay context="Estudo Temático" />
           ) : !studyResult && !isLoading && !error ? (
-            <div className="text-center text-gray-500 dark:text-gray-400">
+            <div className="text-center text-muted-foreground">
                 <p>Insira um tema para começar seu estudo bíblico personalizado.</p>
             </div>
           ) : null}
           {isLoading && (
             <div className="flex justify-center items-center h-full">
-                <IconSpinner className="w-12 h-12 animate-spin text-green-500" />
+                <IconSpinner className="w-12 h-12 animate-spin text-emerald-500" />
             </div>
           )}
-          {error && <p className="text-center text-red-500">{error}</p>}
+          {error && <p className="text-center text-destructive">{error}</p>}
           {studyResult && (
             <div className="space-y-6">
                 <div>
-                    <h3 className="text-lg font-bold mb-2 text-gray-800 dark:text-gray-200">Resumo sobre {theme}</h3>
-                    <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{studyResult.summary}</p>
+                    <h3 className="text-lg font-bold mb-2">Resumo sobre {theme}</h3>
+                    <p className="text-muted-foreground leading-relaxed">{studyResult.summary}</p>
                 </div>
                 <div>
-                    <h3 className="text-lg font-bold mb-2 text-gray-800 dark:text-gray-200">Versículos Chave</h3>
+                    <h3 className="text-lg font-bold mb-2">Versículos Chave</h3>
                     <ul className="space-y-3">
                         {studyResult.verses.map((verse, index) => (
-                            <li key={index} className="p-3 bg-white dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <li key={index} className="p-3 bg-muted/50 rounded-lg border border-border">
                                 <button
                                  onClick={() => {
                                     onNavigateToVerse(verse.book, verse.chapter);
                                     handleClose();
                                  }}
-                                 className="font-semibold text-blue-600 dark:text-blue-400 hover:underline text-left"
+                                 className="font-semibold text-primary hover:underline text-left"
                                 >
                                     {verse.reference}
                                 </button>

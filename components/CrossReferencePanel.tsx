@@ -23,18 +23,18 @@ export const CrossReferencePanel: React.FC<CrossReferencePanelProps> = ({ item, 
         onClick={onClose}
       ></div>
       <div
-        className={`fixed top-0 right-0 h-full w-full max-w-md bg-white dark:bg-gray-800 shadow-xl transform transition-transform z-40 ${
+        className={`fixed top-0 right-0 h-full w-full max-w-md bg-card shadow-xl transform transition-transform z-40 border-l border-border ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
         aria-live="polite"
       >
         <div className="flex flex-col h-full">
-          <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between p-4 border-b border-border">
             <h2 className="text-xl font-bold flex items-center">
-              <IconSparkles className="mr-2 text-blue-500" />
+              <IconSparkles className="mr-2 text-primary" />
               Estudo Aprofundado
             </h2>
-            <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700" aria-label="Fechar painel de estudo">
+            <button onClick={onClose} className="p-2 rounded-full hover:bg-accent text-muted-foreground" aria-label="Fechar painel de estudo">
               <IconX className="w-6 h-6" />
             </button>
           </div>
@@ -42,18 +42,18 @@ export const CrossReferencePanel: React.FC<CrossReferencePanelProps> = ({ item, 
           {item ? (
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
               <section>
-                <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{item.term}</h3>
-                <p className="mt-2 text-gray-600 dark:text-gray-300 leading-relaxed">{item.explanation}</p>
+                <h3 className="text-2xl font-bold text-foreground">{item.term}</h3>
+                <p className="mt-2 text-muted-foreground leading-relaxed">{item.explanation}</p>
               </section>
 
               <section>
-                <h4 className="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-3">Referências Cruzadas</h4>
+                <h4 className="text-lg font-semibold text-card-foreground mb-3">Referências Cruzadas</h4>
                 <ul className="space-y-2">
                   {item.crossReferences.map((ref, index) => (
                     <li key={index}>
                       <button 
                         onClick={() => handleNavigate(ref.book, ref.chapter)}
-                        className="text-blue-600 dark:text-blue-400 hover:underline text-left"
+                        className="text-primary hover:underline text-left"
                       >
                         {ref.reference}
                       </button>
@@ -64,7 +64,7 @@ export const CrossReferencePanel: React.FC<CrossReferencePanelProps> = ({ item, 
 
               {item.articles && item.articles.length > 0 && (
                 <section>
-                  <h4 className="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-3">Artigos para Estudo</h4>
+                  <h4 className="text-lg font-semibold text-card-foreground mb-3">Artigos para Estudo</h4>
                   <ul className="space-y-2">
                     {item.articles.map((article, index) => (
                       <li key={index}>
@@ -72,7 +72,7 @@ export const CrossReferencePanel: React.FC<CrossReferencePanelProps> = ({ item, 
                           href={article.url} 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="text-green-600 dark:text-green-400 hover:underline flex items-center"
+                          className="text-emerald-600 dark:text-emerald-400 hover:underline flex items-center"
                         >
                           <IconLink className="w-4 h-4 mr-2" />
                           {article.title}
@@ -85,7 +85,7 @@ export const CrossReferencePanel: React.FC<CrossReferencePanelProps> = ({ item, 
             </div>
           ) : (
             <div className="flex items-center justify-center h-full">
-              <p className="text-gray-500">Selecione um termo para ver os detalhes.</p>
+              <p className="text-muted-foreground">Selecione um termo para ver os detalhes.</p>
             </div>
           )}
         </div>

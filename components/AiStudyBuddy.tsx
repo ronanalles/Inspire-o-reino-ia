@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { sendMessageToChat, MissingApiKeyError } from '../services/geminiService';
 import { ChatMessage } from '../types';
@@ -96,13 +95,13 @@ const AiStudyBuddy: React.FC<AiStudyBuddyProps> = ({ isOpen, onClose, context })
   if (!isOpen) return null;
 
   return (
-    <div className={`fixed bottom-24 right-4 md:bottom-24 md:right-6 w-[calc(100%-2rem)] md:w-11/12 max-w-md h-[70vh] max-h-[600px] bg-white dark:bg-gray-800 shadow-2xl rounded-lg flex flex-col z-40 border border-gray-200 dark:border-gray-700 transform origin-bottom-right transition-all duration-300 ease-in-out ${animationClass}`}>
-      <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 rounded-t-lg">
-        <div className="flex items-center space-x-2">
-            <IconFeather className="w-6 h-6 text-blue-500" />
-            <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100">Assistente de Estudo</h3>
+    <div className={`fixed bottom-24 right-4 md:bottom-24 md:right-6 w-[calc(100%-2rem)] md:w-11/12 max-w-md h-[70vh] max-h-[600px] bg-card shadow-2xl rounded-lg flex flex-col z-40 border border-border transform origin-bottom-right transition-all duration-300 ease-in-out ${animationClass}`}>
+      <div className="flex items-center justify-between p-4 border-b border-border bg-muted/50 rounded-t-lg">
+        <div className="flex items-center space-x-3">
+            <IconFeather className="w-6 h-6 text-primary" />
+            <h3 className="text-lg font-bold text-card-foreground">Assistente de Estudo</h3>
         </div>
-        <button onClick={onClose} className="text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white">
+        <button onClick={onClose} className="text-muted-foreground hover:text-foreground">
           <IconX className="w-6 h-6" />
         </button>
       </div>
@@ -110,14 +109,14 @@ const AiStudyBuddy: React.FC<AiStudyBuddyProps> = ({ isOpen, onClose, context })
       <div ref={chatContainerRef} className="flex-1 p-4 overflow-y-auto space-y-4">
         {messages.map((msg, index) => (
           <div key={index} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-            <div className={`max-w-xs md:max-w-sm lg:max-w-md px-4 py-2 rounded-xl ${msg.sender === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200'}`}>
+            <div className={`max-w-xs md:max-w-sm lg:max-w-md px-4 py-2 rounded-xl ${msg.sender === 'user' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'}`}>
                <div className="prose prose-sm dark:prose-invert" dangerouslySetInnerHTML={{ __html: msg.text.replace(/\n/g, '<br />') }} />
             </div>
           </div>
         ))}
         {isLoading && (
             <div className="flex justify-start">
-                 <div className="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-xl px-4 py-2">
+                 <div className="bg-secondary text-secondary-foreground rounded-xl px-4 py-2">
                     <IconSpinner className="w-5 h-5 animate-spin" />
                  </div>
             </div>
@@ -125,7 +124,7 @@ const AiStudyBuddy: React.FC<AiStudyBuddyProps> = ({ isOpen, onClose, context })
         {isApiKeyError && <ApiKeyErrorDisplay context="Assistente de Estudo" />}
       </div>
 
-      <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+      <div className="p-4 border-t border-border">
         <div className="flex items-center space-x-2">
           <input
             type="text"
@@ -133,10 +132,10 @@ const AiStudyBuddy: React.FC<AiStudyBuddyProps> = ({ isOpen, onClose, context })
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleSend()}
             placeholder="Pergunte algo..."
-            className="flex-1 p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            className="flex-1 p-2 border border-input rounded-lg focus:ring-2 focus:ring-ring focus:outline-none bg-background text-foreground"
             disabled={isLoading || isApiKeyError}
           />
-          <button onClick={handleSend} disabled={isLoading || !input.trim() || isApiKeyError} className="bg-blue-500 text-white p-2 rounded-lg disabled:bg-blue-300 dark:disabled:bg-blue-800 disabled:cursor-not-allowed">
+          <button onClick={handleSend} disabled={isLoading || !input.trim() || isApiKeyError} className="bg-primary text-primary-foreground p-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed">
             <IconSend className="w-6 h-6" />
           </button>
         </div>

@@ -184,7 +184,7 @@ export default function App() {
         return <HomeScreen onContinueReading={handleContinueReading} onStartReading={handleStartReading} lastRead={lastRead} theme={theme} onToggleTheme={handleToggleTheme} />;
       case 'tools':
         return (
-          <Suspense fallback={<div className="flex w-full h-full items-center justify-center"><IconSpinner className="w-12 h-12 animate-spin text-blue-500" /></div>}>
+          <Suspense fallback={<div className="flex w-full h-full items-center justify-center"><IconSpinner className="w-12 h-12 animate-spin text-primary" /></div>}>
             <ToolsScreen 
               onThematicStudyClick={() => setIsThematicStudyOpen(true)}
               onQuizClick={() => setIsQuizOpen(true)}
@@ -194,7 +194,7 @@ export default function App() {
         );
       case 'reading':
         return (
-          <div className="flex h-full bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100">
+          <div className="flex h-full bg-background text-foreground">
             <Sidebar
               isOpen={isSidebarOpen}
               selectedBookName={selectedBook.name}
@@ -243,7 +243,7 @@ export default function App() {
   }
 
   return (
-    <div className="h-screen flex flex-col font-sans">
+    <div className="h-screen flex flex-col font-sans bg-background">
       <div className="flex-1 overflow-auto">
         {renderContent()}
       </div>

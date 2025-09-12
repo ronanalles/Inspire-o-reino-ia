@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { getVerseOfTheDay, MissingApiKeyError } from '../services/geminiService';
 import { VerseOfTheDay as VerseOfTheDayType, StoredVerseOfTheDay } from '../types';
@@ -60,13 +59,13 @@ export const VerseOfTheDay: React.FC = () => {
   const verseData = storedVerse?.verse;
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-full border border-gray-200 dark:border-gray-700">
+    <div className="bg-card/70 dark:bg-card/50 backdrop-blur-lg rounded-xl shadow-lg p-6 w-full border border-border">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold text-gray-800 dark:text-gray-200">Versículo do Dia</h2>
+        <h2 className="text-xl font-bold text-card-foreground">Versículo do Dia</h2>
         <button 
           onClick={() => fetchVerse(true)} 
           disabled={isLoading}
-          className="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-wait"
+          className="p-2 rounded-full text-muted-foreground hover:bg-accent disabled:opacity-50 disabled:cursor-wait transition-colors"
           aria-label="Gerar novo versículo"
         >
           <IconRefresh className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} />
@@ -75,20 +74,20 @@ export const VerseOfTheDay: React.FC = () => {
       
       {isLoading ? (
         <div className="flex justify-center items-center h-32">
-          <IconSpinner className="w-8 h-8 animate-spin text-blue-500" />
+          <IconSpinner className="w-8 h-8 animate-spin text-primary" />
         </div>
       ) : isApiKeyError ? (
         <ApiKeyErrorDisplay context="Versículo do Dia" />
       ) : error ? (
-        <p className="text-center text-red-500 p-4">{error}</p>
+        <p className="text-center text-destructive p-4">{error}</p>
       ) : verseData ? (
         <div className="space-y-4">
           <div>
-            <p className="text-lg text-gray-700 dark:text-gray-300 italic">"{verseData.text}"</p>
-            <p className="text-right font-semibold text-blue-600 dark:text-blue-400 mt-2">{verseData.reference}</p>
+            <p className="text-lg text-foreground/90 italic">"{verseData.text}"</p>
+            <p className="text-right font-semibold text-primary mt-2">{verseData.reference}</p>
           </div>
-          <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-             <p className="text-gray-600 dark:text-gray-400">{verseData.reflection}</p>
+          <div className="border-t border-border pt-4">
+             <p className="text-muted-foreground">{verseData.reflection}</p>
           </div>
         </div>
       ) : null}

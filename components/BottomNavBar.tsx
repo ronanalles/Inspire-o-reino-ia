@@ -16,7 +16,7 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({ activeView, onNaviga
   ];
 
   return (
-    <nav className="md:hidden sticky bottom-0 w-full bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 flex justify-around shadow-lg">
+    <nav className="md:hidden sticky bottom-0 w-full bg-card border-t border-border flex justify-around shadow-lg">
       {navItems.map((item) => {
         const isActive = activeView === item.view;
         return (
@@ -24,11 +24,11 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({ activeView, onNaviga
             key={item.view}
             onClick={() => onNavigate(item.view)}
             className={`flex flex-col items-center justify-center w-full pt-2 pb-1 text-xs transition-colors ${
-              isActive ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400'
+              isActive ? 'text-primary' : 'text-muted-foreground hover:text-primary'
             }`}
           >
             <item.icon className="w-6 h-6 mb-1" />
-            <span>{item.label}</span>
+            <span className={isActive ? 'font-semibold' : ''}>{item.label}</span>
           </button>
         );
       })}

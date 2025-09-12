@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { searchVerses, MissingApiKeyError } from '../services/geminiService';
 import { SearchResult } from '../types';
@@ -58,7 +57,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onNav
       <>
         {parts.map((part, i) =>
           part.toLowerCase() === query.toLowerCase() ? (
-            <span key={i} className="bg-yellow-200 dark:bg-yellow-600 font-bold">
+            <span key={i} className="bg-primary/20 text-primary-foreground font-bold">
               {part}
             </span>
           ) : (
@@ -75,20 +74,20 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onNav
       onClick={onClose}
     >
       <div 
-        className={`bg-gray-50 dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-2xl flex flex-col h-[90vh] transform transition-all duration-300 ease-in-out ${isOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`} 
+        className={`bg-card text-card-foreground rounded-xl shadow-2xl w-full max-w-2xl flex flex-col h-[90vh] transform transition-all duration-300 ease-in-out border border-border ${isOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`} 
         onClick={e => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-xl font-bold flex items-center text-gray-800 dark:text-gray-100">
+        <div className="flex items-center justify-between p-4 border-b border-border">
+          <h2 className="text-xl font-bold flex items-center">
             <IconSearch className="mr-2" />
             Buscar na Bíblia
           </h2>
-          <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
-            <IconX className="w-6 h-6 text-gray-600 dark:text-gray-300" />
+          <button onClick={onClose} className="p-2 rounded-full hover:bg-accent text-muted-foreground">
+            <IconX className="w-6 h-6" />
           </button>
         </div>
 
-        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="p-4 border-b border-border">
           <div className="flex items-center space-x-2">
             <input
               type="text"
@@ -96,13 +95,13 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onNav
               onChange={(e) => setQuery(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
               placeholder="Busque por palavra, tema ou referência (ex: João 3:16)"
-              className="flex-1 p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              className="flex-1 p-2 border border-input rounded-lg focus:ring-2 focus:ring-ring focus:outline-none bg-background"
               disabled={isLoading}
             />
             <button
               onClick={handleSearch}
               disabled={isLoading || !query.trim()}
-              className="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors disabled:bg-blue-300 dark:disabled:bg-blue-800 disabled:cursor-not-allowed"
+              className="px-4 py-2 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? <IconSpinner className="w-5 h-5 animate-spin" /> : 'Buscar'}
             </button>
@@ -112,34 +111,34 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onNav
         <div className="flex-1 p-6 overflow-y-auto">
           {isLoading ? (
             <div className="flex justify-center items-center h-full">
-              <IconSpinner className="w-12 h-12 animate-spin text-blue-500" />
+              <IconSpinner className="w-12 h-12 animate-spin text-primary" />
             </div>
           ) : isApiKeyError ? (
             <ApiKeyErrorDisplay context="Busca na Bíblia" />
           ) : error ? (
-            <p className="text-center text-red-500">{error}</p>
+            <p className="text-center text-destructive">{error}</p>
           ) : null}
 
           {!isLoading && !isApiKeyError && hasSearched && results.length === 0 && !error && (
-             <div className="text-center text-gray-500 dark:text-gray-400">
+             <div className="text-center text-muted-foreground">
                 <p>Nenhum resultado encontrado para "{query}".</p>
              </div>
           )}
            {!isLoading && !isApiKeyError && !hasSearched && (
-             <div className="text-center text-gray-500 dark:text-gray-400">
+             <div className="text-center text-muted-foreground">
                 <p>Pesquise por palavras-chave, temas ou referências bíblicas.</p>
              </div>
           )}
           {results.length > 0 && (
             <ul className="space-y-4">
               {results.map((result, index) => (
-                <li key={index} className="p-4 bg-white dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                <li key={index} className="p-4 bg-muted/50 rounded-lg border border-border">
                   <button
                     onClick={() => handleResultClick(result)}
                     className="w-full text-left"
                   >
-                    <p className="font-bold text-blue-600 dark:text-blue-400 mb-1">{result.reference}</p>
-                    <p className="text-gray-700 dark:text-gray-300">
+                    <p className="font-bold text-primary mb-1">{result.reference}</p>
+                    <p className="text-foreground/90">
                       {highlightQuery(result.text, query)}
                     </p>
                   </button>

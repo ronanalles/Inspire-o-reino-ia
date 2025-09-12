@@ -23,20 +23,20 @@ const SidebarComponent: React.FC<SidebarProps> = ({ isOpen, selectedBookName, se
     <div key={book.name}>
       <button
         onClick={() => setExpandedBook(expandedBook === book.name ? null : book.name)}
-        className={`w-full text-left p-3 text-lg font-semibold transition-colors ${selectedBookName === book.name ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200' : 'hover:bg-gray-100 dark:hover:bg-gray-700'}`}
+        className={`w-full text-left p-3 text-lg font-semibold transition-colors ${selectedBookName === book.name ? 'bg-accent text-accent-foreground' : 'hover:bg-accent'}`}
       >
         {book.name}
       </button>
       {expandedBook === book.name && (
-        <div className="grid grid-cols-5 gap-1 p-2 bg-gray-50 dark:bg-gray-800">
+        <div className="grid grid-cols-5 gap-1 p-2 bg-background">
           {Array.from({ length: book.chapters }, (_, i) => i + 1).map((chapter) => (
             <button
               key={chapter}
               onClick={() => onSelectChapter(book.name, chapter)}
               className={`flex items-center justify-center w-10 h-10 rounded-full transition-colors ${
                 selectedBookName === book.name && selectedChapter === chapter
-                  ? 'bg-blue-600 text-white font-bold'
-                  : 'hover:bg-gray-200 dark:hover:bg-gray-600'
+                  ? 'bg-primary text-primary-foreground font-bold'
+                  : 'hover:bg-accent'
               }`}
             >
               {chapter}
@@ -50,28 +50,28 @@ const SidebarComponent: React.FC<SidebarProps> = ({ isOpen, selectedBookName, se
   return (
     <>
         <aside
-            className={`absolute md:relative z-20 w-80 bg-white dark:bg-gray-900 h-full border-r border-gray-200 dark:border-gray-700 flex flex-col transition-transform transform ${
+            className={`absolute md:relative z-20 w-80 bg-card h-full border-r border-border flex flex-col transition-transform transform ${
             isOpen ? 'translate-x-0' : '-translate-x-full'
             } md:translate-x-0`}
         >
-            <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+            <div className="flex items-center justify-between p-4 border-b border-border">
                 <h2 className="text-2xl font-bold">Livros</h2>
-                <button onClick={onClose} className="md:hidden p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">
+                <button onClick={onClose} className="md:hidden p-2 rounded-full hover:bg-accent">
                     <IconX className="w-6 h-6"/>
                 </button>
             </div>
             <div className="flex-1 overflow-y-auto">
                 <div>
-                    <h3 className="p-3 text-lg font-bold bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">Antigo Testamento</h3>
+                    <h3 className="p-3 text-lg font-bold bg-muted text-muted-foreground">Antigo Testamento</h3>
                     {oldTestamentBooks.map(renderBook)}
                 </div>
                 <div>
-                    <h3 className="p-3 text-lg font-bold bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">Novo Testamento</h3>
+                    <h3 className="p-3 text-lg font-bold bg-muted text-muted-foreground">Novo Testamento</h3>
                     {newTestamentBooks.map(renderBook)}
                 </div>
             </div>
-             <div className="p-2 border-t border-gray-200 dark:border-gray-700">
-                <button onClick={onToggleTheme} className="w-full flex items-center justify-center p-3 text-sm rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+             <div className="p-2 border-t border-border">
+                <button onClick={onToggleTheme} className="w-full flex items-center justify-center p-3 text-sm rounded-lg hover:bg-accent text-muted-foreground">
                     {theme === 'dark' ? <IconSun className="w-5 h-5 mr-3" /> : <IconMoon className="w-5 h-5 mr-3" />}
                     Mudar para tema {theme === 'dark' ? 'Claro' : 'Escuro'}
                 </button>
