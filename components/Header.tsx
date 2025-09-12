@@ -73,6 +73,9 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
             {isMoreMenuOpen && (
                  <div className="absolute right-0 mt-2 w-64 bg-popover rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-30 border border-border p-1">
+                    <button onClick={() => { onNavigateHome(); setIsMoreMenuOpen(false); }} className="w-full text-left flex items-center px-3 py-2 text-sm text-popover-foreground hover:bg-accent rounded-md">
+                        <IconHome className="w-5 h-5 mr-3" /> Tela Inicial
+                    </button>
                     <button onClick={() => { onOpenModal('settings'); setIsMoreMenuOpen(false); }} className="w-full text-left flex items-center px-3 py-2 text-sm text-popover-foreground hover:bg-accent rounded-md">
                       <IconTypography className="w-5 h-5 mr-3" /> Opções de Leitura
                     </button>

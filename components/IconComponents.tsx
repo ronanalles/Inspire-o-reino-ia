@@ -29,7 +29,11 @@ export const IconChevronDown: React.FC<React.SVGProps<SVGSVGElement>> = (props) 
 );
 
 export const IconAppLogo: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v15H6.5A2.5 2.5 0 0 1 4 14.5V4.5A2.5 2.5 0 0 1 6.5 2z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
+        <path d="M12 8.35C12 8.35 9.12 11.97 9.12 15.95C9.12 19.92 12 21.9 12 21.9S14.88 19.92 14.88 15.95C14.88 11.97 12 8.35 12 8.35Z" opacity="0.75" />
+        <path d="M7.05 12.3C7.05 12.3 4.5 15.15 4.5 18.15C4.5 21.15 7.05 22.5 7.05 22.5S9.6 21.15 9.6 18.15C9.6 15.15 7.05 12.3 7.05 12.3Z" />
+        <path d="M16.95 12.3C16.95 12.3 14.4 15.15 14.4 18.15C14.4 21.15 16.95 22.5 16.95 22.5S19.5 21.15 19.5 18.15C19.5 15.15 16.95 12.3 16.95 12.3Z" />
+    </svg>
 );
 
 export const IconFeather: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
