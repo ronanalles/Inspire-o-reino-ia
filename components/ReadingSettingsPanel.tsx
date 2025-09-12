@@ -54,7 +54,7 @@ export const ReadingSettingsPanel: React.FC<ReadingSettingsPanelProps> = ({ isOp
       onClick={onClose}
     >
       <div 
-        className={`bg-card w-full rounded-t-2xl md:rounded-xl md:w-auto md:min-w-80 p-4 transform transition-all duration-300 ease-in-out ${animationClass.panel}`}
+        className={`bg-card w-full rounded-t-2xl md:rounded-xl md:w-auto md:min-w-80 p-4 transform transition-all duration-300 ease-in-out shadow-[var(--shadow-xl)] ${animationClass.panel}`}
         onClick={e => e.stopPropagation()}
       >
         <div className="flex justify-between items-center mb-6">

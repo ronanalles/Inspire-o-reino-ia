@@ -1,15 +1,12 @@
 import React from 'react';
 import { IconSparkles, IconBrain, IconFeather, IconChevronRight } from './IconComponents';
-// FIX: Import ModalType to be used in the component's props.
 import { ModalType } from '../types';
 
 interface ToolsScreenProps {
-  // FIX: Changed props to accept a single `onOpenModal` handler for consistency and to fix the type error.
   onOpenModal: (modal: ModalType) => void;
 }
 
 const ToolsScreen: React.FC<ToolsScreenProps> = ({
-  // FIX: Destructure the new `onOpenModal` prop.
   onOpenModal,
 }) => {
   const tools = [
@@ -17,7 +14,6 @@ const ToolsScreen: React.FC<ToolsScreenProps> = ({
       title: 'Estudo Temático',
       description: 'Explore temas específicos através das Escrituras com a ajuda da IA.',
       icon: IconSparkles,
-      // FIX: Call `onOpenModal` with the appropriate modal type.
       onClick: () => onOpenModal('thematic'),
       color: 'text-emerald-500',
     },
@@ -25,7 +21,6 @@ const ToolsScreen: React.FC<ToolsScreenProps> = ({
       title: 'Quiz Bíblico',
       description: 'Teste seus conhecimentos com perguntas desafiadoras geradas por IA.',
       icon: IconBrain,
-      // FIX: Call `onOpenModal` with the appropriate modal type.
       onClick: () => onOpenModal('quiz'),
       color: 'text-purple-500',
     },
@@ -33,7 +28,6 @@ const ToolsScreen: React.FC<ToolsScreenProps> = ({
       title: 'Assistente de Estudo',
       description: 'Converse com uma IA para tirar dúvidas e aprofundar seu entendimento.',
       icon: IconFeather,
-      // FIX: Call `onOpenModal` with the appropriate modal type.
       onClick: () => onOpenModal('aiBuddy'),
       color: 'text-primary',
     },
@@ -53,7 +47,7 @@ const ToolsScreen: React.FC<ToolsScreenProps> = ({
             <button
               key={tool.title}
               onClick={tool.onClick}
-              className="group flex flex-col justify-between text-left p-6 bg-card rounded-xl shadow-md hover:shadow-xl hover:scale-[1.03] transition-all border border-border"
+              className="group flex flex-col justify-between text-left p-6 bg-card rounded-xl shadow-[var(--shadow-md)] hover:shadow-[var(--shadow-lg)] hover:-translate-y-1 transition-all duration-300 ease-in-out border border-border"
             >
               <div>
                 <div className="mb-4">

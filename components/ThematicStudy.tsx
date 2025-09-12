@@ -67,7 +67,7 @@ const ThematicStudy: React.FC<ThematicStudyProps> = ({ isOpen, onClose, onNaviga
 
   return (
     <div className={`fixed inset-0 bg-black bg-opacity-60 z-50 flex items-stretch md:items-center justify-center p-0 md:p-4 transition-opacity duration-300 ease-in-out ${animationClass.backdrop}`}>
-      <div className={`bg-card text-card-foreground rounded-none md:rounded-xl shadow-2xl w-full h-full md:w-full md:max-w-2xl md:h-auto md:max-h-[90vh] flex flex-col transform transition-all duration-300 ease-in-out border-none md:border border-border ${animationClass.modal}`}>
+      <div className={`bg-card text-card-foreground rounded-none md:rounded-xl shadow-[var(--shadow-xl)] w-full h-full md:w-full md:max-w-2xl md:h-auto md:max-h-[90vh] flex flex-col transform transition-all duration-300 ease-in-out border-none md:border border-border ${animationClass.modal}`}>
         <div className="flex items-center justify-between p-4 border-b border-border flex-shrink-0">
           <h2 className="text-xl font-bold flex items-center">
             <IconSparkles className="mr-2 text-emerald-500" />

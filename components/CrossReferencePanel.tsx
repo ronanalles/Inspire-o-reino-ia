@@ -23,7 +23,7 @@ export const CrossReferencePanel: React.FC<CrossReferencePanelProps> = ({ item, 
         onClick={onClose}
       ></div>
       <div
-        className={`fixed top-0 right-0 h-full w-full max-w-md bg-card shadow-xl transform transition-transform z-40 border-l border-border ${
+        className={`fixed top-0 right-0 h-full w-full max-w-md bg-card shadow-[var(--shadow-xl)] transform transition-transform z-40 border-l border-border ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
         aria-live="polite"

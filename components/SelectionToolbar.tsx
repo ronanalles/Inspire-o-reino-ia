@@ -22,7 +22,7 @@ export const SelectionToolbar: React.FC<SelectionToolbarProps> = ({ selection, o
 
   return (
     <div className={`fixed bottom-0 inset-x-0 z-20 md:hidden transition-transform duration-300 ease-in-out ${isOpen ? 'translate-y-0' : 'translate-y-full'}`}>
-        <div className="bg-card border-t border-border p-2 shadow-lg flex items-center justify-between">
+        <div className="bg-card border-t border-border p-2 shadow-[var(--shadow-lg)] flex items-center justify-between">
             <div className="flex items-center space-x-2">
                 <span className="text-sm font-medium text-muted-foreground ml-2">Grifar:</span>
                 <div className="flex space-x-2">

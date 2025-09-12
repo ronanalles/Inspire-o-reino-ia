@@ -74,7 +74,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onNav
       onClick={onClose}
     >
       <div 
-        className={`bg-card text-card-foreground rounded-none md:rounded-xl shadow-2xl w-full h-full md:w-full md:max-w-2xl md:h-auto md:max-h-[90vh] flex flex-col transform transition-all duration-300 ease-in-out border-none md:border border-border ${isOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`} 
+        className={`bg-card text-card-foreground rounded-none md:rounded-xl shadow-[var(--shadow-xl)] w-full h-full md:w-full md:max-w-2xl md:h-auto md:max-h-[90vh] flex flex-col transform transition-all duration-300 ease-in-out border-none md:border border-border ${isOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`} 
         onClick={e => e.stopPropagation()}
       >
         <div className="flex items-center justify-between p-4 border-b border-border flex-shrink-0">

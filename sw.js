@@ -1,4 +1,4 @@
-const CACHE_NAME = 'inspire-o-reino-v1';
+const CACHE_NAME = 'inspire-o-reino-v2';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -11,7 +11,12 @@ self.addEventListener('install', event => {
     caches.open(CACHE_NAME)
       .then(cache => {
         console.log('Opened cache');
-        return cache.addAll(urlsToCache);
+        // Cache app shell
+        cache.addAll(urlsToCache);
+        // Cache fonts
+        return cache.addAll([
+          'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400..700;1,400..700&display=swap'
+        ]);
       })
   );
 });
@@ -35,6 +40,24 @@ self.addEventListener('activate', event => {
 
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') {
+    return;
+  }
+
+  // Handle font requests from fonts.gstatic.com
+  if (event.request.url.startsWith('https://fonts.gstatic.com')) {
+    event.respondWith(
+      caches.match(event.request).then(response => {
+        if (response) {
+          return response;
+        }
+        return fetch(event.request).then(networkResponse => {
+          caches.open(CACHE_NAME).then(cache => {
+            cache.put(event.request, networkResponse.clone());
+          });
+          return networkResponse;
+        });
+      })
+    );
     return;
   }
   

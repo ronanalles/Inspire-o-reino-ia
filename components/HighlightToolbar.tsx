@@ -22,13 +22,14 @@ export const HighlightToolbar: React.FC<HighlightToolbarProps> = ({ selection, o
   const style = {
     top: `${selection.rect.bottom + window.scrollY + 8}px`,
     left: `${selection.rect.left + selection.rect.width / 2 + window.scrollX}px`,
+    transform: 'translateX(-50%)',
   };
 
   const isOpen = selection !== null;
 
   return (
     <div
-      className={`hidden md:flex absolute z-20 bg-popover shadow-lg rounded-full p-1 space-x-1 border border-border transition-opacity duration-150 ease-in-out ${isOpen ? 'opacity-100' : 'opacity-0'}`}
+      className={`hidden md:flex absolute z-20 bg-popover shadow-[var(--shadow-lg)] rounded-full p-1 space-x-1 border border-border transition-opacity duration-150 ease-in-out ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
       style={style}
       onMouseDown={(e) => e.preventDefault()} // Prevent losing text selection
     >

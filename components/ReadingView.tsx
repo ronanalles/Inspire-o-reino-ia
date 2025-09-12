@@ -125,7 +125,7 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
       <div className="max-w-4xl mx-auto" onMouseUp={handleContainerMouseUp}>
         {isApiKeyErrorForCrossRef && <ApiKeyErrorDisplay context="Estudo Aprofundado" />}
       </div>
-      <div className="max-w-4xl mx-auto bg-card rounded-lg shadow-md p-6 md:p-8 min-h-[60vh] pb-24 md:pb-8">
+      <div className="max-w-4xl mx-auto bg-card rounded-lg shadow-[var(--shadow-md)] p-6 md:p-8 min-h-[60vh] pb-24 md:pb-8">
         <h2 className="text-3xl font-bold mb-6 text-center text-foreground">{book.name} {chapter}</h2>
         {isLoading ? (
           <div className="flex justify-center items-center h-48">
@@ -157,10 +157,10 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
         )}
       </div>
       
-      <div className="fixed bottom-0 left-0 right-0 z-10 md:relative md:bottom-auto md:mt-8 bg-background/80 backdrop-blur-sm border-t border-border md:border-none md:bg-transparent md:backdrop-blur-none p-2 md:p-0 flex justify-between items-center max-w-4xl mx-auto">
+      <div className="fixed bottom-0 left-0 right-0 z-10 md:relative md:bottom-auto md:mt-8 bg-background/80 backdrop-blur-sm md:bg-transparent md:backdrop-blur-none p-2 md:p-0 flex justify-between items-center max-w-4xl mx-auto shadow-[0_-1px_4px_rgba(0,0,0,0.05)] md:shadow-none dark:shadow-[0_-1px_4px_rgba(0,0,0,0.2)]">
         <button
           onClick={onPrevChapter}
-          className="flex items-center px-4 py-2 bg-card border border-border rounded-lg shadow-sm hover:bg-accent transition-colors disabled:opacity-50 text-foreground"
+          className="flex items-center px-4 py-2 bg-card border border-border rounded-lg shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-md)] hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 text-foreground"
           disabled={book.name === books[0].name && chapter === 1}
         >
           <IconChevronLeft className="w-5 h-5 mr-2" />
@@ -168,7 +168,7 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
         </button>
         <button
           onClick={onNextChapter}
-          className="flex items-center px-4 py-2 bg-card border border-border rounded-lg shadow-sm hover:bg-accent transition-colors disabled:opacity-50 text-foreground"
+          className="flex items-center px-4 py-2 bg-card border border-border rounded-lg shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-md)] hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 text-foreground"
           disabled={book.name === books[books.length - 1].name && chapter === book.chapters}
        >
           Próximo

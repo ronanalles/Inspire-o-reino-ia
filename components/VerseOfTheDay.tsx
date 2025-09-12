@@ -61,7 +61,7 @@ export const VerseOfTheDay: React.FC = () => {
   const verseData = storedVerse?.verse;
 
   return (
-    <div className="bg-card/70 dark:bg-card/50 backdrop-blur-lg rounded-xl shadow-lg p-6 w-full border border-border">
+    <div className="bg-card/70 dark:bg-card/50 backdrop-blur-lg rounded-xl shadow-[var(--shadow-lg)] p-6 w-full border border-border">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold text-card-foreground">Versículo do Dia</h2>
         <button 

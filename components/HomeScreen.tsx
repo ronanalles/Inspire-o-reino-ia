@@ -44,7 +44,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onContinueReading, onSta
             <button 
                 onClick={onContinueReading}
                 disabled={!lastRead}
-                className="group flex items-center justify-between w-full p-6 bg-card rounded-xl shadow-md hover:shadow-xl hover:scale-[1.03] transition-all duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none border border-border"
+                className="group flex items-center justify-between w-full p-6 bg-card rounded-xl shadow-[var(--shadow-md)] hover:shadow-[var(--shadow-lg)] hover:-translate-y-1 transition-all duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none border border-border"
             >
                 <div>
                     <h2 className="font-bold text-lg text-left text-primary">Continuar Leitura</h2>
@@ -56,7 +56,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onContinueReading, onSta
             </button>
             <button 
                 onClick={onStartReading}
-                className="group flex items-center justify-between w-full p-6 bg-card rounded-xl shadow-md hover:shadow-xl hover:scale-[1.03] transition-all duration-300 ease-in-out border border-border"
+                className="group flex items-center justify-between w-full p-6 bg-card rounded-xl shadow-[var(--shadow-md)] hover:shadow-[var(--shadow-lg)] hover:-translate-y-1 transition-all duration-300 ease-in-out border border-border"
             >
                 <div>
                     <h2 className="font-bold text-lg text-left text-emerald-600 dark:text-emerald-400">Explorar a Bíblia</h2>
