@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { IconMenu, IconBookmark, IconSearch, IconSparkles, IconGlobe, IconHome, IconChevronDown } from './IconComponents';
-import { Translation } from '../types';
+import { IconMenu, IconBookmark, IconSearch, IconSparkles, IconGlobe, IconHome, IconChevronDown, IconTypography } from './IconComponents';
+import { ReadingSettingsPanel } from './ReadingSettingsPanel';
+import { Translation, ReadingSettings } from '../types';
 import { translations } from '../data/translations';
 
 interface HeaderProps {
@@ -16,6 +17,10 @@ interface HeaderProps {
   isCrossRefEnabled: boolean;
   onToggleCrossRef: () => void;
   showCrossRefTooltip: boolean;
+  readingSettings: ReadingSettings;
+  onReadingSettingsChange: (settings: ReadingSettings) => void;
+  isReadingSettingsOpen: boolean;
+  onToggleReadingSettings: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({ 
@@ -31,19 +36,29 @@ export const Header: React.FC<HeaderProps> = ({
     isCrossRefEnabled,
     onToggleCrossRef,
     showCrossRefTooltip,
+    readingSettings,
+    onReadingSettingsChange,
+    isReadingSettingsOpen,
+    onToggleReadingSettings,
 }) => {
   const [isTranslationDropdownOpen, setIsTranslationDropdownOpen] = useState(false);
   const translationRef = useRef<HTMLDivElement>(null);
+  const readingSettingsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (translationRef.current && !translationRef.current.contains(event.target as Node)) {
         setIsTranslationDropdownOpen(false);
       }
+      if (readingSettingsRef.current && !readingSettingsRef.current.contains(event.target as Node)) {
+        if (isReadingSettingsOpen) {
+          onToggleReadingSettings();
+        }
+      }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  }, [isReadingSettingsOpen, onToggleReadingSettings]);
 
   const handleSelectTranslation = (translation: Translation) => {
     onTranslationChange(translation);
@@ -64,6 +79,16 @@ export const Header: React.FC<HeaderProps> = ({
         </button>
       </div>
       <div className="flex items-center space-x-1 sm:space-x-2 text-muted-foreground">
+        <div className="relative" ref={readingSettingsRef}>
+            <button onClick={onToggleReadingSettings} className="p-2 rounded-full hover:bg-accent" aria-label="Opções de Leitura">
+                <IconTypography className="w-5 h-5" />
+            </button>
+            <ReadingSettingsPanel 
+              isOpen={isReadingSettingsOpen}
+              settings={readingSettings}
+              onSettingsChange={onReadingSettingsChange}
+            />
+        </div>
         <div className="relative" ref={translationRef}>
             <button onClick={() => setIsTranslationDropdownOpen(!isTranslationDropdownOpen)} className="p-2 rounded-full hover:bg-accent" aria-label="Selecionar tradução">
                 <IconGlobe className="w-5 h-5" />

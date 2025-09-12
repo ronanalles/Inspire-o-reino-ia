@@ -10,7 +10,7 @@ import { BottomNavBar } from './components/BottomNavBar';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { books } from './data/bibleData';
 import { translations } from './data/translations';
-import { Bookmark, LastRead, Highlight, HighlightColor, Theme, Translation } from './types';
+import { Bookmark, LastRead, Highlight, HighlightColor, Theme, Translation, ReadingSettings } from './types';
 import { IconSpinner } from './components/IconComponents';
 
 const AiStudyBuddy = React.lazy(() => import('./components/AiStudyBuddy'));
@@ -48,6 +48,13 @@ export default function App() {
   const [isNavModalOpen, setIsNavModalOpen] = useState(false);
   const [isCrossRefEnabled, setIsCrossRefEnabled] = useLocalStorage<boolean>('bible_crossRefEnabled', false);
   const [hasSeenCrossRefTooltip, setHasSeenCrossRefTooltip] = useLocalStorage<boolean>('bible_hasSeenCrossRefTooltip', false);
+
+  const [readingSettings, setReadingSettings] = useLocalStorage<ReadingSettings>('bible_readingSettings', {
+    fontSize: 'base',
+    lineHeight: 'loose',
+    fontFamily: 'serif',
+  });
+  const [isReadingSettingsOpen, setIsReadingSettingsOpen] = useState(false);
 
   useEffect(() => {
     const root = window.document.documentElement;
@@ -218,6 +225,10 @@ export default function App() {
                 isCrossRefEnabled={isCrossRefEnabled}
                 onToggleCrossRef={handleToggleCrossRef}
                 showCrossRefTooltip={!isCrossRefEnabled && !hasSeenCrossRefTooltip}
+                readingSettings={readingSettings}
+                onReadingSettingsChange={setReadingSettings}
+                isReadingSettingsOpen={isReadingSettingsOpen}
+                onToggleReadingSettings={() => setIsReadingSettingsOpen(prev => !prev)}
               />
               <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
                   <ReadingView
@@ -232,6 +243,7 @@ export default function App() {
                     isCrossRefEnabled={isCrossRefEnabled}
                     highlights={highlights}
                     onAddHighlight={addHighlight}
+                    readingSettings={readingSettings}
                   />
               </main>
             </div>

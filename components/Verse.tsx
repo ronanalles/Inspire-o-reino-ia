@@ -33,16 +33,19 @@ const VerseComponent: React.FC<VerseProps> = ({
 
   const handleMouseUp = () => {
     const selection = window.getSelection();
-    if (selection && !selection.isCollapsed && selection.toString().trim() !== '') {
+    const selectedText = selection?.toString().trim();
+
+    if (selection && !selection.isCollapsed && selectedText) {
       const range = selection.getRangeAt(0);
       if (verseRef.current && verseRef.current.contains(range.commonAncestorContainer)) {
         const rect = range.getBoundingClientRect();
         const containerRect = verseRef.current.parentElement!.getBoundingClientRect();
         
+        // Position the popover below the selection to avoid conflict with native OS/browser context menus.
         setPopoverState({
-          top: rect.top - containerRect.top - 45,
+          top: rect.bottom - containerRect.top + 8, // 8px offset below
           left: rect.left - containerRect.left + rect.width / 2,
-          text: selection.toString(),
+          text: selectedText,
         });
       }
     } else {
@@ -52,10 +55,12 @@ const VerseComponent: React.FC<VerseProps> = ({
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
+      // Check if the click is outside the popover itself
       if (popoverState && !(event.target as Element).closest('.highlight-popover')) {
-        setPopoverState(null);
+         setPopoverState(null);
       }
     };
+    // Use `mousedown` to catch the click before `mouseup` might re-trigger the popover
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
@@ -71,56 +76,81 @@ const VerseComponent: React.FC<VerseProps> = ({
   };
 
   const renderVerseContent = () => {
-    let content: (string | JSX.Element)[] = [text];
-
-    if (highlights.length > 0) {
-      const highlightMap = new Map(highlights.map(h => [h.text, h.color]));
-      const highlightTexts = highlights.map(h => h.text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
-      if (highlightTexts.length === 0) return [text];
-      const highlightRegex = new RegExp(`(${highlightTexts.join('|')})`, 'g');
-
-      content = content.flatMap(part => {
-        if (typeof part !== 'string') return [part];
+    let lastIndex = 0;
+    const parts: (string | JSX.Element)[] = [];
+  
+    // Find all highlight occurrences and sort them by start index
+    const sortedHighlights = highlights
+      .flatMap(h => {
+        const regex = new RegExp(h.text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+        let match;
+        const occurrences = [];
+        while ((match = regex.exec(text)) !== null) {
+          occurrences.push({
+            start: match.index,
+            end: match.index + h.text.length,
+            color: h.color,
+          });
+        }
+        return occurrences;
+      })
+      .sort((a, b) => a.start - b.start);
+  
+    // Process the text with the sorted highlights
+    sortedHighlights.forEach(hl => {
+      if (hl.start >= lastIndex) {
+        // Add the text before the highlight
+        if (hl.start > lastIndex) {
+          parts.push(text.substring(lastIndex, hl.start));
+        }
+        // Add the highlighted text
         const highlightBgClasses: Record<HighlightColor, string> = {
             yellow: 'bg-yellow-200 dark:bg-yellow-700/70',
             green: 'bg-green-200 dark:bg-green-700/70',
             blue: 'bg-blue-200 dark:bg-blue-700/70',
             pink: 'bg-pink-200 dark:bg-pink-700/70',
         };
-        const splitText = part.split(highlightRegex);
-        return splitText.map((chunk, i) => {
-            const color = highlightMap.get(chunk);
-            return color ? <mark key={i} className={`${highlightBgClasses[color]} rounded px-0.5 py-0.5`}>{chunk}</mark> : chunk;
-        });
-      });
+        parts.push(
+          <mark key={`${hl.start}-${hl.end}`} className={`${highlightBgClasses[hl.color]} rounded`}>
+            {text.substring(hl.start, hl.end)}
+          </mark>
+        );
+        lastIndex = hl.end;
+      }
+    });
+  
+    // Add any remaining text after the last highlight
+    if (lastIndex < text.length) {
+      parts.push(text.substring(lastIndex));
     }
-
+    
+    // Process cross-references on the already-built parts
     if (crossReferences && crossReferences.length > 0) {
-      const terms = crossReferences.map(cr => cr.term);
-      const crossRefRegex = new RegExp(`\\b(${terms.join('|')})\\b`, 'gi');
+        const terms = crossReferences.map(cr => cr.term);
+        const crossRefRegex = new RegExp(`\\b(${terms.join('|')})\\b`, 'gi');
 
-      content = content.flatMap((part, i) => {
-        if (typeof part !== 'string') return [part];
-        const splitText = part.split(crossRefRegex);
-        return splitText.map((chunk, j) => {
-          const matchingRef = crossReferences.find(cr => cr.term.toLowerCase() === chunk.toLowerCase());
-          if (matchingRef) {
-            return (
-              <button 
-                key={`${i}-${j}`}
-                onClick={() => onTermClick(matchingRef)}
-                className="text-blue-600 dark:text-blue-400 font-semibold underline decoration-dotted decoration-blue-600/50 dark:decoration-blue-400/50 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-sm px-0.5 transition-colors"
-              >
-                {chunk}
-              </button>
-            );
-          }
-          return chunk;
+        return parts.flatMap((part, i) => {
+            if (typeof part !== 'string') return [part];
+            const splitText = part.split(crossRefRegex);
+            return splitText.map((chunk, j) => {
+            const matchingRef = crossReferences.find(cr => cr.term.toLowerCase() === chunk.toLowerCase());
+            if (matchingRef) {
+                return (
+                <button 
+                    key={`${i}-${j}`}
+                    onClick={() => onTermClick(matchingRef)}
+                    className="text-blue-600 dark:text-blue-400 font-semibold underline decoration-dotted decoration-blue-600/50 dark:decoration-blue-400/50 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-sm px-0.5 transition-colors"
+                >
+                    {chunk}
+                </button>
+                );
+            }
+            return chunk;
+            });
         });
-      });
     }
 
-    return content;
+    return parts.length > 0 ? parts : [text];
   };
   
 

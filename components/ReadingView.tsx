@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
-import { Book, VerseType, ChapterCrossReferences, CrossReferenceItem, Highlight, HighlightColor, Translation } from '../types';
+import { Book, VerseType, ChapterCrossReferences, CrossReferenceItem, Highlight, HighlightColor, Translation, ReadingSettings } from '../types';
 import { Verse } from './Verse';
 import { CrossReferencePanel } from './CrossReferencePanel';
 import { IconChevronLeft, IconChevronRight, IconSpinner } from './IconComponents';
@@ -20,6 +20,7 @@ interface ReadingViewProps {
   isCrossRefEnabled: boolean;
   highlights: Highlight[];
   onAddHighlight: (book: string, chapter: number, verse: number, text: string, color: HighlightColor) => void;
+  readingSettings: ReadingSettings;
 }
 
 export const ReadingView: React.FC<ReadingViewProps> = ({ 
@@ -34,6 +35,7 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
   isCrossRefEnabled,
   highlights,
   onAddHighlight,
+  readingSettings
 }) => {
   const [verses, setVerses] = useState<VerseType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -99,6 +101,14 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
     return highlights.filter(h => h.book === book.name && h.chapter === chapter);
   }, [highlights, book.name, chapter]);
 
+  const readingTextClasses = useMemo(() => {
+    const fontSizeMap = { sm: 'text-base', base: 'text-lg', lg: 'text-xl', xl: 'text-2xl' };
+    const lineHeightMap = { tight: 'leading-relaxed', normal: 'leading-loose', loose: 'leading-loose' };
+    const fontFamilyMap = { sans: 'font-sans', serif: 'font-serif' };
+
+    return `${fontSizeMap[readingSettings.fontSize]} ${lineHeightMap[readingSettings.lineHeight]} ${fontFamilyMap[readingSettings.fontFamily]}`;
+  }, [readingSettings]);
+
   return (
     <div ref={viewRef}>
       <div className="max-w-4xl mx-auto">
@@ -113,7 +123,7 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
         ) : error ? (
           <p className="text-center text-destructive">{error}</p>
         ) : (
-          <div className="space-y-4 font-serif text-xl leading-loose text-foreground/90">
+          <div className={`space-y-4 text-foreground/90 ${readingTextClasses}`}>
             {verses.map((verseData) => (
               <Verse
                 key={verseData.verse}

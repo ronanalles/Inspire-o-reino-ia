@@ -19,7 +19,7 @@ export const HighlightPopover: React.FC<HighlightPopoverProps> = ({ top, left, o
 
   return (
     <div
-      className="highlight-popover absolute z-10 bg-white dark:bg-gray-700 shadow-lg rounded-full flex p-1 space-x-1 border border-gray-200 dark:border-gray-600"
+      className="highlight-popover absolute z-20 bg-popover shadow-lg rounded-full flex p-1 space-x-1 border border-border"
       style={{
         top: `${top}px`,
         left: `${left}px`,
@@ -27,6 +27,7 @@ export const HighlightPopover: React.FC<HighlightPopoverProps> = ({ top, left, o
       }}
       // Prevent mouseup from closing the popover when a color is clicked
       onMouseUp={(e) => e.stopPropagation()} 
+      onMouseDown={(e) => e.stopPropagation()}
     >
       {colors.map((color) => (
         <button

@@ -109,3 +109,13 @@ export interface CrossReferenceItem {
 export type ChapterCrossReferences = CrossReferenceItem[];
 
 export type Theme = 'light' | 'dark';
+
+export type FontSize = 'sm' | 'base' | 'lg' | 'xl';
+export type LineHeight = 'tight' | 'normal' | 'loose';
+export type FontFamily = 'sans' | 'serif';
+
+export interface ReadingSettings {
+  fontSize: FontSize;
+  lineHeight: LineHeight;
+  fontFamily: FontFamily;
+}
