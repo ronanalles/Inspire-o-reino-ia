@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { getVerseOfTheDay, MissingApiKeyError } from '../services/geminiService';
 import { VerseOfTheDay as VerseOfTheDayType, StoredVerseOfTheDay } from '../types';
-import { IconSpinner, IconRefresh } from './IconComponents';
+import { IconSpinner, IconRefresh, IconChevronDown } from './IconComponents';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { books } from '../data/bibleData';
 import { ApiKeyErrorDisplay } from './ApiKeyErrorDisplay';
@@ -11,11 +11,13 @@ export const VerseOfTheDay: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isApiKeyError, setIsApiKeyError] = useState(false);
+  const [isReflectionExpanded, setIsReflectionExpanded] = useState(false);
 
   const fetchVerse = useCallback(async (forceRefresh = false) => {
     setIsLoading(true);
     setError(null);
     setIsApiKeyError(false);
+    setIsReflectionExpanded(false);
     const today = new Date().toDateString();
 
     if (!forceRefresh && storedVerse && storedVerse.date === today) {
@@ -87,7 +89,19 @@ export const VerseOfTheDay: React.FC = () => {
             <p className="text-right font-semibold text-primary mt-2">{verseData.reference}</p>
           </div>
           <div className="border-t border-border pt-4">
-             <p className="text-muted-foreground">{verseData.reflection}</p>
+            <button
+                onClick={() => setIsReflectionExpanded(!isReflectionExpanded)}
+                className="flex justify-between items-center w-full text-left font-semibold text-muted-foreground hover:text-foreground transition-colors"
+                aria-expanded={isReflectionExpanded}
+            >
+                <span>Reflexão</span>
+                <IconChevronDown className={`w-5 h-5 transition-transform duration-300 ${isReflectionExpanded ? 'rotate-180' : ''}`} />
+            </button>
+            <div
+                className={`transition-all duration-500 ease-in-out overflow-hidden ${isReflectionExpanded ? 'max-h-96 mt-2 opacity-100' : 'max-h-0 mt-0 opacity-0'}`}
+            >
+                <p className="text-muted-foreground pt-2 leading-relaxed">{verseData.reflection}</p>
+            </div>
           </div>
         </div>
       ) : null}
