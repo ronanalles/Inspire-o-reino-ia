@@ -90,9 +90,9 @@ const BibleQuiz: React.FC<BibleQuizProps> = ({ isOpen, onClose }) => {
   };
 
   return (
-    <div className={`fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4 transition-opacity duration-300 ease-in-out ${animationClass.backdrop}`}>
-      <div className={`bg-card text-card-foreground rounded-xl shadow-2xl w-full max-w-lg flex flex-col max-h-[90vh] transform transition-all duration-300 ease-in-out border border-border ${animationClass.modal}`}>
-        <div className="flex items-center justify-between p-4 border-b border-border">
+    <div className={`fixed inset-0 bg-black bg-opacity-60 z-50 flex items-stretch md:items-center justify-center p-0 md:p-4 transition-opacity duration-300 ease-in-out ${animationClass.backdrop}`}>
+      <div className={`bg-card text-card-foreground rounded-none md:rounded-xl shadow-2xl w-full h-full md:w-full md:max-w-lg md:h-auto md:max-h-[90vh] flex flex-col transform transition-all duration-300 ease-in-out border-none md:border border-border ${animationClass.modal}`}>
+        <div className="flex items-center justify-between p-4 border-b border-border flex-shrink-0">
           <h2 className="text-xl font-bold flex items-center">
             <IconBrain className="mr-2 text-primary" />
             Quiz Bíblico
@@ -130,7 +130,7 @@ const BibleQuiz: React.FC<BibleQuizProps> = ({ isOpen, onClose }) => {
           ) : null }
         </div>
         
-        <div className="p-4 bg-muted/50 border-t border-border rounded-b-xl flex items-center justify-between">
+        <div className="p-4 bg-muted/50 border-t border-border rounded-b-none md:rounded-b-xl flex items-center justify-between flex-shrink-0">
             <div className="font-bold text-lg">
                 Pontuação: <span className="text-primary">{score}</span>
             </div>

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
-import { Book, VerseType, ChapterCrossReferences, CrossReferenceItem, Highlight, HighlightColor, Translation, ReadingSettings } from '../types';
+import { Book, VerseType, ChapterCrossReferences, CrossReferenceItem, Highlight, Translation, ReadingSettings, SelectionState } from '../types';
 import { Verse } from './Verse';
 import { CrossReferencePanel } from './CrossReferencePanel';
 import { IconChevronLeft, IconChevronRight, IconSpinner } from './IconComponents';
@@ -19,7 +19,7 @@ interface ReadingViewProps {
   onNavigateToVerse: (book: string, chapter: number) => void;
   isCrossRefEnabled: boolean;
   highlights: Highlight[];
-  onAddHighlight: (book: string, chapter: number, verse: number, text: string, color: HighlightColor) => void;
+  onSelectText: (selection: SelectionState | null) => void;
   readingSettings: ReadingSettings;
 }
 
@@ -34,7 +34,7 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
   onNavigateToVerse,
   isCrossRefEnabled,
   highlights,
-  onAddHighlight,
+  onSelectText,
   readingSettings
 }) => {
   const [verses, setVerses] = useState<VerseType[]>([]);
@@ -53,6 +53,7 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
       setCrossReferences(null);
       setSelectedCrossRef(null);
       setIsApiKeyErrorForCrossRef(false);
+      onSelectText(null);
 
       if (viewRef.current) {
           viewRef.current.parentElement?.scrollTo(0, 0);
@@ -91,7 +92,7 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
     };
 
     fetchChapter();
-  }, [book, chapter, translation, isCrossRefEnabled]);
+  }, [book, chapter, translation, isCrossRefEnabled, onSelectText]);
   
   const handleTermClick = (term: CrossReferenceItem) => {
     setSelectedCrossRef(term);
@@ -109,12 +110,22 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
     return `${fontSizeMap[readingSettings.fontSize]} ${lineHeightMap[readingSettings.lineHeight]} ${fontFamilyMap[readingSettings.fontFamily]}`;
   }, [readingSettings]);
 
+  const handleContainerMouseUp = () => {
+    // A slight delay to allow the verse's mouseup to fire first
+    setTimeout(() => {
+        const selection = window.getSelection();
+        if (selection && selection.isCollapsed) {
+            onSelectText(null);
+        }
+    }, 100);
+  };
+
   return (
     <div ref={viewRef}>
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-4xl mx-auto" onMouseUp={handleContainerMouseUp}>
         {isApiKeyErrorForCrossRef && <ApiKeyErrorDisplay context="Estudo Aprofundado" />}
       </div>
-      <div className="max-w-4xl mx-auto bg-card rounded-lg shadow-md p-6 md:p-8 min-h-[60vh]">
+      <div className="max-w-4xl mx-auto bg-card rounded-lg shadow-md p-6 md:p-8 min-h-[60vh] pb-24 md:pb-8">
         <h2 className="text-3xl font-bold mb-6 text-center text-foreground">{book.name} {chapter}</h2>
         {isLoading ? (
           <div className="flex justify-center items-center h-48">
@@ -136,7 +147,7 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
                 crossReferences={crossReferences}
                 onTermClick={handleTermClick}
                 highlights={chapterHighlights.filter(h => h.verse === verseData.verse)}
-                onAddHighlight={onAddHighlight}
+                onSelectText={onSelectText}
               />
             ))}
             {verses.length === 0 && !isLoading && (
@@ -145,7 +156,8 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
           </div>
         )}
       </div>
-      <div className="flex justify-between items-center mt-8 max-w-4xl mx-auto">
+      
+      <div className="fixed bottom-0 left-0 right-0 z-10 md:relative md:bottom-auto md:mt-8 bg-background/80 backdrop-blur-sm border-t border-border md:border-none md:bg-transparent md:backdrop-blur-none p-2 md:p-0 flex justify-between items-center max-w-4xl mx-auto">
         <button
           onClick={onPrevChapter}
           className="flex items-center px-4 py-2 bg-card border border-border rounded-lg shadow-sm hover:bg-accent transition-colors disabled:opacity-50 text-foreground"
@@ -163,6 +175,7 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
           <IconChevronRight className="w-5 h-5 ml-2" />
         </button>
       </div>
+
       <CrossReferencePanel 
         item={selectedCrossRef}
         onClose={() => setSelectedCrossRef(null)}

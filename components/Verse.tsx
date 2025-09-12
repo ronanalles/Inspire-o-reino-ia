@@ -1,7 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useRef } from 'react';
 import { IconBookmark, IconBookmarkSolid } from './IconComponents';
-import { CrossReferenceItem, ChapterCrossReferences, Highlight, HighlightColor } from '../types';
-import { HighlightPopover } from './HighlightPopover';
+import { CrossReferenceItem, ChapterCrossReferences, Highlight, HighlightColor, SelectionState } from '../types';
 
 interface VerseProps {
   book: string;
@@ -13,7 +12,7 @@ interface VerseProps {
   crossReferences: ChapterCrossReferences | null;
   onTermClick: (term: CrossReferenceItem) => void;
   highlights: Highlight[];
-  onAddHighlight: (book: string, chapter: number, verse: number, text: string, color: HighlightColor) => void;
+  onSelectText: (selection: SelectionState | null) => void;
 }
 
 const VerseComponent: React.FC<VerseProps> = ({ 
@@ -26,52 +25,23 @@ const VerseComponent: React.FC<VerseProps> = ({
   crossReferences, 
   onTermClick,
   highlights,
-  onAddHighlight
+  onSelectText,
 }) => {
   const verseRef = useRef<HTMLParagraphElement>(null);
-  const [popoverState, setPopoverState] = useState<{ top: number, left: number, text: string } | null>(null);
 
-  const handleMouseUp = () => {
+  const handleMouseUp = (event: React.MouseEvent<HTMLParagraphElement>) => {
+    event.stopPropagation(); // Prevent ReadingView's mouseup from firing immediately
     const selection = window.getSelection();
     const selectedText = selection?.toString().trim();
 
     if (selection && !selection.isCollapsed && selectedText) {
       const range = selection.getRangeAt(0);
       if (verseRef.current && verseRef.current.contains(range.commonAncestorContainer)) {
-        const rect = range.getBoundingClientRect();
-        const containerRect = verseRef.current.parentElement!.getBoundingClientRect();
-        
-        // Position the popover below the selection to avoid conflict with native OS/browser context menus.
-        setPopoverState({
-          top: rect.bottom - containerRect.top + 8, // 8px offset below
-          left: rect.left - containerRect.left + rect.width / 2,
+        onSelectText({
           text: selectedText,
+          verseInfo: { book, chapter, verse: verseNumber },
         });
       }
-    } else {
-      setPopoverState(null);
-    }
-  };
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      // Check if the click is outside the popover itself
-      if (popoverState && !(event.target as Element).closest('.highlight-popover')) {
-         setPopoverState(null);
-      }
-    };
-    // Use `mousedown` to catch the click before `mouseup` might re-trigger the popover
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [popoverState]);
-
-  const handleHighlight = (color: HighlightColor) => {
-    if (popoverState) {
-      onAddHighlight(book, chapter, verseNumber, popoverState.text, color);
-      setPopoverState(null);
-      window.getSelection()?.removeAllRanges();
     }
   };
 
@@ -79,52 +49,56 @@ const VerseComponent: React.FC<VerseProps> = ({
     let lastIndex = 0;
     const parts: (string | JSX.Element)[] = [];
   
-    // Find all highlight occurrences and sort them by start index
     const sortedHighlights = highlights
-      .flatMap(h => {
-        const regex = new RegExp(h.text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
-        let match;
-        const occurrences = [];
-        while ((match = regex.exec(text)) !== null) {
-          occurrences.push({
-            start: match.index,
-            end: match.index + h.text.length,
-            color: h.color,
-          });
-        }
-        return occurrences;
+      .map(h => {
+        const textToSearch = h.text;
+        const start = text.indexOf(textToSearch);
+        if (start === -1) return null;
+        return {
+          start,
+          end: start + textToSearch.length,
+          color: h.color,
+        };
       })
+      .filter((h): h is NonNullable<typeof h> => h !== null)
       .sort((a, b) => a.start - b.start);
   
-    // Process the text with the sorted highlights
-    sortedHighlights.forEach(hl => {
-      if (hl.start >= lastIndex) {
-        // Add the text before the highlight
-        if (hl.start > lastIndex) {
-          parts.push(text.substring(lastIndex, hl.start));
+    let mergedHighlights = [];
+    if(sortedHighlights.length > 0) {
+        mergedHighlights.push(sortedHighlights[0]);
+        for(let i = 1; i < sortedHighlights.length; i++){
+            let last = mergedHighlights[mergedHighlights.length - 1];
+            let current = sortedHighlights[i];
+            if(current.start < last.end){
+                last.end = Math.max(last.end, current.end);
+            } else {
+                mergedHighlights.push(current);
+            }
         }
-        // Add the highlighted text
-        const highlightBgClasses: Record<HighlightColor, string> = {
-            yellow: 'bg-yellow-200 dark:bg-yellow-700/70',
-            green: 'bg-green-200 dark:bg-green-700/70',
-            blue: 'bg-blue-200 dark:bg-blue-700/70',
-            pink: 'bg-pink-200 dark:bg-pink-700/70',
-        };
-        parts.push(
-          <mark key={`${hl.start}-${hl.end}`} className={`${highlightBgClasses[hl.color]} rounded`}>
-            {text.substring(hl.start, hl.end)}
-          </mark>
-        );
-        lastIndex = hl.end;
+    }
+    
+    mergedHighlights.forEach(hl => {
+      if (hl.start > lastIndex) {
+        parts.push(text.substring(lastIndex, hl.start));
       }
+      const highlightBgClasses: Record<HighlightColor, string> = {
+          yellow: 'bg-yellow-200 dark:bg-yellow-700/70',
+          green: 'bg-green-200 dark:bg-green-700/70',
+          blue: 'bg-blue-200 dark:bg-blue-700/70',
+          pink: 'bg-pink-200 dark:bg-pink-700/70',
+      };
+      parts.push(
+        <mark key={`${hl.start}-${hl.end}`} className={`${highlightBgClasses[hl.color]} rounded`}>
+          {text.substring(hl.start, hl.end)}
+        </mark>
+      );
+      lastIndex = hl.end;
     });
   
-    // Add any remaining text after the last highlight
     if (lastIndex < text.length) {
       parts.push(text.substring(lastIndex));
     }
     
-    // Process cross-references on the already-built parts
     if (crossReferences && crossReferences.length > 0) {
         const terms = crossReferences.map(cr => cr.term);
         const crossRefRegex = new RegExp(`\\b(${terms.join('|')})\\b`, 'gi');
@@ -156,13 +130,6 @@ const VerseComponent: React.FC<VerseProps> = ({
 
   return (
     <div className="flex group relative">
-      {popoverState && (
-        <HighlightPopover
-          top={popoverState.top}
-          left={popoverState.left}
-          onSelectColor={handleHighlight}
-        />
-      )}
       <div className="flex items-start pt-1">
         <span className="text-sm font-bold text-gray-500 dark:text-gray-400 mr-2 w-8 text-right select-none">{verseNumber}</span>
       </div>

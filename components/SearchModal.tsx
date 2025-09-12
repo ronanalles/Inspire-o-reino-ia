@@ -57,7 +57,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onNav
       <>
         {parts.map((part, i) =>
           part.toLowerCase() === query.toLowerCase() ? (
-            <span key={i} className="bg-primary/20 text-primary-foreground font-bold">
+            <span key={i} className="bg-primary/20 text-primary font-bold rounded">
               {part}
             </span>
           ) : (
@@ -70,14 +70,14 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onNav
 
   return (
     <div 
-      className={`fixed inset-0 bg-black z-50 flex items-center justify-center p-4 transition-opacity duration-300 ease-in-out ${isOpen ? 'bg-opacity-60' : 'bg-opacity-0 pointer-events-none'}`} 
+      className={`fixed inset-0 bg-black z-50 flex items-stretch md:items-center justify-center p-0 md:p-4 transition-opacity duration-300 ease-in-out ${isOpen ? 'bg-opacity-60' : 'bg-opacity-0 pointer-events-none'}`} 
       onClick={onClose}
     >
       <div 
-        className={`bg-card text-card-foreground rounded-xl shadow-2xl w-full max-w-2xl flex flex-col h-[90vh] transform transition-all duration-300 ease-in-out border border-border ${isOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`} 
+        className={`bg-card text-card-foreground rounded-none md:rounded-xl shadow-2xl w-full h-full md:w-full md:max-w-2xl md:h-auto md:max-h-[90vh] flex flex-col transform transition-all duration-300 ease-in-out border-none md:border border-border ${isOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`} 
         onClick={e => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between p-4 border-b border-border">
+        <div className="flex items-center justify-between p-4 border-b border-border flex-shrink-0">
           <h2 className="text-xl font-bold flex items-center">
             <IconSearch className="mr-2" />
             Buscar na Bíblia
@@ -87,14 +87,14 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onNav
           </button>
         </div>
 
-        <div className="p-4 border-b border-border">
+        <div className="p-4 border-b border-border flex-shrink-0">
           <div className="flex items-center space-x-2">
             <input
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-              placeholder="Busque por palavra, tema ou referência (ex: João 3:16)"
+              placeholder="Busque por palavra, tema ou referência..."
               className="flex-1 p-2 border border-input rounded-lg focus:ring-2 focus:ring-ring focus:outline-none bg-background"
               disabled={isLoading}
             />
@@ -120,12 +120,12 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onNav
           ) : null}
 
           {!isLoading && !isApiKeyError && hasSearched && results.length === 0 && !error && (
-             <div className="text-center text-muted-foreground">
+             <div className="text-center text-muted-foreground pt-8">
                 <p>Nenhum resultado encontrado para "{query}".</p>
              </div>
           )}
            {!isLoading && !isApiKeyError && !hasSearched && (
-             <div className="text-center text-muted-foreground">
+             <div className="text-center text-muted-foreground pt-8">
                 <p>Pesquise por palavras-chave, temas ou referências bíblicas.</p>
              </div>
           )}

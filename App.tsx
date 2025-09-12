@@ -7,10 +7,12 @@ import { HomeScreen } from './components/HomeScreen';
 import { SearchModal } from './components/SearchModal';
 import { QuickNavigationModal } from './components/QuickNavigationModal';
 import { BottomNavBar } from './components/BottomNavBar';
+import { ReadingSettingsPanel } from './components/ReadingSettingsPanel';
+import { SelectionToolbar } from './components/SelectionToolbar';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { books } from './data/bibleData';
 import { translations } from './data/translations';
-import { Bookmark, LastRead, Highlight, HighlightColor, Theme, Translation, ReadingSettings } from './types';
+import { Bookmark, LastRead, Highlight, HighlightColor, Theme, Translation, ReadingSettings, ModalType, SelectionState } from './types';
 import { IconSpinner } from './components/IconComponents';
 
 const AiStudyBuddy = React.lazy(() => import('./components/AiStudyBuddy'));
@@ -19,7 +21,7 @@ const ThematicStudy = React.lazy(() => import('./components/ThematicStudy'));
 const ToolsScreen = React.lazy(() => import('./components/ToolsScreen'));
 
 const LoadingSpinner = () => (
-    <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-[100]">
         <IconSpinner className="w-12 h-12 animate-spin text-white" />
     </div>
 );
@@ -40,12 +42,10 @@ export default function App() {
   const [bookmarks, setBookmarks] = useLocalStorage<Bookmark[]>('bible_bookmarks', []);
   const [highlights, setHighlights] = useLocalStorage<Highlight[]>('bible_highlights', []);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [isBookmarksOpen, setIsBookmarksOpen] = useState(false);
-  const [isAiBuddyOpen, setIsAiBuddyOpen] = useState(false);
-  const [isQuizOpen, setIsQuizOpen] = useState(false);
-  const [isThematicStudyOpen, setIsThematicStudyOpen] = useState(false);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [isNavModalOpen, setIsNavModalOpen] = useState(false);
+
+  const [activeModal, setActiveModal] = useState<ModalType | null>(null);
+  const [selectionState, setSelectionState] = useState<SelectionState | null>(null);
+
   const [isCrossRefEnabled, setIsCrossRefEnabled] = useLocalStorage<boolean>('bible_crossRefEnabled', false);
   const [hasSeenCrossRefTooltip, setHasSeenCrossRefTooltip] = useLocalStorage<boolean>('bible_hasSeenCrossRefTooltip', false);
 
@@ -54,7 +54,6 @@ export default function App() {
     lineHeight: 'loose',
     fontFamily: 'serif',
   });
-  const [isReadingSettingsOpen, setIsReadingSettingsOpen] = useState(false);
 
   useEffect(() => {
     const root = window.document.documentElement;
@@ -74,6 +73,10 @@ export default function App() {
 
   const handleToggleTheme = () => {
     setTheme(prevTheme => (prevTheme === 'dark' ? 'light' : 'dark'));
+  };
+  
+  const handleCloseModals = () => {
+    setActiveModal(null);
   };
 
   const handleToggleCrossRef = () => {
@@ -97,7 +100,8 @@ export default function App() {
       if (window.innerWidth < 768) {
         setIsSidebarOpen(false);
       }
-      setIsNavModalOpen(false);
+      setActiveModal(null);
+      setSelectionState(null);
     }
   }, []);
 
@@ -161,6 +165,7 @@ export default function App() {
       color,
     };
     setHighlights(prev => [...prev, newHighlight]);
+    setSelectionState(null);
   }, [setHighlights]);
 
   const removeHighlight = useCallback((highlightId: string) => {
@@ -192,11 +197,7 @@ export default function App() {
       case 'tools':
         return (
           <Suspense fallback={<div className="flex w-full h-full items-center justify-center"><IconSpinner className="w-12 h-12 animate-spin text-primary" /></div>}>
-            <ToolsScreen 
-              onThematicStudyClick={() => setIsThematicStudyOpen(true)}
-              onQuizClick={() => setIsQuizOpen(true)}
-              onAiBuddyClick={() => setIsAiBuddyOpen(true)}
-            />
+            <ToolsScreen onOpenModal={setActiveModal} />
           </Suspense>
         );
       case 'reading':
@@ -214,10 +215,8 @@ export default function App() {
             <div className="flex-1 flex flex-col overflow-hidden">
               <Header
                 onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
-                onToggleBookmarks={() => setIsBookmarksOpen(!isBookmarksOpen)}
                 onNavigateHome={() => setView('home')}
-                onToggleSearch={() => setIsSearchOpen(!isSearchOpen)}
-                onToggleNavModal={() => setIsNavModalOpen(!isNavModalOpen)}
+                onOpenModal={setActiveModal}
                 bookName={selectedBook.name}
                 chapter={selectedChapter}
                 selectedTranslation={translation}
@@ -225,12 +224,8 @@ export default function App() {
                 isCrossRefEnabled={isCrossRefEnabled}
                 onToggleCrossRef={handleToggleCrossRef}
                 showCrossRefTooltip={!isCrossRefEnabled && !hasSeenCrossRefTooltip}
-                readingSettings={readingSettings}
-                onReadingSettingsChange={setReadingSettings}
-                isReadingSettingsOpen={isReadingSettingsOpen}
-                onToggleReadingSettings={() => setIsReadingSettingsOpen(prev => !prev)}
               />
-              <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+              <main className="flex-1 overflow-y-auto">
                   <ReadingView
                     book={selectedBook}
                     chapter={selectedChapter}
@@ -242,7 +237,7 @@ export default function App() {
                     onNavigateToVerse={handleSelectChapter}
                     isCrossRefEnabled={isCrossRefEnabled}
                     highlights={highlights}
-                    onAddHighlight={addHighlight}
+                    onSelectText={setSelectionState}
                     readingSettings={readingSettings}
                   />
               </main>
@@ -260,47 +255,60 @@ export default function App() {
         {renderContent()}
       </div>
       
-      <BottomNavBar activeView={view} onNavigate={setView} />
+      {view !== 'reading' && <BottomNavBar activeView={view} onNavigate={setView} />}
       
       <QuickNavigationModal
-        isOpen={isNavModalOpen}
-        onClose={() => setIsNavModalOpen(false)}
+        isOpen={activeModal === 'nav'}
+        onClose={handleCloseModals}
         onNavigate={handleSelectChapter}
         currentBookName={selectedBook.name}
         currentChapter={selectedChapter}
       />
 
       <SearchModal 
-        isOpen={isSearchOpen}
-        onClose={() => setIsSearchOpen(false)}
+        isOpen={activeModal === 'search'}
+        onClose={handleCloseModals}
         onNavigateToVerse={handleSelectChapter}
       />
       
       <BookmarksPanel
-        isOpen={isBookmarksOpen}
-        onClose={() => setIsBookmarksOpen(false)}
+        isOpen={activeModal === 'bookmarks'}
+        onClose={handleCloseModals}
         bookmarks={bookmarks}
         highlights={highlights}
         onJumpToVerse={(book, chapter) => handleSelectChapter(book, chapter)}
         onUpdateBookmarkNote={handleUpdateBookmarkNote}
         onRemoveHighlight={removeHighlight}
       />
+
+      <ReadingSettingsPanel
+        isOpen={activeModal === 'settings'}
+        onClose={handleCloseModals}
+        settings={readingSettings}
+        onSettingsChange={setReadingSettings}
+      />
+
+      <SelectionToolbar
+        selection={selectionState}
+        onHighlight={addHighlight}
+        onClose={() => setSelectionState(null)}
+      />
       
       <Suspense fallback={<LoadingSpinner />}>
-        {isAiBuddyOpen && <AiStudyBuddy
-          isOpen={isAiBuddyOpen}
-          onClose={() => setIsAiBuddyOpen(false)}
+        {activeModal === 'aiBuddy' && <AiStudyBuddy
+          isOpen={activeModal === 'aiBuddy'}
+          onClose={handleCloseModals}
           context={{ book: selectedBook.name, chapter: selectedChapter }}
         />}
         
-        {isQuizOpen && <BibleQuiz 
-          isOpen={isQuizOpen}
-          onClose={() => setIsQuizOpen(false)}
+        {activeModal === 'quiz' && <BibleQuiz 
+          isOpen={activeModal === 'quiz'}
+          onClose={handleCloseModals}
         />}
 
-        {isThematicStudyOpen && <ThematicStudy
-          isOpen={isThematicStudyOpen}
-          onClose={() => setIsThematicStudyOpen(false)}
+        {activeModal === 'thematic' && <ThematicStudy
+          isOpen={activeModal === 'thematic'}
+          onClose={handleCloseModals}
           onNavigateToVerse={handleSelectChapter}
         />}
       </Suspense>

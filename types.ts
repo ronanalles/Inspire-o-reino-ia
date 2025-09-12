@@ -110,6 +110,17 @@ export type ChapterCrossReferences = CrossReferenceItem[];
 
 export type Theme = 'light' | 'dark';
 
+export type ModalType = 'search' | 'nav' | 'quiz' | 'thematic' | 'settings' | 'bookmarks' | 'aiBuddy';
+
+export interface SelectionState {
+  text: string;
+  verseInfo: {
+    book: string;
+    chapter: number;
+    verse: number;
+  };
+}
+
 export type FontSize = 'sm' | 'base' | 'lg' | 'xl';
 export type LineHeight = 'tight' | 'normal' | 'loose';
 export type FontFamily = 'sans' | 'serif';

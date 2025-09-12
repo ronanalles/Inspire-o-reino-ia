@@ -1,37 +1,40 @@
 import React from 'react';
 import { IconSparkles, IconBrain, IconFeather, IconChevronRight } from './IconComponents';
+// FIX: Import ModalType to be used in the component's props.
+import { ModalType } from '../types';
 
 interface ToolsScreenProps {
-  onThematicStudyClick: () => void;
-  onQuizClick: () => void;
-  onAiBuddyClick: () => void;
+  // FIX: Changed props to accept a single `onOpenModal` handler for consistency and to fix the type error.
+  onOpenModal: (modal: ModalType) => void;
 }
 
 const ToolsScreen: React.FC<ToolsScreenProps> = ({
-  onThematicStudyClick,
-  onQuizClick,
-  onAiBuddyClick,
+  // FIX: Destructure the new `onOpenModal` prop.
+  onOpenModal,
 }) => {
   const tools = [
     {
       title: 'Estudo Temático',
       description: 'Explore temas específicos através das Escrituras com a ajuda da IA.',
       icon: IconSparkles,
-      onClick: onThematicStudyClick,
+      // FIX: Call `onOpenModal` with the appropriate modal type.
+      onClick: () => onOpenModal('thematic'),
       color: 'text-emerald-500',
     },
     {
       title: 'Quiz Bíblico',
       description: 'Teste seus conhecimentos com perguntas desafiadoras geradas por IA.',
       icon: IconBrain,
-      onClick: onQuizClick,
+      // FIX: Call `onOpenModal` with the appropriate modal type.
+      onClick: () => onOpenModal('quiz'),
       color: 'text-purple-500',
     },
     {
       title: 'Assistente de Estudo',
       description: 'Converse com uma IA para tirar dúvidas e aprofundar seu entendimento.',
       icon: IconFeather,
-      onClick: onAiBuddyClick,
+      // FIX: Call `onOpenModal` with the appropriate modal type.
+      onClick: () => onOpenModal('aiBuddy'),
       color: 'text-primary',
     },
   ];

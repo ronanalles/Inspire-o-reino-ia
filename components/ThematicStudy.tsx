@@ -66,9 +66,9 @@ const ThematicStudy: React.FC<ThematicStudyProps> = ({ isOpen, onClose, onNaviga
   if (!isOpen) return null;
 
   return (
-    <div className={`fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4 transition-opacity duration-300 ease-in-out ${animationClass.backdrop}`}>
-      <div className={`bg-card text-card-foreground rounded-xl shadow-2xl w-full max-w-2xl flex flex-col max-h-[90vh] transform transition-all duration-300 ease-in-out border border-border ${animationClass.modal}`}>
-        <div className="flex items-center justify-between p-4 border-b border-border">
+    <div className={`fixed inset-0 bg-black bg-opacity-60 z-50 flex items-stretch md:items-center justify-center p-0 md:p-4 transition-opacity duration-300 ease-in-out ${animationClass.backdrop}`}>
+      <div className={`bg-card text-card-foreground rounded-none md:rounded-xl shadow-2xl w-full h-full md:w-full md:max-w-2xl md:h-auto md:max-h-[90vh] flex flex-col transform transition-all duration-300 ease-in-out border-none md:border border-border ${animationClass.modal}`}>
+        <div className="flex items-center justify-between p-4 border-b border-border flex-shrink-0">
           <h2 className="text-xl font-bold flex items-center">
             <IconSparkles className="mr-2 text-emerald-500" />
             Estudo Temático com IA
@@ -78,7 +78,7 @@ const ThematicStudy: React.FC<ThematicStudyProps> = ({ isOpen, onClose, onNaviga
           </button>
         </div>
 
-        <div className="p-4 border-b border-border">
+        <div className="p-4 border-b border-border flex-shrink-0">
             <div className="flex items-center space-x-2">
                 <input
                     type="text"
@@ -99,7 +99,7 @@ const ThematicStudy: React.FC<ThematicStudyProps> = ({ isOpen, onClose, onNaviga
           {isApiKeyError ? (
             <ApiKeyErrorDisplay context="Estudo Temático" />
           ) : !studyResult && !isLoading && !error ? (
-            <div className="text-center text-muted-foreground">
+            <div className="text-center text-muted-foreground pt-8">
                 <p>Insira um tema para começar seu estudo bíblico personalizado.</p>
             </div>
           ) : null}
