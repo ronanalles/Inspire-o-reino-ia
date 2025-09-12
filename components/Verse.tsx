@@ -37,9 +37,11 @@ const VerseComponent: React.FC<VerseProps> = ({
     if (selection && !selection.isCollapsed && selectedText) {
       const range = selection.getRangeAt(0);
       if (verseRef.current && verseRef.current.contains(range.commonAncestorContainer)) {
+        const rect = range.getBoundingClientRect();
         onSelectText({
           text: selectedText,
           verseInfo: { book, chapter, verse: verseNumber },
+          rect: rect,
         });
       }
     }

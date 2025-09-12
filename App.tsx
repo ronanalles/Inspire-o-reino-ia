@@ -9,6 +9,7 @@ import { QuickNavigationModal } from './components/QuickNavigationModal';
 import { BottomNavBar } from './components/BottomNavBar';
 import { ReadingSettingsPanel } from './components/ReadingSettingsPanel';
 import { SelectionToolbar } from './components/SelectionToolbar';
+import { HighlightToolbar } from './components/HighlightToolbar';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { books } from './data/bibleData';
 import { translations } from './data/translations';
@@ -168,6 +169,18 @@ export default function App() {
     setSelectionState(null);
   }, [setHighlights]);
 
+  const handleHighlight = useCallback((color: HighlightColor) => {
+    if (selectionState) {
+        addHighlight(
+            selectionState.verseInfo.book,
+            selectionState.verseInfo.chapter,
+            selectionState.verseInfo.verse,
+            selectionState.text,
+            color
+        );
+    }
+  }, [selectionState, addHighlight]);
+
   const removeHighlight = useCallback((highlightId: string) => {
     setHighlights(prev => prev.filter(h => h.id !== highlightId));
   }, [setHighlights]);
@@ -290,7 +303,13 @@ export default function App() {
 
       <SelectionToolbar
         selection={selectionState}
-        onHighlight={addHighlight}
+        onHighlight={handleHighlight}
+        onClose={() => setSelectionState(null)}
+      />
+
+      <HighlightToolbar
+        selection={selectionState}
+        onHighlight={handleHighlight}
         onClose={() => setSelectionState(null)}
       />
       

@@ -4,7 +4,7 @@ import { IconX } from './IconComponents';
 
 interface SelectionToolbarProps {
   selection: SelectionState | null;
-  onHighlight: (book: string, chapter: number, verse: number, text: string, color: HighlightColor) => void;
+  onHighlight: (color: HighlightColor) => void;
   onClose: () => void;
 }
 
@@ -13,21 +13,9 @@ export const SelectionToolbar: React.FC<SelectionToolbarProps> = ({ selection, o
   
   const colorClasses: Record<HighlightColor, string> = {
     yellow: 'bg-yellow-400 hover:ring-yellow-500',
-    green: 'bg-green-40á00 hover:ring-green-500',
+    green: 'bg-green-400 hover:ring-green-500',
     blue: 'bg-blue-400 hover:ring-blue-500',
     pink: 'bg-pink-400 hover:ring-pink-500',
-  };
-
-  const handleHighlight = (color: HighlightColor) => {
-    if (selection) {
-        onHighlight(
-            selection.verseInfo.book,
-            selection.verseInfo.chapter,
-            selection.verseInfo.verse,
-            selection.text,
-            color
-        );
-    }
   };
 
   const isOpen = selection !== null;
@@ -41,7 +29,7 @@ export const SelectionToolbar: React.FC<SelectionToolbarProps> = ({ selection, o
                     {colors.map((color) => (
                         <button
                         key={color}
-                        onClick={() => handleHighlight(color)}
+                        onClick={() => onHighlight(color)}
                         className={`w-7 h-7 rounded-full ${colorClasses[color]} transition-all hover:ring-2 focus:outline-none focus:ring-2 ring-offset-2 ring-offset-card`}
                         aria-label={`Grifar com ${color}`}
                         />

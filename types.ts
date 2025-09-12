@@ -119,6 +119,7 @@ export interface SelectionState {
     chapter: number;
     verse: number;
   };
+  rect?: DOMRect;
 }
 
 export type FontSize = 'sm' | 'base' | 'lg' | 'xl';
