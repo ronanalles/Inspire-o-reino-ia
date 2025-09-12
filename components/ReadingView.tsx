@@ -104,7 +104,7 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
 
   const readingTextClasses = useMemo(() => {
     const fontSizeMap = { sm: 'text-base', base: 'text-lg', lg: 'text-xl', xl: 'text-2xl' };
-    const lineHeightMap = { tight: 'leading-normal', normal: 'leading-relaxed', loose: 'leading-loose' };
+    const lineHeightMap = { tight: 'leading-snug', normal: 'leading-relaxed', loose: 'leading-loose' };
     const fontFamilyMap = { sans: 'font-sans', serif: 'font-serif' };
 
     return `${fontSizeMap[readingSettings.fontSize]} ${lineHeightMap[readingSettings.lineHeight]} ${fontFamilyMap[readingSettings.fontFamily]}`;

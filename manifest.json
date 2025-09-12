@@ -1,0 +1,17 @@
+{
+  "name": "Inspire o Reino",
+  "short_name": "Inspire",
+  "description": "Seu companheiro diário de estudo da Palavra.",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%233b82f6'%3e%3cpath d='M12 6.42C12 6.42 8.97 10.34 8.97 14.5C8.97 18.66 12 21 12 21C12 21 15.03 18.66 15.03 14.5C15.03 10.34 12 6.42 12 6.42Z' opacity='0.9' /%3e%3cpath d='M7.8 11.43C7.8 11.43 5.25 14.28 5.25 17.28C5.25 20.28 7.8 21.63 7.8 21.63C7.8 21.63 10.35 20.28 10.35 17.28C10.35 14.28 7.8 11.43 7.8 11.43Z' opacity='0.7' /%3e%3cpath d='M16.2 11.43C16.2 11.43 13.65 14.28 13.65 17.28C13.65 20.28 16.2 21.63 16.2 21.63C16.2 21.63 18.75 20.28 18.75 17.28C18.75 14.28 16.2 11.43 16.2 11.43Z' opacity='0.7' /%3e%3c/svg%3e",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
