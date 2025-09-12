@@ -1,7 +1,8 @@
 const CACHE_NAME = 'inspire-o-reino-v1';
 const urlsToCache = [
   '/',
-  '/index.html'
+  '/index.html',
+  '/manifest.json'
 ];
 
 self.addEventListener('install', event => {
