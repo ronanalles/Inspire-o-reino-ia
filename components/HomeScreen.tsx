@@ -1,6 +1,7 @@
+
 import React from 'react';
 import { VerseOfTheDay } from './VerseOfTheDay';
-import { IconAppLogo, IconBookOpen, IconSun, IconMoon } from './IconComponents';
+import { IconAppLogo, IconBookOpen, IconSun, IconMoon, IconDownload } from './IconComponents';
 import { LastRead, Theme } from '../types';
 
 interface HomeScreenProps {
@@ -9,9 +10,11 @@ interface HomeScreenProps {
   lastRead: LastRead | null;
   theme: Theme;
   onToggleTheme: () => void;
+  canInstall: boolean;
+  onInstallClick: () => void;
 }
 
-export const HomeScreen: React.FC<HomeScreenProps> = ({ onContinueReading, onStartReading, lastRead, theme, onToggleTheme }) => {
+export const HomeScreen: React.FC<HomeScreenProps> = ({ onContinueReading, onStartReading, lastRead, theme, onToggleTheme, canInstall, onInstallClick }) => {
   return (
     <div className="relative flex flex-col h-full bg-background text-foreground p-4 font-sans">
       <div 
@@ -54,6 +57,16 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onContinueReading, onSta
                 >
                     Continuar lendo: {lastRead.bookName} {lastRead.chapter}
                 </button>
+            )}
+
+            {canInstall && (
+              <button 
+                  onClick={onInstallClick}
+                  className="group flex items-center justify-center w-full p-4 mt-2 bg-secondary text-secondary-foreground rounded-xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 ease-in-out border border-border"
+              >
+                  <IconDownload className="w-5 h-5 mr-3" />
+                  <span className="font-semibold text-base">Instalar App</span>
+              </button>
             )}
         </div>
       </main>

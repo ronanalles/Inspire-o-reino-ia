@@ -13,7 +13,7 @@ import { StudyPanel } from './components/SelectionActionPanel';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { books } from './data/bibleData';
 import { translations } from './data/translations';
-import { Bookmark, LastRead, Theme, Translation, ReadingSettings, ModalType, StudyVerseState } from './types';
+import { Bookmark, LastRead, Theme, Translation, ReadingSettings, ModalType, StudyVerseState, BeforeInstallPromptEvent } from './types';
 import { IconSpinner } from './components/IconComponents';
 
 const ToolsModal = React.lazy(() => import('./components/ToolsScreen'));
@@ -48,6 +48,21 @@ export default function App() {
     lineHeight: 'loose',
     fontFamily: 'serif',
   });
+  
+  const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e: Event) => {
+      e.preventDefault();
+      setInstallPrompt(e as BeforeInstallPromptEvent);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
 
   useEffect(() => {
     const root = window.document.documentElement;
@@ -179,6 +194,21 @@ export default function App() {
   const handleVerseLongPress = useCallback((verseInfo: StudyVerseState) => {
     setStudyVerse(verseInfo);
   }, []);
+  
+  const handleInstallClick = () => {
+    if (!installPrompt) {
+      return;
+    }
+    installPrompt.prompt();
+    installPrompt.userChoice.then((choiceResult) => {
+      if (choiceResult.outcome === 'accepted') {
+        console.log('User accepted the install prompt');
+      } else {
+        console.log('User dismissed the install prompt');
+      }
+      setInstallPrompt(null);
+    });
+  };
 
   const handleBottomNav = (navAction: 'home' | 'reading' | 'search' | 'bookmarks') => {
     switch(navAction) {
@@ -200,7 +230,7 @@ export default function App() {
   const renderContent = () => {
     switch(view) {
       case 'home':
-        return <HomeScreen onContinueReading={handleContinueReading} onStartReading={handleStartReading} lastRead={lastRead} theme={theme} onToggleTheme={handleToggleTheme} />;
+        return <HomeScreen onContinueReading={handleContinueReading} onStartReading={handleStartReading} lastRead={lastRead} theme={theme} onToggleTheme={handleToggleTheme} canInstall={!!installPrompt} onInstallClick={handleInstallClick} />;
       case 'reading':
         return (
           <div className="flex h-full bg-background text-foreground">

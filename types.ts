@@ -1,4 +1,3 @@
-
 export type Translation = 'acf' | 'kjv';
 
 export interface TranslationInfo {
@@ -97,6 +96,7 @@ export interface StudyVerseState {
 }
 
 export type FontSize = 'sm' | 'base' | 'lg' | 'xl';
+// FIX: Added 'tight' to LineHeight to support more spacing options and resolve the type error in ReadingSettingsPanel.
 export type LineHeight = 'tight' | 'normal' | 'loose';
 export type FontFamily = 'sans' | 'serif';
 
@@ -104,4 +104,13 @@ export interface ReadingSettings {
   fontSize: FontSize;
   lineHeight: LineHeight;
   fontFamily: FontFamily;
+}
+
+export interface BeforeInstallPromptEvent extends Event {
+  readonly platforms: Array<string>;
+  readonly userChoice: Promise<{
+    outcome: 'accepted' | 'dismissed';
+    platform: string;
+  }>;
+  prompt(): Promise<void>;
 }
