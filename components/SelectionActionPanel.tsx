@@ -21,8 +21,10 @@ export const StudyPanel: React.FC<StudyPanelProps> = ({ studyVerse, onClose, onN
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isCopied, setIsCopied] = useState(false);
-  
+  const [selectedSubText, setSelectedSubText] = useState<string>('');
+
   const panelRef = useRef<HTMLDivElement>(null);
+  const verseTextRef = useRef<HTMLParagraphElement>(null);
   const isOpen = studyVerse !== null;
 
   useEffect(() => {
@@ -32,11 +34,21 @@ export const StudyPanel: React.FC<StudyPanelProps> = ({ studyVerse, onClose, onN
       setError(null);
       setIsLoading(false);
       setIsCopied(false);
+      setSelectedSubText('');
     }
-  }, [isOpen]);
+  }, [isOpen, studyVerse]);
+
+  const handleTextSelection = () => {
+    const selection = window.getSelection();
+    if (selection && verseTextRef.current?.contains(selection.anchorNode)) {
+      setSelectedSubText(selection.toString().trim());
+    }
+  };
 
   const handleAction = async (action: 'explain' | 'crossRef') => {
     if (!studyVerse) return;
+
+    const textToAnalyze = selectedSubText || studyVerse.text;
 
     setView(action);
     setIsLoading(true);
@@ -46,10 +58,10 @@ export const StudyPanel: React.FC<StudyPanelProps> = ({ studyVerse, onClose, onN
     try {
       let result;
       if (action === 'explain') {
-        result = await explainText(studyVerse.text);
+        result = await explainText(textToAnalyze);
         setContent(result?.explanation || null);
       } else { // crossRef
-        result = await findCrossReferencesForText(studyVerse.text);
+        result = await findCrossReferencesForText(textToAnalyze);
         setContent(result?.references || null);
       }
 
@@ -67,11 +79,13 @@ export const StudyPanel: React.FC<StudyPanelProps> = ({ studyVerse, onClose, onN
   
   const handleCopy = () => {
     if (!studyVerse) return;
-    navigator.clipboard.writeText(`"${studyVerse.text}" (${studyVerse.book} ${studyVerse.chapter}:${studyVerse.verse})`);
+    const textToCopy = selectedSubText || studyVerse.text;
+    const reference = selectedSubText 
+      ? `(${studyVerse.book} ${studyVerse.chapter}:${studyVerse.verse})` 
+      : `"${studyVerse.text}" (${studyVerse.book} ${studyVerse.chapter}:${studyVerse.verse})`;
+    navigator.clipboard.writeText(selectedSubText ? textToCopy : reference);
     setIsCopied(true);
-    setTimeout(() => {
-        setIsCopied(false);
-    }, 2000);
+    setTimeout(() => setIsCopied(false), 2000);
   }
 
   const renderContent = () => {
@@ -118,7 +132,7 @@ export const StudyPanel: React.FC<StudyPanelProps> = ({ studyVerse, onClose, onN
         >
             <div className="flex items-center p-2 flex-shrink-0 border-b border-border">
                 {view !== 'actions' && (
-                    <button onClick={() => setView('actions')} className="absolute left-2 p-2 rounded-full hover:bg-accent text-muted-foreground"><IconChevronLeft className="w-5 h-5" /></button>
+                    <button onClick={() => { setView('actions'); setSelectedSubText(''); }} className="absolute left-2 p-2 rounded-full hover:bg-accent text-muted-foreground"><IconChevronLeft className="w-5 h-5" /></button>
                 )}
                  <div className="flex-1 flex justify-center">
                     <div className="w-10 h-1.5 bg-border rounded-full" />
@@ -128,9 +142,15 @@ export const StudyPanel: React.FC<StudyPanelProps> = ({ studyVerse, onClose, onN
             
             {view === 'actions' ? (
                  <div className="p-4">
-                    <p className="text-muted-foreground mb-4 text-center">
-                        <span className="font-bold text-foreground">{studyVerse?.book} {studyVerse?.chapter}:{studyVerse?.verse}</span>
-                    </p>
+                    <p className="font-bold text-lg text-center mb-2">{studyVerse?.book} {studyVerse?.chapter}:{studyVerse?.verse}</p>
+                    <div className="bg-muted p-3 rounded-lg mb-4" onMouseUp={handleTextSelection} onTouchEnd={handleTextSelection}>
+                      <p ref={verseTextRef} className="text-muted-foreground">{studyVerse?.text}</p>
+                    </div>
+                    {selectedSubText && (
+                      <div className="text-center text-sm text-primary mb-3 p-2 bg-primary/10 rounded-lg border border-primary/20">
+                        Texto selecionado: <span className="font-semibold">"{selectedSubText}"</span>
+                      </div>
+                    )}
                      <div className="grid grid-cols-4 gap-2 text-center">
                          <ActionButton icon={IconBrain} label="Explicar" onClick={() => handleAction('explain')} />
                          <ActionButton icon={IconSparkles} label="Referências" onClick={() => handleAction('crossRef')} />

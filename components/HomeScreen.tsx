@@ -1,7 +1,7 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { VerseOfTheDay } from './VerseOfTheDay';
-import { IconAppLogo, IconBookOpen, IconSun, IconMoon, IconDownload } from './IconComponents';
+import { IconAppLogo, IconBookOpen, IconSun, IconMoon, IconDownload, IconSparkles } from './IconComponents';
 import { LastRead, Theme } from '../types';
 
 interface HomeScreenProps {
@@ -12,9 +12,28 @@ interface HomeScreenProps {
   onToggleTheme: () => void;
   canInstall: boolean;
   onInstallClick: () => void;
+  onThematicSearch: (theme: string) => void;
 }
 
-export const HomeScreen: React.FC<HomeScreenProps> = ({ onContinueReading, onStartReading, lastRead, theme, onToggleTheme, canInstall, onInstallClick }) => {
+export const HomeScreen: React.FC<HomeScreenProps> = ({ 
+  onContinueReading, 
+  onStartReading, 
+  lastRead, 
+  theme, 
+  onToggleTheme, 
+  canInstall, 
+  onInstallClick,
+  onThematicSearch
+}) => {
+  const [thematicQuery, setThematicQuery] = useState('');
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (thematicQuery.trim()) {
+      onThematicSearch(thematicQuery.trim());
+    }
+  };
+
   return (
     <div className="relative flex flex-col h-full bg-background text-foreground p-4 font-sans">
       <div 
@@ -40,7 +59,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onContinueReading, onSta
         <p className="text-lg text-muted-foreground mt-2">Seu companheiro diário de estudo da Palavra.</p>
       </header>
 
-      <main className="flex-grow flex flex-col items-center justify-center w-full max-w-sm mx-auto">
+      <main className="flex-grow flex flex-col items-center justify-center w-full max-w-sm mx-auto space-y-8">
         <div className="w-full flex flex-col items-center space-y-4">
             <button 
                 onClick={onStartReading}
@@ -68,6 +87,21 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onContinueReading, onSta
                   <span className="font-semibold text-base">Instalar App</span>
               </button>
             )}
+        </div>
+        
+        <div className="w-full">
+            <form onSubmit={handleSearchSubmit} className="relative">
+                <input
+                    type="text"
+                    value={thematicQuery}
+                    onChange={(e) => setThematicQuery(e.target.value)}
+                    placeholder="Estudo temático rápido (ex: Fé, Amor)"
+                    className="w-full pl-4 pr-12 py-4 border border-border rounded-xl bg-card/80 focus:ring-2 focus:ring-primary focus:outline-none transition-shadow"
+                />
+                <button type="submit" className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50" disabled={!thematicQuery.trim()}>
+                    <IconSparkles className="w-5 h-5" />
+                </button>
+            </form>
         </div>
       </main>
       

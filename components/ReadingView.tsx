@@ -13,7 +13,7 @@ interface ReadingViewProps {
   onPrevChapter: () => void;
   onNextChapter: () => void;
   isBookmarked: (book: string, chapter: number, verse: number) => boolean;
-  onVerseLongPress: (verseInfo: StudyVerseState) => void;
+  onVerseClick: (verseInfo: StudyVerseState) => void;
   readingSettings: ReadingSettings;
 }
 
@@ -24,7 +24,7 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
   onPrevChapter, 
   onNextChapter, 
   isBookmarked, 
-  onVerseLongPress,
+  onVerseClick,
   readingSettings
 }) => {
   const [verses, setVerses] = useState<VerseType[]>([]);
@@ -91,7 +91,7 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
                 verseNumber={verseData.verse}
                 text={verseData.text}
                 isBookmarked={isBookmarked(book.name, chapter, verseData.verse)}
-                onLongPress={onVerseLongPress}
+                onClick={onVerseClick}
               />
             ))}
             {verses.length === 0 && !isLoading && (

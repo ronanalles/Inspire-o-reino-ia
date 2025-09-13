@@ -13,10 +13,13 @@ import { StudyPanel } from './components/SelectionActionPanel';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { books } from './data/bibleData';
 import { translations } from './data/translations';
-import { Bookmark, LastRead, Theme, Translation, ReadingSettings, ModalType, StudyVerseState, BeforeInstallPromptEvent } from './types';
+import { Bookmark, LastRead, Theme, Translation, ReadingSettings, ModalType, StudyVerseState, BeforeInstallPromptEvent, NavAction } from './types';
 import { IconSpinner } from './components/IconComponents';
 
+const ThematicStudy = React.lazy(() => import('./components/ThematicStudy'));
+const BibleQuiz = React.lazy(() => import('./components/BibleQuiz'));
 const ToolsModal = React.lazy(() => import('./components/ToolsScreen'));
+
 
 const LoadingSpinner = () => (
     <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-[100]">
@@ -42,6 +45,8 @@ export default function App() {
 
   const [activeModal, setActiveModal] = useState<ModalType | null>(null);
   const [studyVerse, setStudyVerse] = useState<StudyVerseState | null>(null);
+  const [initialThematicStudyTheme, setInitialThematicStudyTheme] = useState<string | undefined>(undefined);
+
 
   const [readingSettings, setReadingSettings] = useLocalStorage<ReadingSettings>('bible_readingSettings', {
     fontSize: 'base',
@@ -99,6 +104,7 @@ export default function App() {
   
   const handleCloseModals = () => {
     setActiveModal(null);
+    if(initialThematicStudyTheme) setInitialThematicStudyTheme(undefined);
   };
 
   const updateLastRead = (bookName: string, chapter: number) => {
@@ -117,7 +123,7 @@ export default function App() {
       }
       setActiveModal(null);
     }
-  }, [setLastRead]);
+  }, []);
 
   const changeChapter = (offset: number) => {
     let currentBookIndex = books.findIndex(b => b.name === selectedBook.name);
@@ -191,7 +197,7 @@ export default function App() {
       }
   };
   
-  const handleVerseLongPress = useCallback((verseInfo: StudyVerseState) => {
+  const handleVerseClick = useCallback((verseInfo: StudyVerseState) => {
     setStudyVerse(verseInfo);
   }, []);
   
@@ -210,7 +216,7 @@ export default function App() {
     });
   };
 
-  const handleBottomNav = (navAction: 'home' | 'reading' | 'search' | 'bookmarks') => {
+  const handleBottomNav = (navAction: NavAction) => {
     switch(navAction) {
       case 'home':
         setView('home');
@@ -224,13 +230,21 @@ export default function App() {
       case 'bookmarks':
         setActiveModal('bookmarks');
         break;
+      case 'thematic':
+        setActiveModal('thematic');
+        break;
     }
+  }
+  
+  const handleThematicSearch = (theme: string) => {
+    setInitialThematicStudyTheme(theme);
+    setActiveModal('thematic');
   }
 
   const renderContent = () => {
     switch(view) {
       case 'home':
-        return <HomeScreen onContinueReading={handleContinueReading} onStartReading={handleStartReading} lastRead={lastRead} theme={theme} onToggleTheme={handleToggleTheme} canInstall={!!installPrompt} onInstallClick={handleInstallClick} />;
+        return <HomeScreen onContinueReading={handleContinueReading} onStartReading={handleStartReading} lastRead={lastRead} theme={theme} onToggleTheme={handleToggleTheme} canInstall={!!installPrompt} onInstallClick={handleInstallClick} onThematicSearch={handleThematicSearch} />;
       case 'reading':
         return (
           <div className="flex h-full bg-background text-foreground">
@@ -262,7 +276,7 @@ export default function App() {
                     onNextChapter={() => changeChapter(1)}
                     isBookmarked={isBookmarked}
                     readingSettings={readingSettings}
-                    onVerseLongPress={handleVerseLongPress}
+                    onVerseClick={handleVerseClick}
                   />
               </main>
             </div>
@@ -319,6 +333,12 @@ export default function App() {
       />}
       
       <Suspense fallback={<LoadingSpinner />}>
+        {activeModal === 'thematic' && <ThematicStudy 
+            isOpen={activeModal === 'thematic'} 
+            onClose={handleCloseModals} 
+            onNavigateToVerse={handleSelectChapter}
+            initialTheme={initialThematicStudyTheme}
+        />}
         {activeModal === 'tools' && <ToolsModal 
             isOpen={activeModal === 'tools'} 
             onClose={handleCloseModals} 

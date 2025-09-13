@@ -1,3 +1,4 @@
+
 export type Translation = 'acf' | 'kjv';
 
 export interface TranslationInfo {
@@ -114,3 +115,5 @@ export interface BeforeInstallPromptEvent extends Event {
   }>;
   prompt(): Promise<void>;
 }
+
+export type NavAction = 'home' | 'reading' | 'search' | 'bookmarks' | 'thematic';

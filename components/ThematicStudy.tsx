@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { getThematicStudy, MissingApiKeyError } from '../services/geminiService';
 import { ThematicStudyResult } from '../types';
@@ -8,10 +9,11 @@ interface ThematicStudyProps {
   isOpen: boolean;
   onClose: () => void;
   onNavigateToVerse: (book: string, chapter: number) => void;
+  initialTheme?: string;
 }
 
-const ThematicStudy: React.FC<ThematicStudyProps> = ({ isOpen, onClose, onNavigateToVerse }) => {
-  const [theme, setTheme] = useState('');
+const ThematicStudy: React.FC<ThematicStudyProps> = ({ isOpen, onClose, onNavigateToVerse, initialTheme }) => {
+  const [theme, setTheme] = useState(initialTheme || '');
   const [studyResult, setStudyResult] = useState<ThematicStudyResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -54,6 +56,13 @@ const ThematicStudy: React.FC<ThematicStudyProps> = ({ isOpen, onClose, onNaviga
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (isOpen && initialTheme) {
+      setTheme(initialTheme);
+      handleSearch();
+    }
+  }, [isOpen, initialTheme]);
   
   const handleClose = () => {
       setTheme('');
@@ -79,20 +88,19 @@ const ThematicStudy: React.FC<ThematicStudyProps> = ({ isOpen, onClose, onNaviga
         </div>
 
         <div className="p-4 border-b border-border flex-shrink-0">
-            <div className="flex items-center space-x-2">
+            <form onSubmit={(e) => { e.preventDefault(); handleSearch(); }} className="flex items-center space-x-2">
                 <input
                     type="text"
                     value={theme}
                     onChange={(e) => setTheme(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                     placeholder="Digite um tema (ex: Fé, Perdão, Esperança)"
                     className="flex-1 p-2 border border-input rounded-lg focus:ring-2 focus:ring-ring focus:outline-none bg-background"
                     disabled={isLoading}
                 />
-                <button onClick={handleSearch} disabled={isLoading || !theme.trim()} className="px-4 py-2 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                <button type="submit" disabled={isLoading || !theme.trim()} className="px-4 py-2 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                     {isLoading ? <IconSpinner className="w-5 h-5 animate-spin" /> : 'Gerar'}
                 </button>
-            </div>
+            </form>
         </div>
 
         <div className="flex-1 p-6 overflow-y-auto">
