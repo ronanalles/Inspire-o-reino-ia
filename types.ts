@@ -1,5 +1,4 @@
 
-
 export type Translation = 'acf' | 'kjv';
 
 export interface TranslationInfo {
@@ -86,17 +85,6 @@ export interface CrossReferenceResult {
   verse: number;
 }
 
-// FIX: Add missing type CrossReferenceItem used in CrossReferencePanel.
-export interface CrossReferenceItem {
-  term: string;
-  explanation: string;
-  crossReferences: CrossReferenceResult[];
-  articles?: {
-    url: string;
-    title: string;
-  }[];
-}
-
 export type Theme = 'light' | 'dark';
 
 export type ModalType = 'search' | 'nav' | 'settings' | 'bookmarks' | 'tools' | 'quiz' | 'thematic';
@@ -116,14 +104,4 @@ export interface ReadingSettings {
   fontSize: FontSize;
   lineHeight: LineHeight;
   fontFamily: FontFamily;
-}
-
-// FIX: Add missing type HighlightColor used in HighlightPopover and SelectionToolbar.
-export type HighlightColor = 'yellow' | 'green' | 'blue' | 'pink';
-
-// FIX: Add missing type SelectionState used in SelectionToolbar.
-export interface SelectionState {
-  text: string;
-  top: number;
-  left: number;
 }

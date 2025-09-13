@@ -9,16 +9,14 @@ import { SearchModal } from './components/SearchModal';
 import { QuickNavigationModal } from './components/QuickNavigationModal';
 import { BottomNavBar } from './components/BottomNavBar';
 import { ReadingSettingsPanel } from './components/ReadingSettingsPanel';
-import { StudyPanel } from './components/StudyPanel';
+import { StudyPanel } from './components/SelectionActionPanel';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { books } from './data/bibleData';
 import { translations } from './data/translations';
 import { Bookmark, LastRead, Theme, Translation, ReadingSettings, ModalType, StudyVerseState } from './types';
 import { IconSpinner } from './components/IconComponents';
 
-const BibleQuiz = React.lazy(() => import('./components/BibleQuiz'));
-const ThematicStudy = React.lazy(() => import('./components/ThematicStudy'));
-const ToolsModal = React.lazy(() => import('./components/ToolsModal'));
+const ToolsModal = React.lazy(() => import('./components/ToolsScreen'));
 
 const LoadingSpinner = () => (
     <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-[100]">
