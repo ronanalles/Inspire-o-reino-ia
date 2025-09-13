@@ -1,3 +1,5 @@
+
+
 export type Translation = 'acf' | 'kjv';
 
 export interface TranslationInfo {
@@ -35,11 +37,6 @@ export interface Bookmark {
   verse: number;
   text: string;
   note?: string;
-}
-
-export interface ChatMessage {
-    sender: 'user' | 'ai';
-    text: string;
 }
 
 export interface QuizQuestion {
@@ -89,46 +86,27 @@ export interface CrossReferenceResult {
   verse: number;
 }
 
-// FIX: Add missing CrossReferenceItem type used by CrossReferencePanel.
+// FIX: Add missing type CrossReferenceItem used in CrossReferencePanel.
 export interface CrossReferenceItem {
   term: string;
   explanation: string;
-  crossReferences: {
-    reference: string;
-    book: string;
-    chapter: number;
-  }[];
+  crossReferences: CrossReferenceResult[];
   articles?: {
-    title: string;
     url: string;
+    title: string;
   }[];
 }
 
 export type Theme = 'light' | 'dark';
 
-export type ModalType = 'search' | 'nav' | 'quiz' | 'thematic' | 'settings' | 'bookmarks' | 'aiBuddy';
+export type ModalType = 'search' | 'nav' | 'settings' | 'bookmarks' | 'tools' | 'quiz' | 'thematic';
 
-export interface SelectionState {
+export interface StudyVerseState {
+  book: string;
+  chapter: number;
+  verse: number;
   text: string;
-  verseInfo: {
-    book: string;
-    chapter: number;
-    verse: number;
-  };
-  rect: DOMRect;
 }
-
-export type PanelView = 'explain' | 'crossRef';
-
-export interface PanelState {
-  view: PanelView | null;
-  content: string | CrossReferenceResult[] | null;
-  isLoading: boolean;
-  error: string | null;
-}
-
-// FIX: Add missing HighlightColor type used by HighlightPopover and SelectionToolbar.
-export type HighlightColor = 'yellow' | 'green' | 'blue' | 'pink';
 
 export type FontSize = 'sm' | 'base' | 'lg' | 'xl';
 export type LineHeight = 'tight' | 'normal' | 'loose';
@@ -138,4 +116,14 @@ export interface ReadingSettings {
   fontSize: FontSize;
   lineHeight: LineHeight;
   fontFamily: FontFamily;
+}
+
+// FIX: Add missing type HighlightColor used in HighlightPopover and SelectionToolbar.
+export type HighlightColor = 'yellow' | 'green' | 'blue' | 'pink';
+
+// FIX: Add missing type SelectionState used in SelectionToolbar.
+export interface SelectionState {
+  text: string;
+  top: number;
+  left: number;
 }

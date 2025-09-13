@@ -9,19 +9,16 @@ import { SearchModal } from './components/SearchModal';
 import { QuickNavigationModal } from './components/QuickNavigationModal';
 import { BottomNavBar } from './components/BottomNavBar';
 import { ReadingSettingsPanel } from './components/ReadingSettingsPanel';
-import { SelectionActionPanel } from './components/SelectionActionPanel';
+import { StudyPanel } from './components/StudyPanel';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { books } from './data/bibleData';
 import { translations } from './data/translations';
-import { Bookmark, LastRead, Theme, Translation, ReadingSettings, ModalType, PanelState, PanelView } from './types';
+import { Bookmark, LastRead, Theme, Translation, ReadingSettings, ModalType, StudyVerseState } from './types';
 import { IconSpinner } from './components/IconComponents';
-import { explainText, findCrossReferencesForText, MissingApiKeyError } from './services/geminiService';
 
-const AiStudyBuddy = React.lazy(() => import('./components/AiStudyBuddy'));
 const BibleQuiz = React.lazy(() => import('./components/BibleQuiz'));
 const ThematicStudy = React.lazy(() => import('./components/ThematicStudy'));
-const ToolsScreen = React.lazy(() => import('./components/ToolsScreen'));
-
+const ToolsModal = React.lazy(() => import('./components/ToolsModal'));
 
 const LoadingSpinner = () => (
     <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-[100]">
@@ -30,7 +27,7 @@ const LoadingSpinner = () => (
 );
 
 export default function App() {
-  const [view, setView] = useState<'home' | 'reading' | 'tools'>('home');
+  const [view, setView] = useState<'home' | 'reading'>('home');
   const [lastRead, setLastRead] = useLocalStorage<LastRead | null>('bible_last_read', null);
   const [translation, setTranslation] = useLocalStorage<Translation>('bible_translation', 'acf');
   const [theme, setTheme] = useLocalStorage<Theme>('bible_theme', 
@@ -46,8 +43,7 @@ export default function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const [activeModal, setActiveModal] = useState<ModalType | null>(null);
-  const [textForSearch, setTextForSearch] = useState('');
-  const [panelState, setPanelState] = useState<PanelState>({ view: null, content: null, isLoading: false, error: null });
+  const [studyVerse, setStudyVerse] = useState<StudyVerseState | null>(null);
 
   const [readingSettings, setReadingSettings] = useLocalStorage<ReadingSettings>('bible_readingSettings', {
     fontSize: 'base',
@@ -90,7 +86,6 @@ export default function App() {
   
   const handleCloseModals = () => {
     setActiveModal(null);
-    setTextForSearch('');
   };
 
   const updateLastRead = (bookName: string, chapter: number) => {
@@ -109,7 +104,7 @@ export default function App() {
       }
       setActiveModal(null);
     }
-  }, []);
+  }, [setLastRead]);
 
   const changeChapter = (offset: number) => {
     let currentBookIndex = books.findIndex(b => b.name === selectedBook.name);
@@ -176,51 +171,38 @@ export default function App() {
 
   const handleStartReading = () => {
       setView('reading');
-      handleSelectChapter(books[0].name, 1);
+      if(lastRead) {
+        handleSelectChapter(lastRead.bookName, lastRead.chapter);
+      } else {
+        handleSelectChapter(books[0].name, 1);
+      }
   };
   
-  const handleActionRequest = async (action: 'explain' | 'crossRef' | 'search', text: string) => {
-    if (action === 'search') {
-      setTextForSearch(text);
-      setActiveModal('search');
-      return;
-    }
+  const handleVerseLongPress = useCallback((verseInfo: StudyVerseState) => {
+    setStudyVerse(verseInfo);
+  }, []);
 
-    setPanelState({ view: action, content: null, isLoading: true, error: null });
-    try {
-      let result;
-      if (action === 'explain') {
-        result = await explainText(text);
-        if(result) {
-            setPanelState(s => ({...s, content: result.explanation, isLoading: false}));
-        }
-      } else { // crossRef
-        result = await findCrossReferencesForText(text);
-        if(result) {
-            setPanelState(s => ({...s, content: result.references, isLoading: false}));
-        }
-      }
-
-      if (!result) {
-        setPanelState(s => ({...s, isLoading: false, error: 'Não foi possível obter os resultados. Tente novamente.' }));
-      }
-    } catch (e) {
-      console.error(e);
-      const isApiError = e instanceof MissingApiKeyError;
-      setPanelState(s => ({...s, isLoading: false, error: isApiError ? 'api_key_missing' : 'Ocorreu um erro inesperado.' }));
+  const handleBottomNav = (navAction: 'home' | 'reading' | 'search' | 'bookmarks') => {
+    switch(navAction) {
+      case 'home':
+        setView('home');
+        break;
+      case 'reading':
+        handleStartReading();
+        break;
+      case 'search':
+        setActiveModal('search');
+        break;
+      case 'bookmarks':
+        setActiveModal('bookmarks');
+        break;
     }
-  };
+  }
 
   const renderContent = () => {
     switch(view) {
       case 'home':
         return <HomeScreen onContinueReading={handleContinueReading} onStartReading={handleStartReading} lastRead={lastRead} theme={theme} onToggleTheme={handleToggleTheme} />;
-      case 'tools':
-        return (
-          <Suspense fallback={<div className="flex w-full h-full items-center justify-center"><IconSpinner className="w-12 h-12 animate-spin text-primary" /></div>}>
-            <ToolsScreen onOpenModal={setActiveModal} />
-          </Suspense>
-        );
       case 'reading':
         return (
           <div className="flex h-full bg-background text-foreground">
@@ -246,15 +228,13 @@ export default function App() {
               <main className="flex-1 overflow-y-auto">
                   <ReadingView
                     book={selectedBook}
-                    // FIX: Pass selectedChapter state to the chapter prop. The variable `chapter` was not defined in this scope.
                     chapter={selectedChapter}
                     translation={translation}
                     onPrevChapter={() => changeChapter(-1)}
                     onNextChapter={() => changeChapter(1)}
-                    toggleBookmark={toggleBookmark}
                     isBookmarked={isBookmarked}
-                    onActionRequest={handleActionRequest}
                     readingSettings={readingSettings}
+                    onVerseLongPress={handleVerseLongPress}
                   />
               </main>
             </div>
@@ -271,11 +251,7 @@ export default function App() {
         {renderContent()}
       </div>
       
-      <BottomNavBar activeView={view} onNavigate={(v) => {
-        if(v === 'reading' && !lastRead) handleStartReading();
-        else if(v === 'reading' && lastRead) handleContinueReading();
-        else setView(v);
-      }} />
+      {view !== 'home' && <BottomNavBar onNavigate={handleBottomNav} />}
       
       <QuickNavigationModal
         isOpen={activeModal === 'nav'}
@@ -289,7 +265,6 @@ export default function App() {
         isOpen={activeModal === 'search'}
         onClose={handleCloseModals}
         onNavigateToVerse={handleSelectChapter}
-        initialQuery={textForSearch}
       />
       
       <BookmarksPanel
@@ -307,28 +282,19 @@ export default function App() {
         onSettingsChange={setReadingSettings}
       />
 
-      <SelectionActionPanel
-        panelState={panelState}
-        onClose={() => setPanelState({ view: null, content: null, isLoading: false, error: null })}
-        onNavigateToVerse={(book, chapter) => handleSelectChapter(book, chapter)}
-      />
+      {studyVerse && <StudyPanel
+        studyVerse={studyVerse}
+        onClose={() => setStudyVerse(null)}
+        onNavigateToVerse={handleSelectChapter}
+        isBookmarked={isBookmarked(studyVerse.book, studyVerse.chapter, studyVerse.verse)}
+        onToggleBookmark={() => toggleBookmark(studyVerse.book, studyVerse.chapter, studyVerse.verse, studyVerse.text)}
+      />}
       
       <Suspense fallback={<LoadingSpinner />}>
-        {activeModal === 'aiBuddy' && <AiStudyBuddy
-          isOpen={activeModal === 'aiBuddy'}
-          onClose={handleCloseModals}
-          context={{ book: selectedBook.name, chapter: selectedChapter }}
-        />}
-        
-        {activeModal === 'quiz' && <BibleQuiz 
-          isOpen={activeModal === 'quiz'}
-          onClose={handleCloseModals}
-        />}
-
-        {activeModal === 'thematic' && <ThematicStudy
-          isOpen={activeModal === 'thematic'}
-          onClose={handleCloseModals}
-          onNavigateToVerse={handleSelectChapter}
+        {activeModal === 'tools' && <ToolsModal 
+            isOpen={activeModal === 'tools'} 
+            onClose={handleCloseModals} 
+            onNavigateToVerse={handleSelectChapter} 
         />}
       </Suspense>
     </div>

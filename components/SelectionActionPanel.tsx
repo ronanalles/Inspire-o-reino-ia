@@ -1,57 +1,81 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { PanelState, CrossReferenceResult } from '../types';
-import { IconX, IconSpinner } from './IconComponents';
-import { ApiKeyErrorDisplay } from './ApiKeyErrorDisplay';
 
-interface SelectionActionPanelProps {
-  panelState: PanelState;
+import React, { useState, useEffect, useRef } from 'react';
+import { StudyVerseState, CrossReferenceResult } from '../types';
+import { IconX, IconSpinner, IconBrain, IconSparkles, IconBookmark, IconCopy, IconCheck, IconChevronLeft, IconBookmarkSolid } from './IconComponents';
+import { ApiKeyErrorDisplay } from './ApiKeyErrorDisplay';
+import { explainText, findCrossReferencesForText, MissingApiKeyError } from '../services/geminiService';
+
+interface StudyPanelProps {
+  studyVerse: StudyVerseState | null;
   onClose: () => void;
   onNavigateToVerse: (book: string, chapter: number) => void;
+  isBookmarked: boolean;
+  onToggleBookmark: () => void;
 }
 
-export const SelectionActionPanel: React.FC<SelectionActionPanelProps> = ({ panelState, onClose, onNavigateToVerse }) => {
-  const { view, content, isLoading, error } = panelState;
-  
-  const [translateY, setTranslateY] = useState(0);
-  const panelRef = useRef<HTMLDivElement>(null);
-  const dragStartRef = useRef<{ y: number; initialTranslate: number } | null>(null);
+type PanelView = 'actions' | 'explain' | 'crossRef';
 
-  const isOpen = view !== null;
+export const StudyPanel: React.FC<StudyPanelProps> = ({ studyVerse, onClose, onNavigateToVerse, isBookmarked, onToggleBookmark }) => {
+  const [view, setView] = useState<PanelView>('actions');
+  const [content, setContent] = useState<string | CrossReferenceResult[] | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isCopied, setIsCopied] = useState(false);
+  
+  const panelRef = useRef<HTMLDivElement>(null);
+  const isOpen = studyVerse !== null;
 
   useEffect(() => {
     if (isOpen) {
-      setTranslateY(0);
+      setView('actions');
+      setContent(null);
+      setError(null);
+      setIsLoading(false);
+      setIsCopied(false);
     }
   }, [isOpen]);
 
-  const handleDragStart = (e: React.TouchEvent<HTMLDivElement>) => {
-    dragStartRef.current = { y: e.touches[0].clientY, initialTranslate: translateY };
-    if (panelRef.current) panelRef.current.style.transition = 'none';
-  };
+  const handleAction = async (action: 'explain' | 'crossRef') => {
+    if (!studyVerse) return;
 
-  const handleDragMove = (e: React.TouchEvent<HTMLDivElement>) => {
-    if (!dragStartRef.current) return;
-    const deltaY = e.touches[0].clientY - dragStartRef.current.y;
-    const newTranslateY = dragStartRef.current.initialTranslate + deltaY;
-    if (newTranslateY > 0) { // Only allow dragging down
-      setTranslateY(newTranslateY);
-    }
-  };
+    setView(action);
+    setIsLoading(true);
+    setError(null);
+    setContent(null);
 
-  const handleDragEnd = () => {
-    if (panelRef.current) {
-      panelRef.current.style.transition = 'transform 0.3s ease-in-out, max-height 0.3s ease-in-out';
-      if (translateY > 100) { // Threshold to close
-        onClose();
-      } else {
-        setTranslateY(0); // Snap back
+    try {
+      let result;
+      if (action === 'explain') {
+        result = await explainText(studyVerse.text);
+        setContent(result?.explanation || null);
+      } else { // crossRef
+        result = await findCrossReferencesForText(studyVerse.text);
+        setContent(result?.references || null);
       }
+
+      if (!result) {
+        setError('Não foi possível obter os resultados. Tente novamente.');
+      }
+    } catch (e) {
+      console.error(e);
+      const isApiError = e instanceof MissingApiKeyError;
+      setError(isApiError ? 'api_key_missing' : 'Ocorreu um erro inesperado.');
+    } finally {
+      setIsLoading(false);
     }
-    dragStartRef.current = null;
   };
+  
+  const handleCopy = () => {
+    if (!studyVerse) return;
+    navigator.clipboard.writeText(`"${studyVerse.text}" (${studyVerse.book} ${studyVerse.chapter}:${studyVerse.verse})`);
+    setIsCopied(true);
+    setTimeout(() => {
+        setIsCopied(false);
+    }, 2000);
+  }
 
   const renderContent = () => {
-    if (isLoading) return <div className="flex justify-center items-center h-40"><IconSpinner className="w-8 h-8 animate-spin text-primary" /></div>;
+    if (isLoading) return <div className="flex justify-center items-center h-48"><IconSpinner className="w-8 h-8 animate-spin text-primary" /></div>;
     if (error) {
       if (error === 'api_key_missing') {
         return <div className="p-4"><ApiKeyErrorDisplay context={view === 'explain' ? 'Explicação com IA' : 'Referências Cruzadas'} /></div>;
@@ -81,33 +105,54 @@ export const SelectionActionPanel: React.FC<SelectionActionPanelProps> = ({ pane
     return null;
   };
 
-  const panelMaxHeight = '80vh';
-  const panelTransform = `translateY(${isOpen ? 0 : 100}%) translateY(${translateY}px)`;
+  const panelHeight = view === 'actions' ? 'auto' : '80vh';
+  const panelTransform = `translateY(${isOpen ? 0 : 100}%)`;
 
   return (
-    <div className={`fixed inset-0 z-20 transition-colors duration-300 ${isOpen ? 'bg-black/50' : 'bg-transparent pointer-events-none'}`} onClick={onClose}>
+    <div className={`fixed inset-0 z-30 transition-colors duration-300 ${isOpen ? 'bg-black/50' : 'bg-transparent pointer-events-none'}`} onClick={onClose}>
         <div 
             ref={panelRef}
             onClick={(e) => e.stopPropagation()}
-            style={{ transform: panelTransform, maxHeight: panelMaxHeight }}
-            className="fixed bottom-0 inset-x-0 bg-card border-t border-border rounded-t-2xl shadow-[0_-5px_20px_rgba(0,0,0,0.15)] dark:shadow-[0_-5px_20px_rgba(0,0,0,0.4)] flex flex-col transition-transform duration-300 ease-in-out"
+            style={{ transform: panelTransform, height: panelHeight }}
+            className="fixed bottom-0 inset-x-0 bg-card border-t border-border rounded-t-2xl shadow-[0_-5px_20px_rgba(0,0,0,0.15)] dark:shadow-[0_-5px_20px_rgba(0,0,0,0.4)] flex flex-col transition-all duration-300 ease-in-out"
         >
-            <div
-                className="flex items-center p-2 cursor-grab flex-shrink-0"
-                onTouchStart={handleDragStart}
-                onTouchMove={handleDragMove}
-                onTouchEnd={handleDragEnd}
-            >
-                <div className="flex-1 flex justify-center">
+            <div className="flex items-center p-2 flex-shrink-0 border-b border-border">
+                {view !== 'actions' && (
+                    <button onClick={() => setView('actions')} className="absolute left-2 p-2 rounded-full hover:bg-accent text-muted-foreground"><IconChevronLeft className="w-5 h-5" /></button>
+                )}
+                 <div className="flex-1 flex justify-center">
                     <div className="w-10 h-1.5 bg-border rounded-full" />
                 </div>
                 <button onClick={onClose} className="absolute right-2 p-2 rounded-full hover:bg-accent text-muted-foreground"><IconX className="w-5 h-5" /></button>
             </div>
             
-            <div className="overflow-y-auto flex-1">
-                {renderContent()}
-            </div>
+            {view === 'actions' ? (
+                 <div className="p-4">
+                    <p className="text-muted-foreground mb-4 text-center">
+                        <span className="font-bold text-foreground">{studyVerse?.book} {studyVerse?.chapter}:{studyVerse?.verse}</span>
+                    </p>
+                     <div className="grid grid-cols-4 gap-2 text-center">
+                         <ActionButton icon={IconBrain} label="Explicar" onClick={() => handleAction('explain')} />
+                         <ActionButton icon={IconSparkles} label="Referências" onClick={() => handleAction('crossRef')} />
+                         <ActionButton icon={isBookmarked ? IconBookmarkSolid : IconBookmark} label={isBookmarked ? "Salvo" : "Salvar"} onClick={onToggleBookmark} className={isBookmarked ? 'text-primary' : ''}/>
+                         <ActionButton icon={isCopied ? IconCheck : IconCopy} label={isCopied ? "Copiado" : "Copiar"} onClick={handleCopy} className={isCopied ? 'text-green-500' : ''}/>
+                     </div>
+                 </div>
+            ) : (
+                <div className="overflow-y-auto flex-1">
+                    {renderContent()}
+                </div>
+            )}
         </div>
     </div>
   );
 };
+
+const ActionButton: React.FC<{ icon: React.FC<any>, label: string, onClick: () => void, className?: string }> = ({ icon: Icon, label, onClick, className }) => (
+    <button onClick={onClick} className={`flex flex-col items-center justify-center p-2 rounded-lg hover:bg-accent space-y-1 transition-colors ${className}`}>
+        <div className={`p-3 rounded-full bg-muted ${className}`}>
+            <Icon className="w-6 h-6" />
+        </div>
+        <span className="text-xs font-medium text-muted-foreground">{label}</span>
+    </button>
+);

@@ -1,5 +1,6 @@
+
 import { GoogleGenAI, Type } from "@google/genai";
-import { ChatMessage, QuizQuestion, ThematicStudyResult, VerseOfTheDay, SearchResult, CrossReferenceResult } from '../types';
+import { QuizQuestion, ThematicStudyResult, VerseOfTheDay, SearchResult, CrossReferenceResult } from '../types';
 
 // A specific error for when the API key is not configured.
 export class MissingApiKeyError extends Error {
@@ -28,40 +29,6 @@ const getAi = () => {
 };
 
 const model = 'gemini-2.5-flash';
-
-async function* sendMessageToChat(
-  message: string,
-  context: { book: string; chapter: number },
-  history: ChatMessage[]
-) {
-  try {
-    const systemInstruction = `Você é um assistente de estudo da Bíblia, amigável e experiente. 
-    Sua finalidade é ajudar os usuários a compreenderem melhor as Escrituras. 
-    Atualmente, o usuário está lendo ${context.book}, capítulo ${context.chapter}. 
-    Responda às perguntas dele com base nesse contexto, fornecendo explicações claras, insights teológicos e referências a outras partes da Bíblia quando for relevante. 
-    Mantenha um tom respeitoso e encorajador. Formate suas respostas usando markdown para melhor legibilidade (ex: **negrito** para ênfase, listas para pontos-chave).`;
-
-    const chat = getAi().chats.create({
-      model,
-      config: {
-        systemInstruction: systemInstruction,
-      },
-      history: history.map(msg => ({
-          role: msg.sender === 'user' ? 'user' : 'model',
-          parts: [{ text: msg.text }]
-      }))
-    });
-
-    const result = await chat.sendMessageStream({ message });
-    
-    for await (const chunk of result) {
-      yield chunk.text;
-    }
-  } catch (error) {
-    // Propagate the error to be handled by the component's catch block.
-    throw error;
-  }
-}
 
 async function generateQuizQuestion(): Promise<QuizQuestion | null> {
   try {
@@ -290,4 +257,4 @@ async function findCrossReferencesForText(text: string): Promise<{ references: C
 }
 
 
-export { sendMessageToChat, generateQuizQuestion, getVerseOfTheDay, getThematicStudy, searchVerses, explainText, findCrossReferencesForText };
+export { generateQuizQuestion, getVerseOfTheDay, getThematicStudy, searchVerses, explainText, findCrossReferencesForText };

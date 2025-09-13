@@ -1,71 +1,94 @@
-import React from 'react';
-import { IconSparkles, IconBrain, IconFeather, IconChevronRight } from './IconComponents';
+
+import React, { useState, useEffect } from 'react';
+import { IconSparkles, IconBrain, IconChevronRight, IconX } from './IconComponents';
 import { ModalType } from '../types';
 
-interface ToolsScreenProps {
-  onOpenModal: (modal: ModalType) => void;
+const ThematicStudy = React.lazy(() => import('./ThematicStudy'));
+const BibleQuiz = React.lazy(() => import('./BibleQuiz'));
+
+interface ToolsModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onNavigateToVerse: (book: string, chapter: number) => void;
 }
 
-const ToolsScreen: React.FC<ToolsScreenProps> = ({
-  onOpenModal,
-}) => {
-  const tools = [
-    {
-      title: 'Estudo Temático',
-      description: 'Explore temas específicos através das Escrituras com a ajuda da IA.',
-      icon: IconSparkles,
-      onClick: () => onOpenModal('thematic'),
-      color: 'text-emerald-500',
-    },
-    {
-      title: 'Quiz Bíblico',
-      description: 'Teste seus conhecimentos com perguntas desafiadoras geradas por IA.',
-      icon: IconBrain,
-      onClick: () => onOpenModal('quiz'),
-      color: 'text-purple-500',
-    },
-    {
-      title: 'Assistente de Estudo',
-      description: 'Converse com uma IA para tirar dúvidas e aprofundar seu entendimento.',
-      icon: IconFeather,
-      onClick: () => onOpenModal('aiBuddy'),
-      color: 'text-primary',
-    },
-  ];
+const ToolsModal: React.FC<ToolsModalProps> = ({ isOpen, onClose, onNavigateToVerse }) => {
+  const [activeTool, setActiveTool] = useState<ModalType | null>(null);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setActiveTool(null);
+    }
+  }, [isOpen]);
+
+  const handleOpenTool = (tool: ModalType) => {
+    setActiveTool(tool);
+  };
+  
+  const handleCloseTool = () => {
+      setActiveTool(null);
+  }
+
+  if (!isOpen) return null;
+
+  if (activeTool === 'thematic') {
+      return <ThematicStudy isOpen={true} onClose={handleCloseTool} onNavigateToVerse={onNavigateToVerse} />;
+  }
+  
+  if (activeTool === 'quiz') {
+      return <BibleQuiz isOpen={true} onClose={handleCloseTool} />;
+  }
 
   return (
-    <div className="h-full overflow-y-auto p-4 sm:p-6 lg:p-8 bg-background">
-      <div className="max-w-4xl mx-auto">
-        <header className="mb-8">
-          <h1 className="text-3xl sm:text-4xl font-bold text-foreground">Ferramentas de Estudo</h1>
-          <p className="text-lg text-muted-foreground mt-2">
-            Recursos com Inteligência Artificial para enriquecer sua jornada na Palavra.
-          </p>
-        </header>
-        <main className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {tools.map((tool) => (
-            <button
-              key={tool.title}
-              onClick={tool.onClick}
-              className="group flex flex-col justify-between text-left p-6 bg-card rounded-xl shadow-[var(--shadow-md)] hover:shadow-[var(--shadow-lg)] hover:-translate-y-1 transition-all duration-300 ease-in-out border border-border"
-            >
-              <div>
-                <div className="mb-4">
-                  <tool.icon className={`w-10 h-10 ${tool.color}`} />
-                </div>
-                <h2 className="font-bold text-xl text-card-foreground mb-2">{tool.title}</h2>
-                <p className="text-muted-foreground">{tool.description}</p>
-              </div>
-              <div className="flex items-center justify-end mt-6 text-sm font-semibold text-primary">
-                Acessar
-                <IconChevronRight className="w-4 h-4 ml-1 transform group-hover:translate-x-1 transition-transform" />
-              </div>
-            </button>
-          ))}
-        </main>
+    <div className={`fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4`} onClick={onClose}>
+      <div className={`bg-card rounded-xl shadow-xl w-full max-w-md p-6 transform transition-all duration-300 ${isOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`} onClick={e => e.stopPropagation()}>
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-bold text-card-foreground">Ferramentas de Estudo</h2>
+          <button onClick={onClose} className="p-2 -mr-2 rounded-full hover:bg-accent text-muted-foreground">
+            <IconX className="w-6 h-6" />
+          </button>
+        </div>
+        <div className="space-y-4">
+          <ToolButton 
+            title="Estudo Temático" 
+            description="Explore temas específicos." 
+            icon={IconSparkles} 
+            onClick={() => handleOpenTool('thematic')}
+            color="text-emerald-500"
+          />
+          <ToolButton 
+            title="Quiz Bíblico" 
+            description="Teste seus conhecimentos." 
+            icon={IconBrain} 
+            onClick={() => handleOpenTool('quiz')}
+            color="text-purple-500"
+          />
+        </div>
       </div>
     </div>
   );
 };
 
-export default ToolsScreen;
+interface ToolButtonProps {
+    title: string;
+    description: string;
+    icon: React.FC<any>;
+    onClick: () => void;
+    color: string;
+}
+
+const ToolButton: React.FC<ToolButtonProps> = ({ title, description, icon: Icon, onClick, color }) => (
+    <button onClick={onClick} className="w-full group flex items-center text-left p-4 bg-card hover:bg-accent rounded-lg transition-colors border border-border">
+        <div className={`mr-4 p-2 bg-muted rounded-lg ${color}`}>
+            <Icon className="w-6 h-6" />
+        </div>
+        <div className="flex-1">
+            <h3 className="font-semibold text-card-foreground">{title}</h3>
+            <p className="text-sm text-muted-foreground">{description}</p>
+        </div>
+        <IconChevronRight className="w-5 h-5 text-muted-foreground transform transition-transform group-hover:translate-x-1" />
+    </button>
+);
+
+
+export default ToolsModal;

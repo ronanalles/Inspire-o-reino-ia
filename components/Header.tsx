@@ -1,5 +1,6 @@
+
 import React, { useState, useRef, useEffect } from 'react';
-import { IconMenu, IconBookmark, IconSearch, IconGlobe, IconHome, IconChevronDown, IconTypography, IconDotsVertical } from './IconComponents';
+import { IconMenu, IconBookmark, IconSearch, IconGlobe, IconHome, IconChevronDown, IconTypography, IconDotsVertical, IconSparkles } from './IconComponents';
 import { Translation, ModalType } from '../types';
 import { translations } from '../data/translations';
 
@@ -54,6 +55,9 @@ export const Header: React.FC<HeaderProps> = ({
         </button>
       </div>
       <div className="flex items-center space-x-1 sm:space-x-2 text-muted-foreground">
+        <button onClick={onNavigateHome} className="p-2 rounded-full hover:bg-accent" aria-label="Tela Inicial">
+            <IconHome className="w-5 h-5" />
+        </button>
         <button onClick={() => onOpenModal('search')} className="p-2 rounded-full hover:bg-accent" aria-label="Buscar versículos">
           <IconSearch className="w-5 h-5" />
         </button>
@@ -67,8 +71,8 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
             {isMoreMenuOpen && (
                  <div className="absolute right-0 mt-2 w-64 bg-popover rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-30 border border-border p-1">
-                    <button onClick={() => { onNavigateHome(); setIsMoreMenuOpen(false); }} className="w-full text-left flex items-center px-3 py-2 text-sm text-popover-foreground hover:bg-accent rounded-md">
-                        <IconHome className="w-5 h-5 mr-3" /> Tela Inicial
+                    <button onClick={() => { onOpenModal('tools'); setIsMoreMenuOpen(false); }} className="w-full text-left flex items-center px-3 py-2 text-sm text-popover-foreground hover:bg-accent rounded-md">
+                        <IconSparkles className="w-5 h-5 mr-3" /> Ferramentas de Estudo
                     </button>
                     <button onClick={() => { onOpenModal('settings'); setIsMoreMenuOpen(false); }} className="w-full text-left flex items-center px-3 py-2 text-sm text-popover-foreground hover:bg-accent rounded-md">
                       <IconTypography className="w-5 h-5 mr-3" /> Opções de Leitura
@@ -87,10 +91,6 @@ export const Header: React.FC<HeaderProps> = ({
                  </div>
             )}
         </div>
-        
-        <button onClick={onNavigateHome} className="p-2 rounded-full hover:bg-accent hidden md:block" aria-label="Tela Inicial">
-            <IconHome className="w-5 h-5" />
-        </button>
       </div>
     </header>
   );
