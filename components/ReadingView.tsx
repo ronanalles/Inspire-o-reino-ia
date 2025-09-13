@@ -68,69 +68,70 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
 
   useEffect(() => {
     const handleSelectionEnd = () => {
-      // Use a timeout to allow the browser to settle the selection, especially on mobile
-      setTimeout(() => {
-        const currentSelection = window.getSelection();
+      const currentSelection = window.getSelection();
+
+      if (!currentSelection) return;
+
+      // Ignore interactions within our custom UI
+      const isInteractingWithUI = currentSelection.anchorNode?.parentElement?.closest('.selection-popover, .selection-action-panel');
+      if (isInteractingWithUI) return;
+      
+      const selectedText = currentSelection.toString().trim();
+
+      // If text is selected, proceed to show the popover
+      if (selectedText.length > 0 && currentSelection.rangeCount > 0) {
+        const range = currentSelection.getRangeAt(0);
         
-        const isInteractingWithUI = currentSelection?.anchorNode?.parentElement?.closest('.selection-popover, .selection-action-panel');
-        if (isInteractingWithUI) return;
+        let container = range.commonAncestorContainer;
+        if (container.nodeType !== Node.ELEMENT_NODE) {
+          container = container.parentElement!;
+        }
+        const verseElement = (container as HTMLElement).closest('.verse-container');
 
-        if (currentSelection && !currentSelection.isCollapsed && currentSelection.toString().trim().length > 0) {
-          const selectedText = currentSelection.toString().trim();
-          const range = currentSelection.getRangeAt(0);
+        if (verseElement) {
+          const verseBook = verseElement.getAttribute('data-book');
+          const verseChapter = verseElement.getAttribute('data-chapter');
+          const verseNumber = verseElement.getAttribute('data-verse');
           
-          let container = range.commonAncestorContainer;
-          if (container.nodeType !== Node.ELEMENT_NODE) {
-            container = container.parentElement!;
-          }
-
-          const verseElement = (container as HTMLElement).closest('.verse-container');
-
-          if (verseElement) {
-            const verseBook = verseElement.getAttribute('data-book');
-            const verseChapter = verseElement.getAttribute('data-chapter');
-            const verseNumber = verseElement.getAttribute('data-verse');
+          if (verseBook && verseChapter && verseNumber) {
+            // Step 1: Capture selection data BEFORE clearing it
+            const rect = range.getBoundingClientRect();
+            const selectionData = {
+              text: selectedText,
+              verseInfo: {
+                book: verseBook,
+                chapter: parseInt(verseChapter, 10),
+                verse: parseInt(verseNumber, 10),
+              },
+              rect,
+            };
             
-            if (verseBook && verseChapter && verseNumber) {
-              const rect = range.getBoundingClientRect();
-              setSelection({
-                text: selectedText,
-                verseInfo: {
-                  book: verseBook,
-                  chapter: parseInt(verseChapter, 10),
-                  verse: parseInt(verseNumber, 10),
-                },
-                rect,
-              });
-              return;
-            }
-          }
-        } else if (currentSelection?.isCollapsed) {
-          const isClickOutside = !currentSelection?.anchorNode?.parentElement?.closest('.selection-popover');
-          if(isClickOutside) {
-            setSelection(null);
+            // Step 2: Clear the browser's selection. This is the crucial part
+            // that prevents the native mobile context menu from appearing.
+            currentSelection.removeAllRanges();
+            
+            // Step 3: Show our custom popover with the captured data
+            setSelection(selectionData);
+            return;
           }
         }
-      }, 10); 
+      }
+
+      // If the selection is collapsed (i.e., a click), hide the popover
+      if (currentSelection.isCollapsed) {
+          const isClickOutside = !currentSelection.anchorNode?.parentElement?.closest('.selection-popover');
+          if (isClickOutside) {
+            setSelection(null);
+          }
+      }
     };
 
     document.addEventListener('mouseup', handleSelectionEnd);
     document.addEventListener('touchend', handleSelectionEnd);
     
-    // Prevent native context menu on text selection on mobile devices
-    const preventContextMenu = (e: Event) => {
-        const selection = window.getSelection();
-        if (selection && !selection.isCollapsed && selection.toString().trim().length > 0) {
-            e.preventDefault();
-        }
-    };
-    
-    document.addEventListener('contextmenu', preventContextMenu);
-
     return () => {
       document.removeEventListener('mouseup', handleSelectionEnd);
       document.removeEventListener('touchend', handleSelectionEnd);
-      document.removeEventListener('contextmenu', preventContextMenu);
     };
   }, []);
 
