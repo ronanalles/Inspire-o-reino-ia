@@ -64,6 +64,7 @@ self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request)
       .then(response => {
+        // Cache hit - return response
         if (response) {
           return response;
         }
@@ -72,6 +73,7 @@ self.addEventListener('fetch', event => {
 
         return fetch(fetchRequest).then(
           response => {
+            // Check if we received a valid response
             if (!response || response.status !== 200) {
               return response;
             }
@@ -90,7 +92,13 @@ self.addEventListener('fetch', event => {
 
             return response;
           }
-        );
+        ).catch(error => {
+          // Network request failed. If it's a navigation request, serve the index.html from cache.
+          console.log('Fetch failed; returning offline page instead.', error);
+          if (event.request.mode === 'navigate') {
+            return caches.match('/index.html');
+          }
+        });
       })
   );
 });
