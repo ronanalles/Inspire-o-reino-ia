@@ -50,9 +50,10 @@ export const SelectionPopover: React.FC<SelectionPopoverProps> = ({ selectionSta
   return (
     <div
       style={popoverStyle}
-      className="bg-card shadow-[var(--shadow-lg)] rounded-full flex p-1.5 space-x-1 border border-border selection-popover"
+      className="bg-card shadow-[var(--shadow-lg)] rounded-full flex p-1.5 space-x-1 border border-border selection-popover select-none"
       onMouseUp={(e) => e.stopPropagation()}
       onMouseDown={(e) => e.stopPropagation()}
+      onTouchStart={(e) => e.stopPropagation()}
     >
         <ActionButton icon={IconBrain} onClick={() => handleAction('explain')} label="Explicar" />
         <ActionButton icon={IconSparkles} onClick={() => handleAction('crossRef')} label="Referências" />
