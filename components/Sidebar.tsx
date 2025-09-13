@@ -28,12 +28,12 @@ const SidebarComponent: React.FC<SidebarProps> = ({ isOpen, selectedBookName, se
         {book.name}
       </button>
       {expandedBook === book.name && (
-        <div className="grid grid-cols-5 gap-1 p-2 bg-background">
+        <div className="grid grid-cols-5 gap-2 p-3 bg-background">
           {Array.from({ length: book.chapters }, (_, i) => i + 1).map((chapter) => (
             <button
               key={chapter}
               onClick={() => onSelectChapter(book.name, chapter)}
-              className={`flex items-center justify-center w-10 h-10 rounded-full transition-colors ${
+              className={`flex items-center justify-center w-12 h-12 rounded-full transition-colors text-base ${
                 selectedBookName === book.name && selectedChapter === chapter
                   ? 'bg-primary text-primary-foreground font-bold'
                   : 'hover:bg-accent'

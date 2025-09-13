@@ -121,11 +121,11 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
   };
 
   return (
-    <div ref={viewRef}>
+    <div ref={viewRef} className="px-4 md:px-0">
       <div className="max-w-4xl mx-auto" onMouseUp={handleContainerMouseUp}>
         {isApiKeyErrorForCrossRef && <ApiKeyErrorDisplay context="Estudo Aprofundado" />}
       </div>
-      <div className="max-w-4xl mx-auto bg-card rounded-lg shadow-[var(--shadow-md)] p-6 md:p-8 min-h-[60vh] pb-24 md:pb-8">
+      <div className="max-w-4xl mx-auto bg-card rounded-lg p-6 md:p-8 min-h-[60vh] pb-24 md:pb-8">
         <h2 className="text-3xl font-bold mb-6 text-center text-foreground">{book.name} {chapter}</h2>
         {isLoading ? (
           <div className="flex justify-center items-center h-48">

@@ -42,7 +42,7 @@ const ToolsScreen: React.FC<ToolsScreenProps> = ({
             Recursos com Inteligência Artificial para enriquecer sua jornada na Palavra.
           </p>
         </header>
-        <main className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <main className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {tools.map((tool) => (
             <button
               key={tool.title}

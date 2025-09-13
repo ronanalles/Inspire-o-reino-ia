@@ -16,7 +16,7 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({ activeView, onNaviga
   ];
 
   return (
-    <nav className="md:hidden sticky bottom-0 w-full bg-card border-t border-border flex justify-around shadow-lg">
+    <nav className="md:hidden sticky bottom-0 w-full bg-card border-t border-border flex justify-around shadow-[0_-2px_10px_rgba(0,0,0,0.1)] dark:shadow-[0_-2px_10px_rgba(0,0,0,0.3)]">
       {navItems.map((item) => {
         const isActive = activeView === item.view;
         return (

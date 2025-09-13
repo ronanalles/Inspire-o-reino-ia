@@ -42,7 +42,7 @@ export default function App() {
   const [selectedChapter, setSelectedChapter] = useState(initialChapter);
   const [bookmarks, setBookmarks] = useLocalStorage<Bookmark[]>('bible_bookmarks', []);
   const [highlights, setHighlights] = useLocalStorage<Highlight[]>('bible_highlights', []);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const [activeModal, setActiveModal] = useState<ModalType | null>(null);
   const [selectionState, setSelectionState] = useState<SelectionState | null>(null);
@@ -64,6 +64,19 @@ export default function App() {
       root.classList.remove('dark');
     }
   }, [theme]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setIsSidebarOpen(true);
+      } else {
+        setIsSidebarOpen(false);
+      }
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     const validTranslationIds = translations.map(t => t.id);
@@ -268,7 +281,11 @@ export default function App() {
         {renderContent()}
       </div>
       
-      {view !== 'reading' && <BottomNavBar activeView={view} onNavigate={setView} />}
+      <BottomNavBar activeView={view} onNavigate={(v) => {
+        if(v === 'reading' && !lastRead) handleStartReading();
+        else if(v === 'reading' && lastRead) handleContinueReading();
+        else setView(v);
+      }} />
       
       <QuickNavigationModal
         isOpen={activeModal === 'nav'}

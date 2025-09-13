@@ -46,11 +46,11 @@ export const QuickNavigationModal: React.FC<QuickNavigationModalProps> = ({ isOp
   
   return (
     <div 
-      className={`fixed inset-0 bg-black z-50 flex items-center justify-center p-0 md:p-4 transition-opacity duration-300 ease-in-out ${isOpen ? 'bg-opacity-60' : 'bg-opacity-0 pointer-events-none'}`} 
+      className={`fixed inset-0 bg-black z-50 flex items-stretch md:items-center justify-center p-0 md:p-4 transition-opacity duration-300 ease-in-out ${isOpen ? 'bg-opacity-60' : 'bg-opacity-0 pointer-events-none'}`} 
       onClick={onClose}
     >
       <div 
-        className={`bg-card text-card-foreground rounded-none md:rounded-xl shadow-[var(--shadow-xl)] w-full h-full md:w-full md:max-w-3xl md:h-[80vh] md:max-h-[700px] flex flex-col transform transition-all duration-300 ease-in-out border border-border ${isOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`} 
+        className={`bg-card text-card-foreground rounded-none md:rounded-xl shadow-[var(--shadow-xl)] w-full h-full md:w-full md:max-w-3xl md:h-[80vh] md:max-h-[700px] flex flex-col transform transition-all duration-300 ease-in-out border-none md:border border-border ${isOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`} 
         onClick={e => e.stopPropagation()}
       >
         <div className="flex items-center justify-between p-4 border-b border-border flex-shrink-0">
@@ -101,14 +101,14 @@ export const QuickNavigationModal: React.FC<QuickNavigationModalProps> = ({ isOp
             </div>
 
             {/* Chapter Selection View */}
-            <div className="w-full h-full flex-shrink-0 p-3 overflow-y-auto">
+            <div className="w-full h-full flex-shrink-0 p-4 overflow-y-auto">
               {selectedBook && (
-                <div className="grid grid-cols-5 sm:grid-cols-6 gap-2">
+                <div className="grid grid-cols-[repeat(auto-fill,minmax(3rem,1fr))] gap-2">
                   {Array.from({ length: selectedBook.chapters }, (_, i) => i + 1).map(chapter => (
                     <button
                       key={chapter}
                       onClick={() => handleSelectChapter(chapter)}
-                      className={`flex items-center justify-center w-12 h-12 rounded-full transition-colors font-medium text-lg ${
+                      className={`flex items-center justify-center aspect-square rounded-full transition-colors font-medium text-base ${
                         selectedBook.name === currentBookName && chapter === currentChapter
                         ? 'bg-primary text-primary-foreground'
                         : 'bg-muted hover:bg-accent'
