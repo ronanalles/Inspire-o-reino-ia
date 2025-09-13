@@ -51,11 +51,11 @@ export const BookmarksPanel: React.FC<BookmarksPanelProps> = ({
         <div className="flex flex-col h-full">
           <div className="flex items-center justify-between p-4 border-b border-border">
             <h2 className="text-xl font-bold flex items-center">
-              <IconBookmark className="mr-2" />
+              <IconBookmark className="mr-2 w-5 h-5 flex-shrink-0" />
               Versículos Salvos
             </h2>
             <button onClick={onClose} className="p-2 rounded-full hover:bg-accent text-muted-foreground">
-              <IconX className="w-6 h-6" />
+              <IconX className="w-5 h-5 flex-shrink-0" />
             </button>
           </div>
           

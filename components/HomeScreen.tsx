@@ -51,7 +51,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           className="p-2 rounded-full bg-card/50 backdrop-blur-sm text-muted-foreground hover:bg-accent"
           aria-label="Alternar tema"
         >
-          {theme === 'dark' ? <IconSun className="w-6 h-6" /> : <IconMoon className="w-6 h-6" />}
+          {theme === 'dark' ? <IconSun className="w-5 h-5 flex-shrink-0" /> : <IconMoon className="w-5 h-5 flex-shrink-0" />}
         </button>
       </div>
       
@@ -65,9 +65,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         <div className="w-full flex flex-col items-center space-y-4">
             <button 
                 onClick={onStartReading}
-                className="group flex items-center justify-center w-full p-5 bg-primary text-primary-foreground rounded-xl shadow-[var(--shadow-md)] hover:shadow-[var(--shadow-lg)] hover:-translate-y-1 transition-all duration-300 ease-in-out border border-primary/20"
+                className="group flex items-center justify-center w-full p-4 bg-primary text-primary-foreground rounded-xl shadow-[var(--shadow-md)] hover:shadow-[var(--shadow-lg)] hover:-translate-y-1 transition-all duration-300 ease-in-out border border-primary/20"
             >
-                <IconBookOpen className="w-6 h-6 mr-3" />
+                <IconBookOpen className="w-6 h-6 mr-3 flex-shrink-0" />
                 <span className="font-bold text-lg">Ler a Bíblia</span>
             </button>
             
@@ -94,7 +94,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                         className="w-full pl-4 pr-12 py-4 border border-border rounded-xl bg-card/80 focus:ring-2 focus:ring-primary focus:outline-none transition-shadow"
                     />
                     <button type="submit" className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50" disabled={!thematicQuery.trim()}>
-                        <IconStudy className="w-5 h-5" />
+                        <IconStudy className="w-5 h-5 flex-shrink-0" />
                     </button>
                 </div>
             </form>
@@ -105,7 +105,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                 onClick={onQuizClick}
                 className="group flex items-center justify-center w-full p-4 bg-secondary text-secondary-foreground rounded-xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 ease-in-out border border-border"
             >
-                <IconBrain className="w-5 h-5 mr-3" />
+                <IconBrain className="w-5 h-5 mr-3 flex-shrink-0" />
                 <span className="font-semibold text-base">Quiz Bíblico</span>
             </button>
             {canInstall && (
@@ -113,7 +113,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                   onClick={onInstallClick}
                   className="group flex items-center justify-center w-full p-4 bg-secondary text-secondary-foreground rounded-xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 ease-in-out border border-border"
               >
-                  <IconDownload className="w-5 h-5 mr-3" />
+                  <IconDownload className="w-5 h-5 mr-3 flex-shrink-0" />
                   <span className="font-semibold text-base">Instalar App</span>
               </button>
             )}

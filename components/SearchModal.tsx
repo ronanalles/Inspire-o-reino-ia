@@ -95,11 +95,11 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onNav
       >
         <div className="flex items-center justify-between p-4 border-b border-border flex-shrink-0">
           <h2 className="text-xl font-bold flex items-center">
-            <IconSearch className="mr-2" />
+            <IconSearch className="mr-2 w-5 h-5 flex-shrink-0" />
             Buscar na Bíblia
           </h2>
           <button onClick={onClose} className="p-2 rounded-full hover:bg-accent text-muted-foreground">
-            <IconX className="w-6 h-6" />
+            <IconX className="w-5 h-5 flex-shrink-0" />
           </button>
         </div>
 

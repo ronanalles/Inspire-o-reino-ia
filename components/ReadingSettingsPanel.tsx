@@ -60,7 +60,7 @@ export const ReadingSettingsPanel: React.FC<ReadingSettingsPanelProps> = ({ isOp
         <div className="flex justify-between items-center mb-6">
           <h3 className="font-bold text-lg text-card-foreground">Opções de Leitura</h3>
           <button onClick={onClose} className="p-2 -mr-2 rounded-full hover:bg-accent text-muted-foreground">
-            <IconX className="w-6 h-6" />
+            <IconX className="w-5 h-5 flex-shrink-0" />
           </button>
         </div>
         <div className="space-y-6">

@@ -133,10 +133,10 @@ export const StudyPanel: React.FC<StudyPanelProps> = ({ studyVerse, onClose, onN
         >
             <div className="flex items-center justify-center p-2 flex-shrink-0 border-b border-border relative">
                 {view !== 'actions' && (
-                    <button onClick={() => { setView('actions'); }} className="absolute left-2 p-2 rounded-full hover:bg-accent text-muted-foreground"><IconChevronLeft className="w-5 h-5" /></button>
+                    <button onClick={() => { setView('actions'); }} className="absolute left-2 p-2 rounded-full hover:bg-accent text-muted-foreground"><IconChevronLeft className="w-5 h-5 flex-shrink-0" /></button>
                 )}
                 <div className="w-10 h-1.5 bg-border rounded-full cursor-grab" />
-                <button onClick={onClose} className="absolute right-2 p-2 rounded-full hover:bg-accent text-muted-foreground"><IconX className="w-5 h-5" /></button>
+                <button onClick={onClose} className="absolute right-2 p-2 rounded-full hover:bg-accent text-muted-foreground"><IconX className="w-5 h-5 flex-shrink-0" /></button>
             </div>
             
             {view === 'actions' ? (
@@ -173,8 +173,8 @@ export const StudyPanel: React.FC<StudyPanelProps> = ({ studyVerse, onClose, onN
 
 const ActionButton: React.FC<{ icon: React.FC<any>, label: string, onClick: () => void, className?: string }> = ({ icon: Icon, label, onClick, className }) => (
     <button onClick={onClick} className={`flex flex-col items-center justify-center p-2 rounded-lg hover:bg-accent space-y-1 transition-colors ${className}`}>
-        <div className={`p-3 rounded-full bg-muted ${className}`}>
-            <Icon className="w-6 h-6" />
+        <div className={`p-2 rounded-full bg-muted ${className}`}>
+            <Icon className="w-5 h-5 flex-shrink-0" />
         </div>
         <span className="text-xs font-medium text-muted-foreground">{label}</span>
     </button>

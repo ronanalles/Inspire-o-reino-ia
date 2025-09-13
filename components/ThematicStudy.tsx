@@ -80,11 +80,11 @@ const ThematicStudy: React.FC<ThematicStudyProps> = ({ isOpen, onClose, onNaviga
       <div className={`bg-card text-card-foreground rounded-none md:rounded-xl shadow-[var(--shadow-xl)] w-full h-full md:w-full md:max-w-2xl md:h-auto md:max-h-[90vh] flex flex-col transform transition-all duration-300 ease-in-out border-none md:border border-border ${animationClass.modal}`}>
         <div className="flex items-center justify-between p-4 border-b border-border flex-shrink-0">
           <h2 className="text-xl font-bold flex items-center">
-            <IconStudy className="mr-2 text-primary" />
+            <IconStudy className="mr-2 text-primary w-5 h-5 flex-shrink-0" />
             Estudo Temático com IA
           </h2>
           <button onClick={handleClose} className="p-2 rounded-full hover:bg-accent text-muted-foreground">
-            <IconX className="w-6 h-6" />
+            <IconX className="w-5 h-5 flex-shrink-0" />
           </button>
         </div>
 

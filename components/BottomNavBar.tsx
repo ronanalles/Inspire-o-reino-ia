@@ -25,11 +25,11 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({ onNavigate, activeVi
           <button
             key={item.action}
             onClick={() => onNavigate(item.action)}
-            className={`flex flex-col items-center justify-center w-full pt-2 pb-1 text-xs transition-colors ${isActive ? 'text-primary' : 'text-muted-foreground hover:text-primary'}`}
+            className={`flex flex-col items-center justify-center w-full pt-2 pb-1 transition-colors ${isActive ? 'text-primary' : 'text-muted-foreground hover:text-primary'}`}
             aria-label={item.label}
           >
-            <item.icon className="w-6 h-6 mb-1" />
-            <span>{item.label}</span>
+            <item.icon className="w-5 h-5 mb-1 flex-shrink-0" />
+            <span className="text-[11px] font-medium">{item.label}</span>
           </button>
         );
       })}

@@ -110,7 +110,7 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
           className="flex items-center px-4 py-2 bg-card border border-border rounded-lg shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-md)] hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 text-foreground"
           disabled={book.name === books[0].name && chapter === 1}
         >
-          <IconChevronLeft className="w-5 h-5 mr-2" />
+          <IconChevronLeft className="w-5 h-5 mr-2 flex-shrink-0" />
           Anterior
         </button>
         <button
@@ -119,7 +119,7 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
           disabled={book.name === books[books.length - 1].name && chapter === book.chapters}
        >
           Próximo
-          <IconChevronRight className="w-5 h-5 ml-2" />
+          <IconChevronRight className="w-5 h-5 ml-2 flex-shrink-0" />
         </button>
       </div>
     </div>

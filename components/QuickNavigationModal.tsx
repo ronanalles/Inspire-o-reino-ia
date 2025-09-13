@@ -58,7 +58,7 @@ export const QuickNavigationModal: React.FC<QuickNavigationModalProps> = ({ isOp
            <div className="w-10">
               {view === 'chapter' && (
                 <button onClick={() => setView('book')} className="p-2 -ml-2 rounded-full hover:bg-accent text-muted-foreground">
-                  <IconChevronLeft className="w-6 h-6" />
+                  <IconChevronLeft className="w-5 h-5 flex-shrink-0" />
                 </button>
               )}
            </div>
@@ -67,7 +67,7 @@ export const QuickNavigationModal: React.FC<QuickNavigationModalProps> = ({ isOp
           </h2>
           <div className="w-10 flex justify-end">
             <button onClick={onClose} className="p-2 -mr-2 rounded-full hover:bg-accent text-muted-foreground">
-              <IconX className="w-6 h-6" />
+              <IconX className="w-5 h-5 flex-shrink-0" />
             </button>
           </div>
         </div>
@@ -85,7 +85,7 @@ export const QuickNavigationModal: React.FC<QuickNavigationModalProps> = ({ isOp
                     onChange={e => setSearchTerm(e.target.value)}
                     className="w-full p-2 pl-10 border-input rounded-lg focus:ring-2 focus:ring-ring focus:outline-none bg-background"
                   />
-                  <IconSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                  <IconSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground flex-shrink-0" />
                 </div>
               </div>
               <div className="overflow-y-auto flex-1">
