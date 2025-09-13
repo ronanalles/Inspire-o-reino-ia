@@ -4,6 +4,9 @@ import { Verse } from './Verse';
 import { IconChevronLeft, IconChevronRight, IconSpinner } from './IconComponents';
 import { getChapterText } from '../services/bibleService';
 import { books } from '../data/bibleData';
+import { SelectionPopover } from './SelectionPopover';
+
+type PopoverAction = 'explain' | 'crossRef' | 'search' | 'copy';
 
 interface ReadingViewProps {
   book: Book;
@@ -13,7 +16,7 @@ interface ReadingViewProps {
   onNextChapter: () => void;
   toggleBookmark: (book: string, chapter: number, verse: number, text: string) => void;
   isBookmarked: (book: string, chapter: number, verse: number) => boolean;
-  onSelectText: (selection: SelectionState | null) => void;
+  onActionRequest: (action: 'explain' | 'crossRef' | 'search', text: string) => void;
   readingSettings: ReadingSettings;
 }
 
@@ -25,20 +28,21 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
   onNextChapter, 
   toggleBookmark, 
   isBookmarked, 
-  onSelectText,
+  onActionRequest,
   readingSettings
 }) => {
   const [verses, setVerses] = useState<VerseType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const viewRef = useRef<HTMLDivElement>(null);
+  const [selection, setSelection] = useState<SelectionState | null>(null);
 
   useEffect(() => {
     const fetchChapter = async () => {
       setIsLoading(true);
       setError(null);
       setVerses([]);
-      onSelectText(null);
+      setSelection(null);
 
       if (viewRef.current) {
           viewRef.current.parentElement?.scrollTo(0, 0);
@@ -60,20 +64,18 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
     };
 
     fetchChapter();
-  }, [book, chapter, translation, onSelectText]);
+  }, [book, chapter, translation]);
 
   useEffect(() => {
     const handleSelection = () => {
-        const selection = window.getSelection();
-
-        // Ignore selections originating from within the action panel itself.
-        if (selection?.anchorNode?.parentElement?.closest('.selection-action-panel-ignore')) {
-            return;
-        }
+        const currentSelection = window.getSelection();
         
-        if (selection && !selection.isCollapsed && selection.toString().trim()) {
-            const selectedText = selection.toString().trim();
-            const range = selection.getRangeAt(0);
+        const isPopoverClicked = currentSelection?.anchorNode?.parentElement?.closest('.selection-popover');
+        if (isPopoverClicked) return;
+        
+        if (currentSelection && !currentSelection.isCollapsed && currentSelection.toString().trim()) {
+            const selectedText = currentSelection.toString().trim();
+            const range = currentSelection.getRangeAt(0);
             
             let container = range.commonAncestorContainer;
             if (container.nodeType !== Node.ELEMENT_NODE) {
@@ -89,7 +91,7 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
                 
                 if (verseBook && verseChapter && verseNumber) {
                     const rect = range.getBoundingClientRect();
-                    onSelectText({
+                    setSelection({
                         text: selectedText,
                         verseInfo: {
                             book: verseBook,
@@ -101,13 +103,11 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
                     return;
                 }
             }
-        } else if (selection && selection.isCollapsed) {
-            // Closes the panel if the user clicks elsewhere, collapsing the selection.
-            onSelectText(null);
+        } else if (currentSelection && currentSelection.isCollapsed) {
+            setSelection(null);
         }
     };
 
-    // Use mouseup and touchend to ensure the action triggers after the user finishes selecting.
     document.addEventListener('mouseup', handleSelection);
     document.addEventListener('touchend', handleSelection);
 
@@ -115,7 +115,17 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
       document.removeEventListener('mouseup', handleSelection);
       document.removeEventListener('touchend', handleSelection);
     };
-}, [onSelectText]);
+}, []);
+
+  const handlePopoverAction = (action: PopoverAction, text: string) => {
+    if (action === 'copy') {
+      // Handled inside popover
+    } else {
+      onActionRequest(action, text);
+    }
+    setSelection(null);
+  };
+
 
   const readingTextClasses = useMemo(() => {
     const fontSizeMap = { sm: 'text-base', base: 'text-lg', lg: 'text-xl', xl: 'text-2xl' };
@@ -127,6 +137,7 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
 
   return (
     <div ref={viewRef} className="px-4 md:px-0">
+      {selection && <SelectionPopover selectionState={selection} onAction={handlePopoverAction} onClose={() => setSelection(null)} />}
       <div className="max-w-4xl mx-auto">
         {/* Placeholder for potential future top-level notices */}
       </div>

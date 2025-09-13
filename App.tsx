@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useMemo, useEffect, Suspense } from 'react';
 import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
@@ -12,8 +13,9 @@ import { SelectionActionPanel } from './components/SelectionActionPanel';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { books } from './data/bibleData';
 import { translations } from './data/translations';
-import { Bookmark, LastRead, Theme, Translation, ReadingSettings, ModalType, SelectionState } from './types';
+import { Bookmark, LastRead, Theme, Translation, ReadingSettings, ModalType, PanelState, PanelView } from './types';
 import { IconSpinner } from './components/IconComponents';
+import { explainText, findCrossReferencesForText, MissingApiKeyError } from './services/geminiService';
 
 const AiStudyBuddy = React.lazy(() => import('./components/AiStudyBuddy'));
 const BibleQuiz = React.lazy(() => import('./components/BibleQuiz'));
@@ -44,8 +46,8 @@ export default function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const [activeModal, setActiveModal] = useState<ModalType | null>(null);
-  const [selectionState, setSelectionState] = useState<SelectionState | null>(null);
-  const [textForAction, setTextForAction] = useState<string>('');
+  const [textForSearch, setTextForSearch] = useState('');
+  const [panelState, setPanelState] = useState<PanelState>({ view: null, content: null, isLoading: false, error: null });
 
   const [readingSettings, setReadingSettings] = useLocalStorage<ReadingSettings>('bible_readingSettings', {
     fontSize: 'base',
@@ -88,7 +90,7 @@ export default function App() {
   
   const handleCloseModals = () => {
     setActiveModal(null);
-    setTextForAction('');
+    setTextForSearch('');
   };
 
   const updateLastRead = (bookName: string, chapter: number) => {
@@ -106,7 +108,6 @@ export default function App() {
         setIsSidebarOpen(false);
       }
       setActiveModal(null);
-      setSelectionState(null);
     }
   }, []);
 
@@ -177,12 +178,38 @@ export default function App() {
       setView('reading');
       handleSelectChapter(books[0].name, 1);
   };
+  
+  const handleActionRequest = async (action: 'explain' | 'crossRef' | 'search', text: string) => {
+    if (action === 'search') {
+      setTextForSearch(text);
+      setActiveModal('search');
+      return;
+    }
 
-  const handleAction = (modalType: ModalType, text: string) => {
-    setTextForAction(text);
-    setActiveModal(modalType);
-    setSelectionState(null);
-  }
+    setPanelState({ view: action, content: null, isLoading: true, error: null });
+    try {
+      let result;
+      if (action === 'explain') {
+        result = await explainText(text);
+        if(result) {
+            setPanelState(s => ({...s, content: result.explanation, isLoading: false}));
+        }
+      } else { // crossRef
+        result = await findCrossReferencesForText(text);
+        if(result) {
+            setPanelState(s => ({...s, content: result.references, isLoading: false}));
+        }
+      }
+
+      if (!result) {
+        setPanelState(s => ({...s, isLoading: false, error: 'Não foi possível obter os resultados. Tente novamente.' }));
+      }
+    } catch (e) {
+      console.error(e);
+      const isApiError = e instanceof MissingApiKeyError;
+      setPanelState(s => ({...s, isLoading: false, error: isApiError ? 'api_key_missing' : 'Ocorreu um erro inesperado.' }));
+    }
+  };
 
   const renderContent = () => {
     switch(view) {
@@ -219,13 +246,14 @@ export default function App() {
               <main className="flex-1 overflow-y-auto">
                   <ReadingView
                     book={selectedBook}
+                    // FIX: Pass selectedChapter state to the chapter prop. The variable `chapter` was not defined in this scope.
                     chapter={selectedChapter}
                     translation={translation}
                     onPrevChapter={() => changeChapter(-1)}
                     onNextChapter={() => changeChapter(1)}
                     toggleBookmark={toggleBookmark}
                     isBookmarked={isBookmarked}
-                    onSelectText={setSelectionState}
+                    onActionRequest={handleActionRequest}
                     readingSettings={readingSettings}
                   />
               </main>
@@ -261,7 +289,7 @@ export default function App() {
         isOpen={activeModal === 'search'}
         onClose={handleCloseModals}
         onNavigateToVerse={handleSelectChapter}
-        initialQuery={textForAction}
+        initialQuery={textForSearch}
       />
       
       <BookmarksPanel
@@ -280,9 +308,8 @@ export default function App() {
       />
 
       <SelectionActionPanel
-        selection={selectionState}
-        onClose={() => setSelectionState(null)}
-        onSearch={(text) => handleAction('search', text)}
+        panelState={panelState}
+        onClose={() => setPanelState({ view: null, content: null, isLoading: false, error: null })}
         onNavigateToVerse={(book, chapter) => handleSelectChapter(book, chapter)}
       />
       

@@ -115,7 +115,16 @@ export interface SelectionState {
     chapter: number;
     verse: number;
   };
-  rect?: DOMRect;
+  rect: DOMRect;
+}
+
+export type PanelView = 'explain' | 'crossRef';
+
+export interface PanelState {
+  view: PanelView | null;
+  content: string | CrossReferenceResult[] | null;
+  isLoading: boolean;
+  error: string | null;
 }
 
 // FIX: Add missing HighlightColor type used by HighlightPopover and SelectionToolbar.
