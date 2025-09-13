@@ -143,7 +143,7 @@ export const SelectionActionPanel: React.FC<SelectionActionPanelProps> = ({ sele
             ref={panelRef}
             onClick={(e) => e.stopPropagation()}
             style={{ transform: panelTransform, maxHeight: panelMaxHeight }}
-            className="fixed bottom-0 inset-x-0 bg-card border-t border-border rounded-t-2xl shadow-[0_-5px_20px_rgba(0,0,0,0.15)] dark:shadow-[0_-5px_20px_rgba(0,0,0,0.4)] flex flex-col transition-transform duration-300 ease-in-out"
+            className="fixed bottom-0 inset-x-0 bg-card border-t border-border rounded-t-2xl shadow-[0_-5px_20px_rgba(0,0,0,0.15)] dark:shadow-[0_-5px_20px_rgba(0,0,0,0.4)] flex flex-col transition-transform duration-300 ease-in-out selection-action-panel-ignore"
         >
             <div
                 className="flex items-center p-2 cursor-grab"

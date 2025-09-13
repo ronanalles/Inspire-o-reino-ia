@@ -63,8 +63,14 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
   }, [book, chapter, translation, onSelectText]);
 
   useEffect(() => {
-    const handleSelectionChange = () => {
+    const handleSelection = () => {
         const selection = window.getSelection();
+
+        // Ignore selections originating from within the action panel itself.
+        if (selection?.anchorNode?.parentElement?.closest('.selection-action-panel-ignore')) {
+            return;
+        }
+        
         if (selection && !selection.isCollapsed && selection.toString().trim()) {
             const selectedText = selection.toString().trim();
             const range = selection.getRangeAt(0);
@@ -95,14 +101,19 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
                     return;
                 }
             }
-        } else {
+        } else if (selection && selection.isCollapsed) {
+            // Closes the panel if the user clicks elsewhere, collapsing the selection.
             onSelectText(null);
         }
     };
 
-    document.addEventListener('selectionchange', handleSelectionChange);
+    // Use mouseup and touchend to ensure the action triggers after the user finishes selecting.
+    document.addEventListener('mouseup', handleSelection);
+    document.addEventListener('touchend', handleSelection);
+
     return () => {
-        document.removeEventListener('selectionchange', handleSelectionChange);
+      document.removeEventListener('mouseup', handleSelection);
+      document.removeEventListener('touchend', handleSelection);
     };
 }, [onSelectText]);
 
