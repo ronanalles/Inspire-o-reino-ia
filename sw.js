@@ -1,4 +1,4 @@
-const CACHE_NAME = 'inspire-o-reino-v2';
+const CACHE_NAME = 'inspire-o-reino-v3';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -63,38 +63,42 @@ self.addEventListener('fetch', event => {
   
   event.respondWith(
     caches.match(event.request)
-      .then(response => {
+      .then(cachedResponse => {
         // Cache hit - return response
-        if (response) {
-          return response;
+        if (cachedResponse) {
+          return cachedResponse;
         }
 
-        const fetchRequest = event.request.clone();
-
-        return fetch(fetchRequest).then(
-          response => {
-            // Check if we received a valid response
-            if (!response || response.status !== 200) {
-              return response;
+        return fetch(event.request).then(
+          networkResponse => {
+            // If we get a 404 for a navigation request, serve the app shell instead.
+            if (networkResponse.status === 404 && event.request.mode === 'navigate') {
+              console.log('Fetch resulted in 404 for navigation, serving index.html from cache.');
+              return caches.match('/index.html');
+            }
+            
+            // Check if we received a valid response to cache
+            if (!networkResponse || networkResponse.status !== 200) {
+              return networkResponse;
             }
             
             // Do not cache API requests for bible text or Gemini
             if (event.request.url.includes('bible-api.com') || event.request.url.includes('generativelanguage.googleapis.com')) {
-                return response;
+                return networkResponse;
             }
 
-            const responseToCache = response.clone();
-
+            const responseToCache = networkResponse.clone();
             caches.open(CACHE_NAME)
               .then(cache => {
                 cache.put(event.request, responseToCache);
               });
 
-            return response;
+            return networkResponse;
           }
         ).catch(error => {
-          // Network request failed. If it's a navigation request, serve the index.html from cache.
-          console.log('Fetch failed; returning offline page instead.', error);
+          // Network request failed completely. 
+          // If it's a navigation request, serve the index.html from cache.
+          console.log('Fetch failed completely; returning offline page instead.', error);
           if (event.request.mode === 'navigate') {
             return caches.match('/index.html');
           }
