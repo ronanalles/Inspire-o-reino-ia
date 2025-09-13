@@ -62,6 +62,50 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
     fetchChapter();
   }, [book, chapter, translation, onSelectText]);
 
+  useEffect(() => {
+    const handleSelectionChange = () => {
+        const selection = window.getSelection();
+        if (selection && !selection.isCollapsed && selection.toString().trim()) {
+            const selectedText = selection.toString().trim();
+            const range = selection.getRangeAt(0);
+            
+            let container = range.commonAncestorContainer;
+            if (container.nodeType !== Node.ELEMENT_NODE) {
+                container = container.parentElement!;
+            }
+
+            const verseElement = (container as HTMLElement).closest('.verse-container');
+
+            if (verseElement) {
+                const verseBook = verseElement.getAttribute('data-book');
+                const verseChapter = verseElement.getAttribute('data-chapter');
+                const verseNumber = verseElement.getAttribute('data-verse');
+                
+                if (verseBook && verseChapter && verseNumber) {
+                    const rect = range.getBoundingClientRect();
+                    onSelectText({
+                        text: selectedText,
+                        verseInfo: {
+                            book: verseBook,
+                            chapter: parseInt(verseChapter, 10),
+                            verse: parseInt(verseNumber, 10),
+                        },
+                        rect,
+                    });
+                    return;
+                }
+            }
+        } else {
+            onSelectText(null);
+        }
+    };
+
+    document.addEventListener('selectionchange', handleSelectionChange);
+    return () => {
+        document.removeEventListener('selectionchange', handleSelectionChange);
+    };
+}, [onSelectText]);
+
   const readingTextClasses = useMemo(() => {
     const fontSizeMap = { sm: 'text-base', base: 'text-lg', lg: 'text-xl', xl: 'text-2xl' };
     const lineHeightMap = { tight: 'leading-snug', normal: 'leading-relaxed', loose: 'leading-loose' };
@@ -70,18 +114,9 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
     return `${fontSizeMap[readingSettings.fontSize]} ${lineHeightMap[readingSettings.lineHeight]} ${fontFamilyMap[readingSettings.fontFamily]}`;
   }, [readingSettings]);
 
-  const handleContainerMouseUp = () => {
-    setTimeout(() => {
-        const selection = window.getSelection();
-        if (selection && selection.isCollapsed) {
-            onSelectText(null);
-        }
-    }, 100);
-  };
-
   return (
     <div ref={viewRef} className="px-4 md:px-0">
-      <div className="max-w-4xl mx-auto" onMouseUp={handleContainerMouseUp}>
+      <div className="max-w-4xl mx-auto">
         {/* Placeholder for potential future top-level notices */}
       </div>
       <div className="max-w-4xl mx-auto bg-card rounded-lg p-6 md:p-8 min-h-[60vh] pb-24 md:pb-8">
@@ -103,7 +138,6 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
                 text={verseData.text}
                 isBookmarked={isBookmarked(book.name, chapter, verseData.verse)}
                 onToggleBookmark={() => toggleBookmark(book.name, chapter, verseData.verse, verseData.text)}
-                onSelectText={onSelectText}
               />
             ))}
             {verses.length === 0 && !isLoading && (

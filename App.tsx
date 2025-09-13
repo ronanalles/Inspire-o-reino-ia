@@ -19,8 +19,6 @@ const AiStudyBuddy = React.lazy(() => import('./components/AiStudyBuddy'));
 const BibleQuiz = React.lazy(() => import('./components/BibleQuiz'));
 const ThematicStudy = React.lazy(() => import('./components/ThematicStudy'));
 const ToolsScreen = React.lazy(() => import('./components/ToolsScreen'));
-const ExplainWithAiModal = React.lazy(() => import('./components/ExplainWithAiModal'));
-const CrossRefForTextModal = React.lazy(() => import('./components/CrossRefForTextModal'));
 
 
 const LoadingSpinner = () => (
@@ -284,9 +282,8 @@ export default function App() {
       <SelectionActionPanel
         selection={selectionState}
         onClose={() => setSelectionState(null)}
-        onExplain={(text) => handleAction('explainWithAi', text)}
-        onCrossRef={(text) => handleAction('crossRefForText', text)}
         onSearch={(text) => handleAction('search', text)}
+        onNavigateToVerse={(book, chapter) => handleSelectChapter(book, chapter)}
       />
       
       <Suspense fallback={<LoadingSpinner />}>
@@ -305,19 +302,6 @@ export default function App() {
           isOpen={activeModal === 'thematic'}
           onClose={handleCloseModals}
           onNavigateToVerse={handleSelectChapter}
-        />}
-
-        {activeModal === 'explainWithAi' && <ExplainWithAiModal
-          isOpen={activeModal === 'explainWithAi'}
-          onClose={handleCloseModals}
-          textToExplain={textForAction}
-        />}
-
-        {activeModal === 'crossRefForText' && <CrossRefForTextModal
-          isOpen={activeModal === 'crossRefForText'}
-          onClose={handleCloseModals}
-          textForCrossRef={textForAction}
-          onNavigateToVerse={(book, chapter) => handleSelectChapter(book, chapter)}
         />}
       </Suspense>
     </div>

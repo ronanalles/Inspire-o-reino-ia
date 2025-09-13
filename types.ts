@@ -106,7 +106,7 @@ export interface CrossReferenceItem {
 
 export type Theme = 'light' | 'dark';
 
-export type ModalType = 'search' | 'nav' | 'quiz' | 'thematic' | 'settings' | 'bookmarks' | 'aiBuddy' | 'explainWithAi' | 'crossRefForText';
+export type ModalType = 'search' | 'nav' | 'quiz' | 'thematic' | 'settings' | 'bookmarks' | 'aiBuddy';
 
 export interface SelectionState {
   text: string;

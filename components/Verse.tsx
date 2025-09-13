@@ -1,6 +1,5 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import { IconBookmark, IconBookmarkSolid } from './IconComponents';
-import { SelectionState } from '../types';
 
 interface VerseProps {
   book: string;
@@ -9,7 +8,6 @@ interface VerseProps {
   text: string;
   isBookmarked: boolean;
   onToggleBookmark: () => void;
-  onSelectText: (selection: SelectionState | null) => void;
 }
 
 const VerseComponent: React.FC<VerseProps> = ({ 
@@ -19,34 +17,18 @@ const VerseComponent: React.FC<VerseProps> = ({
   text, 
   isBookmarked, 
   onToggleBookmark, 
-  onSelectText,
 }) => {
-  const verseRef = useRef<HTMLParagraphElement>(null);
-
-  const handleMouseUp = (event: React.MouseEvent<HTMLParagraphElement>) => {
-    event.stopPropagation(); // Impede que o mouseup da ReadingView dispare imediatamente
-    const selection = window.getSelection();
-    const selectedText = selection?.toString().trim();
-
-    if (selection && !selection.isCollapsed && selectedText) {
-      const range = selection.getRangeAt(0);
-      if (verseRef.current && verseRef.current.contains(range.commonAncestorContainer)) {
-        const rect = range.getBoundingClientRect();
-        onSelectText({
-          text: selectedText,
-          verseInfo: { book, chapter, verse: verseNumber },
-          rect: rect,
-        });
-      }
-    }
-  };
-  
   return (
-    <div className="flex group relative">
+    <div 
+      className="verse-container flex group relative"
+      data-book={book}
+      data-chapter={chapter}
+      data-verse={verseNumber}
+    >
       <div className="flex items-start pt-1">
         <span className="text-sm font-bold text-gray-500 dark:text-gray-400 mr-2 w-8 text-right select-none">{verseNumber}</span>
       </div>
-      <p ref={verseRef} className="flex-1" onMouseUp={handleMouseUp}>
+      <p className="flex-1">
         {text}
       </p>
       <button 
