@@ -1,5 +1,5 @@
 import { GoogleGenAI, Type } from "@google/genai";
-import { ChatMessage, QuizQuestion, ThematicStudyResult, VerseOfTheDay, SearchResult, ChapterCrossReferences } from '../types';
+import { ChatMessage, QuizQuestion, ThematicStudyResult, VerseOfTheDay, SearchResult, CrossReferenceResult } from '../types';
 
 // A specific error for when the API key is not configured.
 export class MissingApiKeyError extends Error {
@@ -217,12 +217,43 @@ async function searchVerses(query: string): Promise<SearchResult[] | null> {
     }
 }
 
-async function getCrossReferences(chapterText: string): Promise<ChapterCrossReferences | null> {
+async function explainText(text: string): Promise<{ explanation: string } | null> {
     try {
         const aiInstance = getAi();
         const response = await aiInstance.models.generateContent({
             model,
-            contents: `Analise este texto bíblico e identifique até 10 nomes, lugares ou conceitos teológicos importantes para um estudo aprofundado. Para cada um, forneça o termo exato, uma breve explicação, uma lista de 3-5 referências cruzadas em outras partes da Bíblia e, se for um tópico complexo, um link de artigo opcional. O texto é: "${chapterText}"`,
+            contents: `Você é um teólogo e historiador bíblico. Explique o seguinte trecho da Bíblia de forma clara e concisa, fornecendo contexto histórico e teológico. O trecho é: "${text}"`,
+            config: {
+                responseMimeType: "application/json",
+                responseSchema: {
+                    type: Type.OBJECT,
+                    properties: {
+                        explanation: { 
+                            type: Type.STRING, 
+                            description: "A explicação do trecho bíblico." 
+                        }
+                    },
+                    required: ["explanation"]
+                }
+            }
+        });
+        const parsed = JSON.parse(response.text.trim());
+        return parsed;
+    } catch (error) {
+        if (error instanceof MissingApiKeyError) {
+          throw error;
+        }
+        console.error("Error explaining text:", error);
+        return null;
+    }
+}
+
+async function findCrossReferencesForText(text: string): Promise<{ references: CrossReferenceResult[] } | null> {
+    try {
+        const aiInstance = getAi();
+        const response = await aiInstance.models.generateContent({
+            model,
+            contents: `Encontre até 5 referências cruzadas relevantes para o seguinte trecho da Bíblia: "${text}". Para cada referência, forneça a referência completa, o nome exato do livro, o capítulo, o versículo e o texto do versículo.`,
             config: {
                 responseMimeType: "application/json",
                 responseSchema: {
@@ -233,33 +264,13 @@ async function getCrossReferences(chapterText: string): Promise<ChapterCrossRefe
                             items: {
                                 type: Type.OBJECT,
                                 properties: {
-                                    term: { type: Type.STRING, description: "O termo exato encontrado no texto." },
-                                    explanation: { type: Type.STRING, description: "Uma breve explicação do termo." },
-                                    crossReferences: {
-                                        type: Type.ARRAY,
-                                        items: {
-                                            type: Type.OBJECT,
-                                            properties: {
-                                                reference: { type: Type.STRING, description: "A referência (ex: 'João 1:1')." },
-                                                book: { type: Type.STRING, description: "O nome completo do livro." },
-                                                chapter: { type: Type.INTEGER, description: "O número do capítulo." }
-                                            },
-                                            required: ["reference", "book", "chapter"]
-                                        }
-                                    },
-                                    articles: {
-                                        type: Type.ARRAY,
-                                        items: {
-                                            type: Type.OBJECT,
-                                            properties: {
-                                                title: { type: Type.STRING, description: "O título do artigo." },
-                                                url: { type: Type.STRING, description: "O URL completo do artigo." }
-                                            },
-                                            required: ["title", "url"]
-                                        }
-                                    }
+                                    reference: { type: Type.STRING, description: "Referência completa (ex: 'João 1:1')." },
+                                    text: { type: Type.STRING, description: "O texto do versículo." },
+                                    book: { type: Type.STRING, description: "O nome exato do livro." },
+                                    chapter: { type: Type.INTEGER, description: "O número do capítulo." },
+                                    verse: { type: Type.INTEGER, description: "O número do versículo." }
                                 },
-                                required: ["term", "explanation", "crossReferences"]
+                                required: ["reference", "text", "book", "chapter", "verse"]
                             }
                         }
                     },
@@ -268,15 +279,15 @@ async function getCrossReferences(chapterText: string): Promise<ChapterCrossRefe
             }
         });
         const parsed = JSON.parse(response.text.trim());
-        return parsed.references as ChapterCrossReferences;
+        return parsed;
     } catch (error) {
         if (error instanceof MissingApiKeyError) {
           throw error;
         }
-        console.error("Error fetching cross references:", error);
+        console.error("Error fetching cross references for text:", error);
         return null;
     }
 }
 
 
-export { sendMessageToChat, generateQuizQuestion, getVerseOfTheDay, getThematicStudy, searchVerses, getCrossReferences };
+export { sendMessageToChat, generateQuizQuestion, getVerseOfTheDay, getThematicStudy, searchVerses, explainText, findCrossReferencesForText };

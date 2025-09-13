@@ -1,27 +1,22 @@
 import React, { useState } from 'react';
-import { Bookmark, Highlight } from '../types';
-import { IconBookmark, IconX, IconPencil, IconTrash } from './IconComponents';
+import { Bookmark } from '../types';
+import { IconBookmark, IconX, IconPencil } from './IconComponents';
 
 interface BookmarksPanelProps {
   isOpen: boolean;
   onClose: () => void;
   bookmarks: Bookmark[];
-  highlights: Highlight[];
   onJumpToVerse: (book: string, chapter: number) => void;
   onUpdateBookmarkNote: (bookmark: Bookmark, newNote: string) => void;
-  onRemoveHighlight: (id: string) => void;
 }
 
 export const BookmarksPanel: React.FC<BookmarksPanelProps> = ({ 
     isOpen, 
     onClose, 
     bookmarks, 
-    highlights, 
     onJumpToVerse, 
     onUpdateBookmarkNote,
-    onRemoveHighlight
 }) => {
-  const [activeTab, setActiveTab] = useState<'bookmarks' | 'highlights'>('bookmarks');
   const [editingBookmarkId, setEditingBookmarkId] = useState<string | null>(null);
   const [noteText, setNoteText] = useState('');
 
@@ -42,89 +37,6 @@ export const BookmarksPanel: React.FC<BookmarksPanelProps> = ({
     setNoteText('');
   };
 
-  const highlightBgClasses: Record<string, string> = {
-    yellow: 'bg-yellow-400/30',
-    green: 'bg-green-400/30',
-    blue: 'bg-blue-400/30',
-    pink: 'bg-pink-400/30',
-  };
-
-  const BookmarksList = () => (
-    <>
-      {bookmarks.length === 0 ? (
-        <div className="flex flex-col items-center justify-center h-full text-center p-4 text-muted-foreground">
-          <IconBookmark className="w-16 h-16 mb-4" />
-          <p className="font-semibold">Você ainda não salvou nenhum versículo.</p>
-          <p className="text-sm">Clique no ícone de marcador ao lado de um versículo.</p>
-        </div>
-      ) : (
-        <ul>
-          {bookmarks.sort((a,b) => a.book.localeCompare(b.book) || a.chapter - b.chapter || a.verse - b.verse).map((bm, index) => {
-            const bookmarkId = `${bm.book}-${bm.chapter}-${bm.verse}`;
-            const isEditing = editingBookmarkId === bookmarkId;
-
-            return (
-              <li key={index} className="border-b border-border p-4">
-                <div onClick={() => !isEditing && onJumpToVerse(bm.book, bm.chapter)} className="cursor-pointer">
-                  <p className="font-semibold text-primary">{`${bm.book} ${bm.chapter}:${bm.verse}`}</p>
-                  <p className="text-foreground/90 mt-1">"{bm.text}"</p>
-                </div>
-                {isEditing ? (
-                  <div className="mt-2">
-                     <textarea value={noteText} onChange={(e) => setNoteText(e.target.value)} placeholder="Escreva sua anotação..." className="w-full p-2 border-input rounded-lg focus:ring-2 focus:ring-ring focus:outline-none bg-background" rows={3}/>
-                     <div className="flex justify-end space-x-2 mt-2">
-                        <button onClick={handleCancelEdit} className="px-3 py-1 rounded-md text-sm bg-secondary text-secondary-foreground hover:bg-muted">Cancelar</button>
-                        <button onClick={() => handleSaveNote(bm)} className="px-3 py-1 rounded-md text-sm bg-primary text-primary-foreground hover:bg-primary/90">Salvar</button>
-                     </div>
-                  </div>
-                ) : (
-                   <div className="mt-2 flex items-start justify-between">
-                      {bm.note ? (
-                          <p className="text-sm text-muted-foreground italic bg-muted p-2 rounded-md flex-1 break-words">{bm.note}</p>
-                      ) : (<p className="text-sm text-muted-foreground italic">Sem anotações.</p>)}
-                      <button onClick={() => handleEditClick(bm)} className="p-1.5 ml-2 rounded-full text-muted-foreground hover:bg-accent flex-shrink-0"><IconPencil className="w-4 h-4" /></button>
-                   </div>
-                )}
-              </li>
-            );
-          })}
-        </ul>
-      )}
-    </>
-  );
-
-  const HighlightsList = () => (
-    <>
-        {highlights.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-center p-4 text-muted-foreground">
-                <IconPencil className="w-16 h-16 mb-4" />
-                <p className="font-semibold">Você ainda não grifou nenhum texto.</p>
-                <p className="text-sm">Selecione um texto na leitura para grifá-lo.</p>
-            </div>
-        ) : (
-            <ul>
-                {highlights.map((hl) => (
-                    <li key={hl.id} className="border-b border-border p-4 group">
-                        <div onClick={() => onJumpToVerse(hl.book, hl.chapter)} className="cursor-pointer">
-                            <p className="font-semibold text-primary mb-2">{`${hl.book} ${hl.chapter}:${hl.verse}`}</p>
-                            <p className={`p-2 rounded-md ${highlightBgClasses[hl.color]}`}>"{hl.text}"</p>
-                        </div>
-                        <div className="text-right mt-2">
-                             <button 
-                                onClick={() => onRemoveHighlight(hl.id)} 
-                                className="p-1.5 rounded-full text-muted-foreground hover:text-destructive hover:bg-destructive/10 opacity-0 group-hover:opacity-100 transition-opacity"
-                                aria-label="Remover grifado"
-                              >
-                                <IconTrash className="w-4 h-4" />
-                             </button>
-                        </div>
-                    </li>
-                ))}
-            </ul>
-        )}
-    </>
-  );
-
   return (
     <>
       <div 
@@ -140,26 +52,53 @@ export const BookmarksPanel: React.FC<BookmarksPanelProps> = ({
           <div className="flex items-center justify-between p-4 border-b border-border">
             <h2 className="text-xl font-bold flex items-center">
               <IconBookmark className="mr-2" />
-              Itens Salvos
+              Versículos Salvos
             </h2>
             <button onClick={onClose} className="p-2 rounded-full hover:bg-accent text-muted-foreground">
               <IconX className="w-6 h-6" />
             </button>
           </div>
           
-          <div className="border-b border-border">
-            <nav className="flex -mb-px">
-                <button onClick={() => setActiveTab('bookmarks')} className={`w-1/2 py-4 px-1 text-center border-b-2 font-medium text-sm transition-colors ${activeTab === 'bookmarks' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'}`}>
-                    Versículos Salvos
-                </button>
-                <button onClick={() => setActiveTab('highlights')} className={`w-1/2 py-4 px-1 text-center border-b-2 font-medium text-sm transition-colors ${activeTab === 'highlights' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'}`}>
-                    Textos Grifados
-                </button>
-            </nav>
-          </div>
-
           <div className="flex-1 overflow-y-auto">
-            {activeTab === 'bookmarks' ? <BookmarksList /> : <HighlightsList />}
+            {bookmarks.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-full text-center p-4 text-muted-foreground">
+                <IconBookmark className="w-16 h-16 mb-4" />
+                <p className="font-semibold">Você ainda não salvou nenhum versículo.</p>
+                <p className="text-sm">Clique no ícone de marcador ao lado de um versículo.</p>
+                </div>
+            ) : (
+                <ul>
+                {bookmarks.sort((a,b) => a.book.localeCompare(b.book) || a.chapter - b.chapter || a.verse - b.verse).map((bm, index) => {
+                    const bookmarkId = `${bm.book}-${bm.chapter}-${bm.verse}`;
+                    const isEditing = editingBookmarkId === bookmarkId;
+
+                    return (
+                    <li key={index} className="border-b border-border p-4">
+                        <div onClick={() => !isEditing && onJumpToVerse(bm.book, bm.chapter)} className="cursor-pointer">
+                        <p className="font-semibold text-primary">{`${bm.book} ${bm.chapter}:${bm.verse}`}</p>
+                        <p className="text-foreground/90 mt-1">"{bm.text}"</p>
+                        </div>
+                        {isEditing ? (
+                        <div className="mt-2">
+                            <textarea value={noteText} onChange={(e) => setNoteText(e.target.value)} placeholder="Escreva sua anotação..." className="w-full p-2 border-input rounded-lg focus:ring-2 focus:ring-ring focus:outline-none bg-background" rows={3}/>
+                            <div className="flex justify-end space-x-2 mt-2">
+                                <button onClick={handleCancelEdit} className="px-3 py-1 rounded-md text-sm bg-secondary text-secondary-foreground hover:bg-muted">Cancelar</button>
+                                <button onClick={() => handleSaveNote(bm)} className="px-3 py-1 rounded-md text-sm bg-primary text-primary-foreground hover:bg-primary/90">Salvar</button>
+                            </div>
+                        </div>
+                        ) : (
+                        <div className="mt-2 flex items-start justify-between">
+                            {bm.note ? (
+                                <p className="text-sm text-muted-foreground italic bg-muted p-2 rounded-md flex-1 break-words">{bm.note}</p>
+                            ) : (<p className="text-sm text-muted-foreground italic">Sem anotações.</p>)}
+                            <button onClick={() => handleEditClick(bm)} className="p-1.5 ml-2 rounded-full text-muted-foreground hover:bg-accent flex-shrink-0"><IconPencil className="w-4 h-4" /></button>
+                        </div>
+                        )}
+                    </li>
+                    );
+                })}
+                </ul>
+            )}
           </div>
         </div>
       </div>

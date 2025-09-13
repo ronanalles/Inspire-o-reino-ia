@@ -1,11 +1,8 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
-import { Book, VerseType, ChapterCrossReferences, CrossReferenceItem, Highlight, Translation, ReadingSettings, SelectionState } from '../types';
+import { Book, VerseType, Translation, ReadingSettings, SelectionState } from '../types';
 import { Verse } from './Verse';
-import { CrossReferencePanel } from './CrossReferencePanel';
 import { IconChevronLeft, IconChevronRight, IconSpinner } from './IconComponents';
-import { ApiKeyErrorDisplay } from './ApiKeyErrorDisplay';
 import { getChapterText } from '../services/bibleService';
-import { getCrossReferences, MissingApiKeyError } from '../services/geminiService';
 import { books } from '../data/bibleData';
 
 interface ReadingViewProps {
@@ -16,9 +13,6 @@ interface ReadingViewProps {
   onNextChapter: () => void;
   toggleBookmark: (book: string, chapter: number, verse: number, text: string) => void;
   isBookmarked: (book: string, chapter: number, verse: number) => boolean;
-  onNavigateToVerse: (book: string, chapter: number) => void;
-  isCrossRefEnabled: boolean;
-  highlights: Highlight[];
   onSelectText: (selection: SelectionState | null) => void;
   readingSettings: ReadingSettings;
 }
@@ -31,18 +25,12 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
   onNextChapter, 
   toggleBookmark, 
   isBookmarked, 
-  onNavigateToVerse,
-  isCrossRefEnabled,
-  highlights,
   onSelectText,
   readingSettings
 }) => {
   const [verses, setVerses] = useState<VerseType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [crossReferences, setCrossReferences] = useState<ChapterCrossReferences | null>(null);
-  const [selectedCrossRef, setSelectedCrossRef] = useState<CrossReferenceItem | null>(null);
-  const [isApiKeyErrorForCrossRef, setIsApiKeyErrorForCrossRef] = useState(false);
   const viewRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -50,9 +38,6 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
       setIsLoading(true);
       setError(null);
       setVerses([]);
-      setCrossReferences(null);
-      setSelectedCrossRef(null);
-      setIsApiKeyErrorForCrossRef(false);
       onSelectText(null);
 
       if (viewRef.current) {
@@ -63,23 +48,6 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
         const data = await getChapterText(book.name, chapter, translation);
         if (data && data.verses) {
           setVerses(data.verses);
-          
-          if (isCrossRefEnabled) {
-            try {
-              const chapterText = data.verses.map(v => v.text).join(' ');
-              const crData = await getCrossReferences(chapterText);
-              setCrossReferences(crData);
-            } catch (crError) {
-              if (crError instanceof MissingApiKeyError) {
-                setIsApiKeyErrorForCrossRef(true);
-              }
-              console.error("Failed to load cross-references:", crError);
-              setCrossReferences(null);
-            }
-          } else {
-            setCrossReferences(null);
-          }
-
         } else {
           setError("Não foi possível carregar o texto deste capítulo. Verifique sua conexão ou tente outra tradução.");
         }
@@ -92,15 +60,7 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
     };
 
     fetchChapter();
-  }, [book, chapter, translation, isCrossRefEnabled, onSelectText]);
-  
-  const handleTermClick = (term: CrossReferenceItem) => {
-    setSelectedCrossRef(term);
-  };
-  
-  const chapterHighlights = useMemo(() => {
-    return highlights.filter(h => h.book === book.name && h.chapter === chapter);
-  }, [highlights, book.name, chapter]);
+  }, [book, chapter, translation, onSelectText]);
 
   const readingTextClasses = useMemo(() => {
     const fontSizeMap = { sm: 'text-base', base: 'text-lg', lg: 'text-xl', xl: 'text-2xl' };
@@ -111,7 +71,6 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
   }, [readingSettings]);
 
   const handleContainerMouseUp = () => {
-    // A slight delay to allow the verse's mouseup to fire first
     setTimeout(() => {
         const selection = window.getSelection();
         if (selection && selection.isCollapsed) {
@@ -123,7 +82,7 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
   return (
     <div ref={viewRef} className="px-4 md:px-0">
       <div className="max-w-4xl mx-auto" onMouseUp={handleContainerMouseUp}>
-        {isApiKeyErrorForCrossRef && <ApiKeyErrorDisplay context="Estudo Aprofundado" />}
+        {/* Placeholder for potential future top-level notices */}
       </div>
       <div className="max-w-4xl mx-auto bg-card rounded-lg p-6 md:p-8 min-h-[60vh] pb-24 md:pb-8">
         <h2 className="text-3xl font-bold mb-6 text-center text-foreground">{book.name} {chapter}</h2>
@@ -144,9 +103,6 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
                 text={verseData.text}
                 isBookmarked={isBookmarked(book.name, chapter, verseData.verse)}
                 onToggleBookmark={() => toggleBookmark(book.name, chapter, verseData.verse, verseData.text)}
-                crossReferences={crossReferences}
-                onTermClick={handleTermClick}
-                highlights={chapterHighlights.filter(h => h.verse === verseData.verse)}
                 onSelectText={onSelectText}
               />
             ))}
@@ -175,12 +131,6 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
           <IconChevronRight className="w-5 h-5 ml-2" />
         </button>
       </div>
-
-      <CrossReferencePanel 
-        item={selectedCrossRef}
-        onClose={() => setSelectedCrossRef(null)}
-        onNavigateToVerse={onNavigateToVerse}
-      />
     </div>
   );
 };

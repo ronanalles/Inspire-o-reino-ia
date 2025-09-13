@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { IconMenu, IconBookmark, IconSearch, IconSparkles, IconGlobe, IconHome, IconChevronDown, IconTypography, IconDotsVertical } from './IconComponents';
+import { IconMenu, IconBookmark, IconSearch, IconGlobe, IconHome, IconChevronDown, IconTypography, IconDotsVertical } from './IconComponents';
 import { Translation, ModalType } from '../types';
 import { translations } from '../data/translations';
 
@@ -11,9 +11,6 @@ interface HeaderProps {
   chapter: number;
   selectedTranslation: Translation;
   onTranslationChange: (translation: Translation) => void;
-  isCrossRefEnabled: boolean;
-  onToggleCrossRef: () => void;
-  showCrossRefTooltip: boolean;
 }
 
 export const Header: React.FC<HeaderProps> = ({ 
@@ -24,9 +21,6 @@ export const Header: React.FC<HeaderProps> = ({
     chapter, 
     selectedTranslation, 
     onTranslationChange,
-    isCrossRefEnabled,
-    onToggleCrossRef,
-    showCrossRefTooltip,
 }) => {
   const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
   const moreMenuRef = useRef<HTMLDivElement>(null);
@@ -90,22 +84,6 @@ export const Header: React.FC<HeaderProps> = ({
                             <IconGlobe className="w-5 h-5 mr-3" /> {trans.name}
                          </button>
                     ))}
-                    <div className="my-1 border-t border-border -mx-1"></div>
-                    <div className="w-full flex items-center justify-between px-3 py-2 text-sm text-popover-foreground">
-                        <label htmlFor="crossref-toggle" className="flex items-center cursor-pointer">
-                            <IconSparkles className={`w-5 h-5 mr-3 transition-colors ${isCrossRefEnabled ? 'text-primary' : ''}`} />
-                            Estudo Aprofundado
-                        </label>
-                        <div className="relative inline-block w-10 align-middle select-none">
-                            <input type="checkbox" id="crossref-toggle" checked={isCrossRefEnabled} onChange={onToggleCrossRef} className="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-2 appearance-none cursor-pointer checked:right-0 checked:border-primary checked:bg-primary" style={{ transition: 'right 0.2s ease-in' }} />
-                            <label htmlFor="crossref-toggle" className="toggle-label block overflow-hidden h-5 rounded-full bg-muted cursor-pointer"></label>
-                        </div>
-                    </div>
-                    {showCrossRefTooltip && (
-                      <div className="mt-1 w-full bg-primary/10 text-primary text-xs rounded-md p-2">
-                          <p>Ative para ver referências cruzadas!</p>
-                      </div>
-                    )}
                  </div>
             )}
         </div>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { searchVerses, MissingApiKeyError } from '../services/geminiService';
 import { SearchResult } from '../types';
 import { IconX, IconSpinner, IconSearch } from './IconComponents';
@@ -8,15 +8,31 @@ interface SearchModalProps {
   isOpen: boolean;
   onClose: () => void;
   onNavigateToVerse: (book: string, chapter: number) => void;
+  initialQuery?: string;
 }
 
-export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onNavigateToVerse }) => {
+export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onNavigateToVerse, initialQuery }) => {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
   const [isApiKeyError, setIsApiKeyError] = useState(false);
+  
+  useEffect(() => {
+    if (isOpen) {
+      if(initialQuery) {
+        setQuery(initialQuery);
+      }
+    } else {
+      // Reset state when modal closes
+      setQuery('');
+      setResults([]);
+      setHasSearched(false);
+      setError(null);
+      setIsApiKeyError(false);
+    }
+  }, [isOpen, initialQuery]);
 
   const handleSearch = async () => {
     if (!query.trim()) return;

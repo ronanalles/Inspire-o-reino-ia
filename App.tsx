@@ -8,18 +8,20 @@ import { SearchModal } from './components/SearchModal';
 import { QuickNavigationModal } from './components/QuickNavigationModal';
 import { BottomNavBar } from './components/BottomNavBar';
 import { ReadingSettingsPanel } from './components/ReadingSettingsPanel';
-import { SelectionToolbar } from './components/SelectionToolbar';
-import { HighlightToolbar } from './components/HighlightToolbar';
+import { SelectionActionPanel } from './components/SelectionActionPanel';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { books } from './data/bibleData';
 import { translations } from './data/translations';
-import { Bookmark, LastRead, Highlight, HighlightColor, Theme, Translation, ReadingSettings, ModalType, SelectionState } from './types';
+import { Bookmark, LastRead, Theme, Translation, ReadingSettings, ModalType, SelectionState } from './types';
 import { IconSpinner } from './components/IconComponents';
 
 const AiStudyBuddy = React.lazy(() => import('./components/AiStudyBuddy'));
 const BibleQuiz = React.lazy(() => import('./components/BibleQuiz'));
 const ThematicStudy = React.lazy(() => import('./components/ThematicStudy'));
 const ToolsScreen = React.lazy(() => import('./components/ToolsScreen'));
+const ExplainWithAiModal = React.lazy(() => import('./components/ExplainWithAiModal'));
+const CrossRefForTextModal = React.lazy(() => import('./components/CrossRefForTextModal'));
+
 
 const LoadingSpinner = () => (
     <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-[100]">
@@ -41,14 +43,11 @@ export default function App() {
   const [selectedBook, setSelectedBook] = useState(initialBook);
   const [selectedChapter, setSelectedChapter] = useState(initialChapter);
   const [bookmarks, setBookmarks] = useLocalStorage<Bookmark[]>('bible_bookmarks', []);
-  const [highlights, setHighlights] = useLocalStorage<Highlight[]>('bible_highlights', []);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const [activeModal, setActiveModal] = useState<ModalType | null>(null);
   const [selectionState, setSelectionState] = useState<SelectionState | null>(null);
-
-  const [isCrossRefEnabled, setIsCrossRefEnabled] = useLocalStorage<boolean>('bible_crossRefEnabled', false);
-  const [hasSeenCrossRefTooltip, setHasSeenCrossRefTooltip] = useLocalStorage<boolean>('bible_hasSeenCrossRefTooltip', false);
+  const [textForAction, setTextForAction] = useState<string>('');
 
   const [readingSettings, setReadingSettings] = useLocalStorage<ReadingSettings>('bible_readingSettings', {
     fontSize: 'base',
@@ -91,13 +90,7 @@ export default function App() {
   
   const handleCloseModals = () => {
     setActiveModal(null);
-  };
-
-  const handleToggleCrossRef = () => {
-    if (!isCrossRefEnabled && !hasSeenCrossRefTooltip) {
-      setHasSeenCrossRefTooltip(true);
-    }
-    setIsCrossRefEnabled(prev => !prev);
+    setTextForAction('');
   };
 
   const updateLastRead = (bookName: string, chapter: number) => {
@@ -169,35 +162,6 @@ export default function App() {
       ));
   }, [setBookmarks]);
 
-  const addHighlight = useCallback((book: string, chapter: number, verse: number, text: string, color: HighlightColor) => {
-    const newHighlight: Highlight = {
-      id: `${Date.now()}-${text.slice(0, 10)}`,
-      book,
-      chapter,
-      verse,
-      text,
-      color,
-    };
-    setHighlights(prev => [...prev, newHighlight]);
-    setSelectionState(null);
-  }, [setHighlights]);
-
-  const handleHighlight = useCallback((color: HighlightColor) => {
-    if (selectionState) {
-        addHighlight(
-            selectionState.verseInfo.book,
-            selectionState.verseInfo.chapter,
-            selectionState.verseInfo.verse,
-            selectionState.text,
-            color
-        );
-    }
-  }, [selectionState, addHighlight]);
-
-  const removeHighlight = useCallback((highlightId: string) => {
-    setHighlights(prev => prev.filter(h => h.id !== highlightId));
-  }, [setHighlights]);
-
   const isBookmarked = useMemo(() => {
     return (book: string, chapter: number, verse: number) => 
       bookmarks.some(bm => bm.book === book && bm.chapter === chapter && bm.verse === verse);
@@ -214,6 +178,12 @@ export default function App() {
   const handleStartReading = () => {
       setView('reading');
       handleSelectChapter(books[0].name, 1);
+  };
+
+  const handleAction = (modalType: ModalType, text: string) => {
+    setTextForAction(text);
+    setActiveModal(modalType);
+    setSelectionState(null);
   }
 
   const renderContent = () => {
@@ -247,9 +217,6 @@ export default function App() {
                 chapter={selectedChapter}
                 selectedTranslation={translation}
                 onTranslationChange={setTranslation}
-                isCrossRefEnabled={isCrossRefEnabled}
-                onToggleCrossRef={handleToggleCrossRef}
-                showCrossRefTooltip={!isCrossRefEnabled && !hasSeenCrossRefTooltip}
               />
               <main className="flex-1 overflow-y-auto">
                   <ReadingView
@@ -260,9 +227,6 @@ export default function App() {
                     onNextChapter={() => changeChapter(1)}
                     toggleBookmark={toggleBookmark}
                     isBookmarked={isBookmarked}
-                    onNavigateToVerse={handleSelectChapter}
-                    isCrossRefEnabled={isCrossRefEnabled}
-                    highlights={highlights}
                     onSelectText={setSelectionState}
                     readingSettings={readingSettings}
                   />
@@ -299,16 +263,15 @@ export default function App() {
         isOpen={activeModal === 'search'}
         onClose={handleCloseModals}
         onNavigateToVerse={handleSelectChapter}
+        initialQuery={textForAction}
       />
       
       <BookmarksPanel
         isOpen={activeModal === 'bookmarks'}
         onClose={handleCloseModals}
         bookmarks={bookmarks}
-        highlights={highlights}
         onJumpToVerse={(book, chapter) => handleSelectChapter(book, chapter)}
         onUpdateBookmarkNote={handleUpdateBookmarkNote}
-        onRemoveHighlight={removeHighlight}
       />
 
       <ReadingSettingsPanel
@@ -318,16 +281,12 @@ export default function App() {
         onSettingsChange={setReadingSettings}
       />
 
-      <SelectionToolbar
+      <SelectionActionPanel
         selection={selectionState}
-        onHighlight={handleHighlight}
         onClose={() => setSelectionState(null)}
-      />
-
-      <HighlightToolbar
-        selection={selectionState}
-        onHighlight={handleHighlight}
-        onClose={() => setSelectionState(null)}
+        onExplain={(text) => handleAction('explainWithAi', text)}
+        onCrossRef={(text) => handleAction('crossRefForText', text)}
+        onSearch={(text) => handleAction('search', text)}
       />
       
       <Suspense fallback={<LoadingSpinner />}>
@@ -346,6 +305,19 @@ export default function App() {
           isOpen={activeModal === 'thematic'}
           onClose={handleCloseModals}
           onNavigateToVerse={handleSelectChapter}
+        />}
+
+        {activeModal === 'explainWithAi' && <ExplainWithAiModal
+          isOpen={activeModal === 'explainWithAi'}
+          onClose={handleCloseModals}
+          textToExplain={textForAction}
+        />}
+
+        {activeModal === 'crossRefForText' && <CrossRefForTextModal
+          isOpen={activeModal === 'crossRefForText'}
+          onClose={handleCloseModals}
+          textForCrossRef={textForAction}
+          onNavigateToVerse={(book, chapter) => handleSelectChapter(book, chapter)}
         />}
       </Suspense>
     </div>

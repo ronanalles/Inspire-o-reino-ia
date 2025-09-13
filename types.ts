@@ -37,17 +37,6 @@ export interface Bookmark {
   note?: string;
 }
 
-export type HighlightColor = 'yellow' | 'green' | 'blue' | 'pink';
-
-export interface Highlight {
-  id: string;
-  book: string;
-  chapter: number;
-  verse: number;
-  text: string;
-  color: HighlightColor;
-}
-
 export interface ChatMessage {
     sender: 'user' | 'ai';
     text: string;
@@ -92,6 +81,15 @@ export interface SearchResult {
   text: string;
 }
 
+export interface CrossReferenceResult {
+  reference: string;
+  text: string;
+  book: string;
+  chapter: number;
+  verse: number;
+}
+
+// FIX: Add missing CrossReferenceItem type used by CrossReferencePanel.
 export interface CrossReferenceItem {
   term: string;
   explanation: string;
@@ -106,11 +104,9 @@ export interface CrossReferenceItem {
   }[];
 }
 
-export type ChapterCrossReferences = CrossReferenceItem[];
-
 export type Theme = 'light' | 'dark';
 
-export type ModalType = 'search' | 'nav' | 'quiz' | 'thematic' | 'settings' | 'bookmarks' | 'aiBuddy';
+export type ModalType = 'search' | 'nav' | 'quiz' | 'thematic' | 'settings' | 'bookmarks' | 'aiBuddy' | 'explainWithAi' | 'crossRefForText';
 
 export interface SelectionState {
   text: string;
@@ -121,6 +117,9 @@ export interface SelectionState {
   };
   rect?: DOMRect;
 }
+
+// FIX: Add missing HighlightColor type used by HighlightPopover and SelectionToolbar.
+export type HighlightColor = 'yellow' | 'green' | 'blue' | 'pink';
 
 export type FontSize = 'sm' | 'base' | 'lg' | 'xl';
 export type LineHeight = 'tight' | 'normal' | 'loose';
