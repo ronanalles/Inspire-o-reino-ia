@@ -65,7 +65,7 @@ const SidebarComponent: React.FC<SidebarProps> = ({ isOpen, selectedBookName, se
             <div className="flex items-center justify-between p-4 border-b border-border">
                 <h2 className="text-2xl font-bold">Livros</h2>
                 <button onClick={onClose} className="md:hidden p-2 rounded-full hover:bg-accent">
-                    <IconX className="w-6 h-6"/>
+                    <IconX className="w-5 h-5 flex-shrink-0"/>
                 </button>
             </div>
             <div className="flex-1 overflow-y-auto">
@@ -80,7 +80,7 @@ const SidebarComponent: React.FC<SidebarProps> = ({ isOpen, selectedBookName, se
             </div>
              <div className="p-2 border-t border-border">
                 <button onClick={onToggleTheme} className="w-full flex items-center justify-center p-3 text-sm rounded-lg hover:bg-accent text-muted-foreground">
-                    {theme === 'dark' ? <IconSun className="w-5 h-5 mr-3" /> : <IconMoon className="w-5 h-5 mr-3" />}
+                    {theme === 'dark' ? <IconSun className="w-5 h-5 mr-3 flex-shrink-0" /> : <IconMoon className="w-5 h-5 mr-3 flex-shrink-0" />}
                     Mudar para tema {theme === 'dark' ? 'Claro' : 'Escuro'}
                 </button>
             </div>

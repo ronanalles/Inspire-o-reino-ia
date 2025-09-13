@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Bookmark } from '../types';
 import { IconBookmark, IconX, IconPencil } from './IconComponents';
@@ -91,7 +92,7 @@ export const BookmarksPanel: React.FC<BookmarksPanelProps> = ({
                             {bm.note ? (
                                 <p className="text-sm text-muted-foreground italic bg-muted p-2 rounded-md flex-1 break-words">{bm.note}</p>
                             ) : (<p className="text-sm text-muted-foreground italic">Sem anotações.</p>)}
-                            <button onClick={() => handleEditClick(bm)} className="p-1.5 ml-2 rounded-full text-muted-foreground hover:bg-accent flex-shrink-0"><IconPencil className="w-4 h-4" /></button>
+                            <button onClick={() => handleEditClick(bm)} className="p-1.5 ml-2 rounded-full text-muted-foreground hover:bg-accent flex-shrink-0"><IconPencil className="w-4 h-4 flex-shrink-0" /></button>
                         </div>
                         )}
                     </li>

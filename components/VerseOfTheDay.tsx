@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { getVerseOfTheDay, MissingApiKeyError } from '../services/geminiService';
 import { VerseOfTheDay as VerseOfTheDayType, StoredVerseOfTheDay } from '../types';
@@ -70,7 +71,7 @@ export const VerseOfTheDay: React.FC = () => {
           className="p-2 rounded-full text-muted-foreground hover:bg-accent disabled:opacity-50 disabled:cursor-wait transition-colors"
           aria-label="Gerar novo versículo"
         >
-          <IconRefresh className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} />
+          <IconRefresh className={`w-5 h-5 flex-shrink-0 ${isLoading ? 'animate-spin' : ''}`} />
         </button>
       </div>
       

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { IconKey } from './IconComponents';
 
@@ -9,7 +10,7 @@ export const ApiKeyErrorDisplay: React.FC<ApiKeyErrorDisplayProps> = ({ context 
   <div className="p-4 border-l-4 border-destructive bg-destructive/10 rounded-r-lg my-4">
     <div className="flex">
       <div className="flex-shrink-0">
-        <IconKey className="h-6 w-6 text-destructive" aria-hidden="true" />
+        <IconKey className="h-5 w-5 text-destructive flex-shrink-0" aria-hidden="true" />
       </div>
       <div className="ml-3">
         <h3 className="text-md font-bold text-destructive">
