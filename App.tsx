@@ -13,12 +13,11 @@ import { StudyPanel } from './components/SelectionActionPanel';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { books } from './data/bibleData';
 import { translations } from './data/translations';
-import { Bookmark, LastRead, Theme, Translation, ReadingSettings, ModalType, StudyVerseState, BeforeInstallPromptEvent, NavAction } from './types';
+import { Bookmark, LastRead, Theme, Translation, ReadingSettings, ModalType, StudyVerseState, BeforeInstallPromptEvent, NavAction, ActiveVerse } from './types';
 import { IconSpinner } from './components/IconComponents';
 
 const ThematicStudy = React.lazy(() => import('./components/ThematicStudy'));
 const BibleQuiz = React.lazy(() => import('./components/BibleQuiz'));
-const ToolsModal = React.lazy(() => import('./components/ToolsScreen'));
 
 
 const LoadingSpinner = () => (
@@ -45,6 +44,8 @@ export default function App() {
 
   const [activeModal, setActiveModal] = useState<ModalType | null>(null);
   const [studyVerse, setStudyVerse] = useState<StudyVerseState | null>(null);
+  const [activeVerse, setActiveVerse] = useState<ActiveVerse | null>(null);
+
   const [initialThematicStudyTheme, setInitialThematicStudyTheme] = useState<string | undefined>(undefined);
 
 
@@ -106,6 +107,11 @@ export default function App() {
     setActiveModal(null);
     if(initialThematicStudyTheme) setInitialThematicStudyTheme(undefined);
   };
+  
+  const handleCloseStudyPanel = () => {
+    setStudyVerse(null);
+    setActiveVerse(null);
+  }
 
   const updateLastRead = (bookName: string, chapter: number) => {
     setLastRead({ bookName, chapter });
@@ -199,6 +205,7 @@ export default function App() {
   
   const handleVerseClick = useCallback((verseInfo: StudyVerseState) => {
     setStudyVerse(verseInfo);
+    setActiveVerse({ book: verseInfo.book, chapter: verseInfo.chapter, verse: verseInfo.verse });
   }, []);
   
   const handleInstallClick = () => {
@@ -241,10 +248,24 @@ export default function App() {
     setActiveModal('thematic');
   }
 
+  const handleOpenQuiz = () => {
+    setActiveModal('quiz');
+  }
+
   const renderContent = () => {
     switch(view) {
       case 'home':
-        return <HomeScreen onContinueReading={handleContinueReading} onStartReading={handleStartReading} lastRead={lastRead} theme={theme} onToggleTheme={handleToggleTheme} canInstall={!!installPrompt} onInstallClick={handleInstallClick} onThematicSearch={handleThematicSearch} />;
+        return <HomeScreen 
+            onContinueReading={handleContinueReading} 
+            onStartReading={handleStartReading} 
+            lastRead={lastRead} 
+            theme={theme} 
+            onToggleTheme={handleToggleTheme} 
+            canInstall={!!installPrompt} 
+            onInstallClick={handleInstallClick} 
+            onThematicSearch={handleThematicSearch}
+            onQuizClick={handleOpenQuiz}
+        />;
       case 'reading':
         return (
           <div className="flex h-full bg-background text-foreground">
@@ -277,6 +298,7 @@ export default function App() {
                     isBookmarked={isBookmarked}
                     readingSettings={readingSettings}
                     onVerseClick={handleVerseClick}
+                    activeVerse={activeVerse}
                   />
               </main>
             </div>
@@ -293,7 +315,7 @@ export default function App() {
         {renderContent()}
       </div>
       
-      {view !== 'home' && <BottomNavBar onNavigate={handleBottomNav} />}
+      {view !== 'home' && <BottomNavBar onNavigate={handleBottomNav} activeView={view === 'reading' ? 'reading' : null} />}
       
       <QuickNavigationModal
         isOpen={activeModal === 'nav'}
@@ -326,7 +348,7 @@ export default function App() {
 
       {studyVerse && <StudyPanel
         studyVerse={studyVerse}
-        onClose={() => setStudyVerse(null)}
+        onClose={handleCloseStudyPanel}
         onNavigateToVerse={handleSelectChapter}
         isBookmarked={isBookmarked(studyVerse.book, studyVerse.chapter, studyVerse.verse)}
         onToggleBookmark={() => toggleBookmark(studyVerse.book, studyVerse.chapter, studyVerse.verse, studyVerse.text)}
@@ -339,10 +361,9 @@ export default function App() {
             onNavigateToVerse={handleSelectChapter}
             initialTheme={initialThematicStudyTheme}
         />}
-        {activeModal === 'tools' && <ToolsModal 
-            isOpen={activeModal === 'tools'} 
+         {activeModal === 'quiz' && <BibleQuiz 
+            isOpen={activeModal === 'quiz'} 
             onClose={handleCloseModals} 
-            onNavigateToVerse={handleSelectChapter} 
         />}
       </Suspense>
     </div>

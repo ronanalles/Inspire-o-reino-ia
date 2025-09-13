@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { getThematicStudy, MissingApiKeyError } from '../services/geminiService';
 import { ThematicStudyResult } from '../types';
-import { IconX, IconSpinner, IconSparkles } from './IconComponents';
+import { IconX, IconSpinner, IconStudy } from './IconComponents';
 import { ApiKeyErrorDisplay } from './ApiKeyErrorDisplay';
 
 interface ThematicStudyProps {
@@ -62,6 +62,7 @@ const ThematicStudy: React.FC<ThematicStudyProps> = ({ isOpen, onClose, onNaviga
       setTheme(initialTheme);
       handleSearch();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, initialTheme]);
   
   const handleClose = () => {
@@ -79,7 +80,7 @@ const ThematicStudy: React.FC<ThematicStudyProps> = ({ isOpen, onClose, onNaviga
       <div className={`bg-card text-card-foreground rounded-none md:rounded-xl shadow-[var(--shadow-xl)] w-full h-full md:w-full md:max-w-2xl md:h-auto md:max-h-[90vh] flex flex-col transform transition-all duration-300 ease-in-out border-none md:border border-border ${animationClass.modal}`}>
         <div className="flex items-center justify-between p-4 border-b border-border flex-shrink-0">
           <h2 className="text-xl font-bold flex items-center">
-            <IconSparkles className="mr-2 text-emerald-500" />
+            <IconStudy className="mr-2 text-primary" />
             Estudo Temático com IA
           </h2>
           <button onClick={handleClose} className="p-2 rounded-full hover:bg-accent text-muted-foreground">
@@ -97,7 +98,7 @@ const ThematicStudy: React.FC<ThematicStudyProps> = ({ isOpen, onClose, onNaviga
                     className="flex-1 p-2 border border-input rounded-lg focus:ring-2 focus:ring-ring focus:outline-none bg-background"
                     disabled={isLoading}
                 />
-                <button type="submit" disabled={isLoading || !theme.trim()} className="px-4 py-2 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                <button type="submit" disabled={isLoading || !theme.trim()} className="px-4 py-2 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                     {isLoading ? <IconSpinner className="w-5 h-5 animate-spin" /> : 'Gerar'}
                 </button>
             </form>
@@ -113,7 +114,7 @@ const ThematicStudy: React.FC<ThematicStudyProps> = ({ isOpen, onClose, onNaviga
           ) : null}
           {isLoading && (
             <div className="flex justify-center items-center h-full">
-                <IconSpinner className="w-12 h-12 animate-spin text-emerald-500" />
+                <IconSpinner className="w-12 h-12 animate-spin text-primary" />
             </div>
           )}
           {error && <p className="text-center text-destructive">{error}</p>}

@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { VerseOfTheDay } from './VerseOfTheDay';
-import { IconAppLogo, IconBookOpen, IconSun, IconMoon, IconDownload, IconSparkles } from './IconComponents';
+import { IconAppLogo, IconBookOpen, IconSun, IconMoon, IconDownload, IconStudy, IconBrain } from './IconComponents';
 import { LastRead, Theme } from '../types';
 
 interface HomeScreenProps {
@@ -13,6 +13,7 @@ interface HomeScreenProps {
   canInstall: boolean;
   onInstallClick: () => void;
   onThematicSearch: (theme: string) => void;
+  onQuizClick: () => void;
 }
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({ 
@@ -23,7 +24,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   onToggleTheme, 
   canInstall, 
   onInstallClick,
-  onThematicSearch
+  onThematicSearch,
+  onQuizClick
 }) => {
   const [thematicQuery, setThematicQuery] = useState('');
 
@@ -59,7 +61,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         <p className="text-lg text-muted-foreground mt-2">Seu companheiro diário de estudo da Palavra.</p>
       </header>
 
-      <main className="flex-grow flex flex-col items-center justify-center w-full max-w-sm mx-auto space-y-8">
+      <main className="flex-grow flex flex-col items-center justify-center w-full max-w-sm mx-auto space-y-6 py-8">
         <div className="w-full flex flex-col items-center space-y-4">
             <button 
                 onClick={onStartReading}
@@ -77,31 +79,44 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                     Continuar lendo: {lastRead.bookName} {lastRead.chapter}
                 </button>
             )}
+        </div>
+        
+        <div className="w-full">
+            <form onSubmit={handleSearchSubmit} className="relative">
+                 <label htmlFor="thematic-search" className="text-sm font-semibold text-muted-foreground ml-1 mb-2 block">Estudo Rápido</label>
+                <div className="relative">
+                    <input
+                        id="thematic-search"
+                        type="text"
+                        value={thematicQuery}
+                        onChange={(e) => setThematicQuery(e.target.value)}
+                        placeholder="Pesquise um tema (ex: Fé, Amor)"
+                        className="w-full pl-4 pr-12 py-4 border border-border rounded-xl bg-card/80 focus:ring-2 focus:ring-primary focus:outline-none transition-shadow"
+                    />
+                    <button type="submit" className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50" disabled={!thematicQuery.trim()}>
+                        <IconStudy className="w-5 h-5" />
+                    </button>
+                </div>
+            </form>
+        </div>
 
+        <div className="w-full grid grid-cols-2 gap-4">
+             <button 
+                onClick={onQuizClick}
+                className="group flex items-center justify-center w-full p-4 bg-secondary text-secondary-foreground rounded-xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 ease-in-out border border-border"
+            >
+                <IconBrain className="w-5 h-5 mr-3" />
+                <span className="font-semibold text-base">Quiz Bíblico</span>
+            </button>
             {canInstall && (
               <button 
                   onClick={onInstallClick}
-                  className="group flex items-center justify-center w-full p-4 mt-2 bg-secondary text-secondary-foreground rounded-xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 ease-in-out border border-border"
+                  className="group flex items-center justify-center w-full p-4 bg-secondary text-secondary-foreground rounded-xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 ease-in-out border border-border"
               >
                   <IconDownload className="w-5 h-5 mr-3" />
                   <span className="font-semibold text-base">Instalar App</span>
               </button>
             )}
-        </div>
-        
-        <div className="w-full">
-            <form onSubmit={handleSearchSubmit} className="relative">
-                <input
-                    type="text"
-                    value={thematicQuery}
-                    onChange={(e) => setThematicQuery(e.target.value)}
-                    placeholder="Estudo temático rápido (ex: Fé, Amor)"
-                    className="w-full pl-4 pr-12 py-4 border border-border rounded-xl bg-card/80 focus:ring-2 focus:ring-primary focus:outline-none transition-shadow"
-                />
-                <button type="submit" className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50" disabled={!thematicQuery.trim()}>
-                    <IconSparkles className="w-5 h-5" />
-                </button>
-            </form>
         </div>
       </main>
       

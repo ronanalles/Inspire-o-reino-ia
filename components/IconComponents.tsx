@@ -1,5 +1,4 @@
 
-
 import React from 'react';
 
 export const IconMenu: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
@@ -66,11 +65,12 @@ export const IconBookOpen: React.FC<React.SVGProps<SVGSVGElement>> = (props) => 
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
 );
 
-export const IconSparkles: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+export const IconStudy: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-        <path d="m12 3-1.45 4.1-4.1 1.45 4.1 1.45 1.45 4.1 1.45-4.1 4.1-1.45-4.1-1.45z"/>
-        <path d="M5 11.5 3.5 13l-1.5-1.5 1.5-1.5z"/>
-        <path d="M19 11.5 17.5 13l-1.5-1.5 1.5-1.5z"/>
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+        <circle cx="14" cy="8" r="2"/>
+        <path d="m16 10 2 2"/>
     </svg>
 );
 
@@ -128,4 +128,13 @@ export const IconCheck: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
 
 export const IconDownload: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+);
+
+// This icon is deprecated and will be removed. Use IconStudy instead.
+export const IconSparkles: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+        <path d="m12 3-1.45 4.1-4.1 1.45 4.1 1.45 1.45 4.1 1.45-4.1 4.1-1.45-4.1-1.45z"/>
+        <path d="M5 11.5 3.5 13l-1.5-1.5 1.5-1.5z"/>
+        <path d="M19 11.5 17.5 13l-1.5-1.5 1.5-1.5z"/>
+    </svg>
 );

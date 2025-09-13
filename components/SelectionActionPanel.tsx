@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { StudyVerseState, CrossReferenceResult } from '../types';
-import { IconX, IconSpinner, IconBrain, IconSparkles, IconBookmark, IconCopy, IconCheck, IconChevronLeft, IconBookmarkSolid } from './IconComponents';
+import { IconX, IconSpinner, IconBrain, IconLink, IconBookmark, IconCopy, IconCheck, IconChevronLeft, IconBookmarkSolid } from './IconComponents';
 import { ApiKeyErrorDisplay } from './ApiKeyErrorDisplay';
 import { explainText, findCrossReferencesForText, MissingApiKeyError } from '../services/geminiService';
 
@@ -21,34 +21,37 @@ export const StudyPanel: React.FC<StudyPanelProps> = ({ studyVerse, onClose, onN
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isCopied, setIsCopied] = useState(false);
-  const [selectedSubText, setSelectedSubText] = useState<string>('');
-
+  const [editableText, setEditableText] = useState('');
+  
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
-  const verseTextRef = useRef<HTMLParagraphElement>(null);
   const isOpen = studyVerse !== null;
 
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && studyVerse) {
       setView('actions');
       setContent(null);
       setError(null);
       setIsLoading(false);
       setIsCopied(false);
-      setSelectedSubText('');
+      setEditableText(studyVerse.text);
     }
   }, [isOpen, studyVerse]);
 
-  const handleTextSelection = () => {
-    const selection = window.getSelection();
-    if (selection && verseTextRef.current?.contains(selection.anchorNode)) {
-      setSelectedSubText(selection.toString().trim());
+  useEffect(() => {
+    // Auto-resize textarea height based on content
+    if (textareaRef.current) {
+        textareaRef.current.style.height = 'auto';
+        textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
     }
-  };
+  }, [editableText, view]);
 
   const handleAction = async (action: 'explain' | 'crossRef') => {
     if (!studyVerse) return;
 
-    const textToAnalyze = selectedSubText || studyVerse.text;
+    const textToAnalyze = editableText.trim();
+    if (!textToAnalyze) return;
+
 
     setView(action);
     setIsLoading(true);
@@ -79,11 +82,9 @@ export const StudyPanel: React.FC<StudyPanelProps> = ({ studyVerse, onClose, onN
   
   const handleCopy = () => {
     if (!studyVerse) return;
-    const textToCopy = selectedSubText || studyVerse.text;
-    const reference = selectedSubText 
-      ? `(${studyVerse.book} ${studyVerse.chapter}:${studyVerse.verse})` 
-      : `"${studyVerse.text}" (${studyVerse.book} ${studyVerse.chapter}:${studyVerse.verse})`;
-    navigator.clipboard.writeText(selectedSubText ? textToCopy : reference);
+    const textToCopy = editableText;
+    const reference = `"${textToCopy}" (${studyVerse.book} ${studyVerse.chapter}:${studyVerse.verse})`;
+    navigator.clipboard.writeText(reference);
     setIsCopied(true);
     setTimeout(() => setIsCopied(false), 2000);
   }
@@ -127,33 +128,35 @@ export const StudyPanel: React.FC<StudyPanelProps> = ({ studyVerse, onClose, onN
         <div 
             ref={panelRef}
             onClick={(e) => e.stopPropagation()}
-            style={{ transform: panelTransform, height: panelHeight }}
-            className="fixed bottom-0 inset-x-0 bg-card border-t border-border rounded-t-2xl shadow-[0_-5px_20px_rgba(0,0,0,0.15)] dark:shadow-[0_-5px_20px_rgba(0,0,0,0.4)] flex flex-col transition-all duration-300 ease-in-out"
+            style={{ transform: panelTransform, maxHeight: '90vh' }}
+            className="fixed bottom-0 inset-x-0 bg-card border-t border-border rounded-t-2xl shadow-[0_-5px_20px_rgba(0,0,0,0.15)] dark:shadow-[0_-5px_20px_rgba(0,0,0,0.4)] flex flex-col transition-transform duration-300 ease-in-out"
         >
-            <div className="flex items-center p-2 flex-shrink-0 border-b border-border">
+            <div className="flex items-center justify-center p-2 flex-shrink-0 border-b border-border relative">
                 {view !== 'actions' && (
-                    <button onClick={() => { setView('actions'); setSelectedSubText(''); }} className="absolute left-2 p-2 rounded-full hover:bg-accent text-muted-foreground"><IconChevronLeft className="w-5 h-5" /></button>
+                    <button onClick={() => { setView('actions'); }} className="absolute left-2 p-2 rounded-full hover:bg-accent text-muted-foreground"><IconChevronLeft className="w-5 h-5" /></button>
                 )}
-                 <div className="flex-1 flex justify-center">
-                    <div className="w-10 h-1.5 bg-border rounded-full" />
-                </div>
+                <div className="w-10 h-1.5 bg-border rounded-full cursor-grab" />
                 <button onClick={onClose} className="absolute right-2 p-2 rounded-full hover:bg-accent text-muted-foreground"><IconX className="w-5 h-5" /></button>
             </div>
             
             {view === 'actions' ? (
                  <div className="p-4">
                     <p className="font-bold text-lg text-center mb-2">{studyVerse?.book} {studyVerse?.chapter}:{studyVerse?.verse}</p>
-                    <div className="bg-muted p-3 rounded-lg mb-4" onMouseUp={handleTextSelection} onTouchEnd={handleTextSelection}>
-                      <p ref={verseTextRef} className="text-muted-foreground">{studyVerse?.text}</p>
+                    <div className="bg-muted p-2 rounded-lg mb-2">
+                      <textarea
+                        ref={textareaRef}
+                        value={editableText}
+                        onChange={(e) => setEditableText(e.target.value)}
+                        className="w-full bg-transparent text-foreground/90 resize-none focus:outline-none focus:ring-0 border-none p-0 m-0 leading-relaxed"
+                        rows={2}
+                      />
                     </div>
-                    {selectedSubText && (
-                      <div className="text-center text-sm text-primary mb-3 p-2 bg-primary/10 rounded-lg border border-primary/20">
-                        Texto selecionado: <span className="font-semibold">"{selectedSubText}"</span>
-                      </div>
-                    )}
+                    <p className="text-center text-xs text-muted-foreground mb-4">
+                        Edite o texto acima para refinar a análise da IA.
+                    </p>
                      <div className="grid grid-cols-4 gap-2 text-center">
                          <ActionButton icon={IconBrain} label="Explicar" onClick={() => handleAction('explain')} />
-                         <ActionButton icon={IconSparkles} label="Referências" onClick={() => handleAction('crossRef')} />
+                         <ActionButton icon={IconLink} label="Referências" onClick={() => handleAction('crossRef')} />
                          <ActionButton icon={isBookmarked ? IconBookmarkSolid : IconBookmark} label={isBookmarked ? "Salvo" : "Salvar"} onClick={onToggleBookmark} className={isBookmarked ? 'text-primary' : ''}/>
                          <ActionButton icon={isCopied ? IconCheck : IconCopy} label={isCopied ? "Copiado" : "Copiar"} onClick={handleCopy} className={isCopied ? 'text-green-500' : ''}/>
                      </div>

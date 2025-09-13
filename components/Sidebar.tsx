@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { books } from '../data/bibleData';
 import { IconX, IconSun, IconMoon } from './IconComponents';
 import { Theme } from '../types';
@@ -16,6 +17,13 @@ interface SidebarProps {
 const SidebarComponent: React.FC<SidebarProps> = ({ isOpen, selectedBookName, selectedChapter, onSelectChapter, onClose, theme, onToggleTheme }) => {
   const [expandedBook, setExpandedBook] = useState<string | null>(selectedBookName);
 
+  useEffect(() => {
+    // Keep the selected book expanded when the component updates
+    if (selectedBookName && expandedBook !== selectedBookName) {
+      setExpandedBook(selectedBookName);
+    }
+  }, [selectedBookName, expandedBook]);
+
   const oldTestamentBooks = books.filter(b => b.testament === 'old');
   const newTestamentBooks = books.filter(b => b.testament === 'new');
 
@@ -28,12 +36,12 @@ const SidebarComponent: React.FC<SidebarProps> = ({ isOpen, selectedBookName, se
         {book.name}
       </button>
       {expandedBook === book.name && (
-        <div className="grid grid-cols-5 gap-2 p-3 bg-background">
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(3rem,1fr))] gap-2 p-3 bg-background">
           {Array.from({ length: book.chapters }, (_, i) => i + 1).map((chapter) => (
             <button
               key={chapter}
               onClick={() => onSelectChapter(book.name, chapter)}
-              className={`flex items-center justify-center w-12 h-12 rounded-full transition-colors text-base ${
+              className={`flex items-center justify-center aspect-square rounded-full transition-colors text-base ${
                 selectedBookName === book.name && selectedChapter === chapter
                   ? 'bg-primary text-primary-foreground font-bold'
                   : 'hover:bg-accent'

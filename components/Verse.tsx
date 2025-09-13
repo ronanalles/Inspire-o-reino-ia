@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { StudyVerseState } from '../types';
 
 interface VerseProps {
@@ -9,6 +9,7 @@ interface VerseProps {
   text: string;
   isBookmarked: boolean;
   onClick: (verseInfo: StudyVerseState) => void;
+  isActive: boolean;
 }
 
 const VerseComponent: React.FC<VerseProps> = ({ 
@@ -18,14 +19,11 @@ const VerseComponent: React.FC<VerseProps> = ({
   text, 
   isBookmarked,
   onClick,
+  isActive
 }) => {
-  const [isActive, setIsActive] = useState(false);
 
   const handleClick = () => {
     onClick({ book, chapter, verse: verseNumber, text });
-    setIsActive(true);
-    // De-activate after a short delay to allow panel to open smoothly
-    setTimeout(() => setIsActive(false), 300);
   };
 
   return (

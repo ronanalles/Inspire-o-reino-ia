@@ -1,6 +1,6 @@
 
 import React, { useEffect, useRef, useState, useMemo } from 'react';
-import { Book, VerseType, Translation, ReadingSettings, StudyVerseState } from '../types';
+import { Book, VerseType, Translation, ReadingSettings, StudyVerseState, ActiveVerse } from '../types';
 import { Verse } from './Verse';
 import { IconChevronLeft, IconChevronRight, IconSpinner } from './IconComponents';
 import { getChapterText } from '../services/bibleService';
@@ -15,6 +15,7 @@ interface ReadingViewProps {
   isBookmarked: (book: string, chapter: number, verse: number) => boolean;
   onVerseClick: (verseInfo: StudyVerseState) => void;
   readingSettings: ReadingSettings;
+  activeVerse: ActiveVerse | null;
 }
 
 export const ReadingView: React.FC<ReadingViewProps> = ({ 
@@ -25,7 +26,8 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
   onNextChapter, 
   isBookmarked, 
   onVerseClick,
-  readingSettings
+  readingSettings,
+  activeVerse
 }) => {
   const [verses, setVerses] = useState<VerseType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -92,6 +94,7 @@ export const ReadingView: React.FC<ReadingViewProps> = ({
                 text={verseData.text}
                 isBookmarked={isBookmarked(book.name, chapter, verseData.verse)}
                 onClick={onVerseClick}
+                isActive={activeVerse?.book === book.name && activeVerse?.chapter === chapter && activeVerse?.verse === verseData.verse}
               />
             ))}
             {verses.length === 0 && !isLoading && (

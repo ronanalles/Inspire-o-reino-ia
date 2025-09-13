@@ -1,6 +1,6 @@
-
 import React, { useState, useRef, useEffect } from 'react';
-import { IconMenu, IconBookmark, IconSearch, IconGlobe, IconHome, IconChevronDown, IconTypography, IconDotsVertical, IconSparkles } from './IconComponents';
+// FIX: Replaced deprecated IconSparkles with IconStudy for consistency and to address deprecation comment.
+import { IconMenu, IconBookmark, IconSearch, IconGlobe, IconHome, IconChevronDown, IconTypography, IconDotsVertical, IconStudy } from './IconComponents';
 import { Translation, ModalType } from '../types';
 import { translations } from '../data/translations';
 
@@ -71,8 +71,9 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
             {isMoreMenuOpen && (
                  <div className="absolute right-0 mt-2 w-64 bg-popover rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-30 border border-border p-1">
-                    <button onClick={() => { onOpenModal('tools'); setIsMoreMenuOpen(false); }} className="w-full text-left flex items-center px-3 py-2 text-sm text-popover-foreground hover:bg-accent rounded-md">
-                        <IconSparkles className="w-5 h-5 mr-3" /> Ferramentas de Estudo
+                    {/* FIX: Changed onOpenModal argument from 'tools' to 'thematic' to match a valid ModalType. Updated icon and text for clarity. */}
+                    <button onClick={() => { onOpenModal('thematic'); setIsMoreMenuOpen(false); }} className="w-full text-left flex items-center px-3 py-2 text-sm text-popover-foreground hover:bg-accent rounded-md">
+                        <IconStudy className="w-5 h-5 mr-3" /> Estudo Temático
                     </button>
                     <button onClick={() => { onOpenModal('settings'); setIsMoreMenuOpen(false); }} className="w-full text-left flex items-center px-3 py-2 text-sm text-popover-foreground hover:bg-accent rounded-md">
                       <IconTypography className="w-5 h-5 mr-3" /> Opções de Leitura

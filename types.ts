@@ -87,7 +87,7 @@ export interface CrossReferenceResult {
 
 export type Theme = 'light' | 'dark';
 
-export type ModalType = 'search' | 'nav' | 'settings' | 'bookmarks' | 'tools' | 'quiz' | 'thematic';
+export type ModalType = 'search' | 'nav' | 'settings' | 'bookmarks' | 'quiz' | 'thematic';
 
 export interface StudyVerseState {
   book: string;
@@ -96,8 +96,13 @@ export interface StudyVerseState {
   text: string;
 }
 
+export interface ActiveVerse {
+  book: string;
+  chapter: number;
+  verse: number;
+}
+
 export type FontSize = 'sm' | 'base' | 'lg' | 'xl';
-// FIX: Added 'tight' to LineHeight to support more spacing options and resolve the type error in ReadingSettingsPanel.
 export type LineHeight = 'tight' | 'normal' | 'loose';
 export type FontFamily = 'sans' | 'serif';
 
